@@ -1,0 +1,88 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Banque : Comptes bancaires</h1>	
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="col-md-12">
+			{% include 'compta/journal_banque/compta_banque_submenu.html.twig' %}
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="col-md-12">
+		    <p>
+		    	<a href="{{ path('compta_compte_bancaire_ajouter') }}" class="btn btn-success">
+		    		<span class="glyphicon glyphicon-plus"></span> Ajouter
+		    	</a>
+	
+		    </p>
+	    </div>
+    </div>
+	
+	<div class="row">
+		<div class="col-md-12">
+			<table id="table_comptes_bancaires" class="table table-bordered table-striped">
+				<thead>
+					<tr>
+						<th>Nom</th>
+						<th>Solde</th>
+						<th>Compte comptable</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% for compteBancaire in arr_comptesBancaires %}
+					<tr>
+						<td><a href="{{ path('compta_compte_bancaire_voir', {'id' : compteBancaire.id}) }}">{{ compteBancaire.nom }}</a></td>
+						<td>{{ arr_soldes[compteBancaire.id]|number_format(2,',',' ') }} €</td>
+						<td>{{ compteBancaire.compteComptable }}</td>
+						<td>
+							<a class="btn btn-xs btn-info" href="{{ path('compta_compte_bancaire_voir', {'id' : compteBancaire.id}) }}"><span class="glyphicon glyphicon-eye-open"></span></a>
+							<a class="btn btn-xs btn-warning" href="{{ path('compta_compte_bancaire_editer', {'id' : compteBancaire.id}) }}"><span class="glyphicon glyphicon-pencil"></span></a>
+							<a class="btn btn-xs btn-danger" href="{{ path('compta_compte_bancaire_supprimer', {'id' : compteBancaire.id}) }}"><span class="glyphicon glyphicon-trash"></span></a>
+						</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("#table_comptes_bancaires").DataTable({
+					language : {                
+						"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"            
+					},
+					paging : true,
+				    info: true,
+				    searching: true,
+					fnDrawCallback: function () {
+					  $( 'a', this.fnGetNodes() ).tooltip( {
+						"delay": 0,
+						"track": true,
+						"fade": 250,
+						"tooltipClass": 'btn btn-default',
+					  } );
+					},
+	                fnInitComplete: function () {
+					  $( 'a', this.fnGetNodes() ).tooltip( {
+						"delay": 0,
+						"track": true,
+						"fade": 250,
+						"tooltipClass": 'btn btn-default',
+					  } );
+					},
+			});
+		});
+	</script>
+{% endblock %}

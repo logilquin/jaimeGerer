@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/homepage.css') }}" type="text/css" />
+{% endblock %}
+
+{% block body %}
+	<div class="row wrap-index">
+		<div class="col-md-12 center">
+			<div class="wrap-index-head">
+				<img alt="Logo de J'aime la compta" src="{{ asset('images/assets/comptabilite.png') }}" style="width: 200px;" />
+			
+				<h1>Vos factures et dépenses</h1>
+				<p>Vos comptes comptables ont été mis à jour avec les montants de débit et crédit que vous avez importés comme reports à nouveau.</p>
+				<p><strong>Avez-vous des factures et/ou dépenses à importer dans <span class="jaimelacompta">J'aime la compta</span> qui ne sont pas incluses dans vos reports à nouveau ?</strong></p>
+				
+				<p>
+					<a href="{{ path('compta_activer_reports_a_nouveau_call_me_baby') }}" class="btn btn-success" style="width: 150px;"><strong>Oui</strong><br /></a>
+					<a href="{{ path('compta_activer_produits', {'prev' : 1}) }}" class="btn btn-danger" style="width: 150px;"><strong>Non</strong><br /></a>
+				</p>
+			</div>
+		</div>
+	</div>
+{% endblock %}

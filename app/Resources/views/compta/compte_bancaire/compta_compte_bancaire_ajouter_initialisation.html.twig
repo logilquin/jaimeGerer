@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+	<div class="row wrap-index">
+		<div class="col-md-12 center">
+			<div class="wrap-index-head">
+				<img alt="Logo de J'aime la compta" src="{{ asset('images/assets/comptabilite.png') }}" style="width: 200px;" />
+			
+				<h1>Avec un compte bancaire, c'est mieux !</h1>
+				<p>Courage {{ app.user.firstname }}, on a bientôt fini !</p>
+				<p>Paramétrez votre compte bancaire pour qu'il puisse être utilisé dans <span class="jaimelacompta">J'aime la compta</span>.<br /> Vous avez plusieurs comptes bancaires ? Entrez ici votre compte principal. Vous pourrez en créer d'autres par la suite.</p>
+				<p><strong>Paramétrez votre compte bancaire</strong></p>
+	
+				{% include 'compta/compte_bancaire/compta_compte_bancaire_form.html.twig' %}
+			</div>
+		</div>
+	</div>
+	
+{% endblock %}

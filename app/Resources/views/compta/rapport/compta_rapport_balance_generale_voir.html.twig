@@ -1,0 +1,15 @@
+{% for cc in arr_cc %}
+<tr>
+	<td class="col-md-2">{{ cc.num }}</td>
+	<td class="col-md-6">{{ cc.nom }}</td>
+	<td class="col-md-1 align-right">{{ cc.totalDebit(periode)|number_format(2, ',', ' ') }}</td>
+	<td class="col-md-1 align-right">{{ cc.totalCredit(periode)|number_format(2, ',', ' ')  }}</td>
+	<td class="col-md-1 align-right">{% if cc.soldeDebiteur(periode)>0 %} {{ cc.soldeDebiteur(periode)|number_format(2, ',', ' ') }} {% endif %}</td>
+	<td class="col-md-1 align-right">{% if cc.soldeCrediteur(periode)>0 %} {{ cc.soldeCrediteur(periode)|number_format(2, ',', ' ') }} {% endif %}</td>
+</tr>
+{% endfor %}
+<tr>
+	<td colspan="4" class="align-right"><strong>Total</strong></td>
+	<td class="align-right"><strong>{{ totalSoldeDebiteur|number_format(2, ',', ' ') }}</strong></td>
+	<td class="align-right"><strong>{{ totalSoldeCrediteur|number_format(2, ',', ' ') }}</strong></td>
+</tr>

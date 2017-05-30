@@ -1,0 +1,26 @@
+<p>Bonjour {{ user.firstName }},</p>
+
+<p>{{ app.user.firstName }} {{ app.user.lastName }} vous a créé un compte sur J'aime Gérer, les logiciels de l'entrepreneur.</p>
+
+<p> Vous avez maintenant accès à :</p>
+<ul class="checklist">
+{% for role in user.roles %}
+  {% if role == 'ROLE_COMMERCIAL' %}
+    <li>J'aime le commercial, le logiciel CRM</li>
+  {% elseif role == 'ROLE_COMPTA' %}
+    <li>J'aime la compta, le logiciel de comptabilité</li>
+  {% elseif role == 'ROLE_COMMUNICATION' %}
+    <li>J'aime communiquer, le logiciel d'emailing</li>
+  {% elseif role == 'ROLE_RH' %}
+    <li>J'aime le recrutement, le logiciel RH</li>
+  {% endif %}
+{% endfor %}
+</ul>
+
+<p>Pour commencer à utiliser J'aime Gérer, rendez-vous sur <a href="{{ url('homepage') }}">{{ url('homepage') }}</a> et connectez-vous avec les identifiants suivants :</p>
+<ul>
+  <li>Votre login : {{ user.username }}</li>
+  <li>Votre mot de passe : {{ password }}</li>
+</ul>
+
+<p>A bientôt sur J'aime Gérer !</p>

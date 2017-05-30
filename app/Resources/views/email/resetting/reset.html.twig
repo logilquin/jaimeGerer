@@ -1,0 +1,97 @@
+<style>
+
+    .email-container {
+        text-align: center;
+        padding-left: 20px;
+        padding-right: 20px;
+        width: 600px;
+        margin: auto;
+        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        color: #333;
+        line-height: 1.42857143;
+        font-size: 14px;
+    }
+
+    .logo{
+      margin-bottom: 30px;
+    }
+
+    p{
+      margin: 0 0 20px;
+    }
+
+    a.btn-red,
+    a.btn-red:active,
+    a.btn-red:hover {
+        background-color: #fc5061;
+        color: #FFF;
+        border-radius: 3px;
+        padding: 15px;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .btn-wrapper{
+      height: 20px;
+      padding: 15px;
+    }
+
+    .apparte {
+        background-color: #404040;
+        color: #FFF;
+        padding: 20px;
+
+    }
+
+    .signature {
+        text-align: left;
+        color: #555;
+        border-top: #CCC 1px solid;
+        margin-top: 20px;
+        padding-top: 20px;
+    }
+
+    .small{
+      font-size: 12px;
+    }
+
+</style>
+<!-- <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/> -->
+
+<div class="email-container">
+    <div class="logo">
+        <img src="{{ app.request.schemeAndHttpHost ~ asset('images/assets/jaimegerer-logo-250.png') }}" alt="J'aime gérer, les logiciels de l'entrepreneur"/>
+    </div>
+
+    <p>
+        <strong>Bonjour
+            {{ user.firstName }}
+            ,</strong>
+    </p>
+
+    <p>
+        Vous avez perdu votre mot de passe ? Pas de problème, vous pouvez le réinitialiser !
+    </p>
+    <p class="btn-wrapper">
+        <a href="{{ confirmationUrl }}" class="btn btn-red">Réinitialiser mon mot de passe</a>
+    </p>
+
+    <p class="small">
+      Si le lien ne fonctionne pas, copiez-collez ce lien dans le navigateur :<br />
+      {{ confirmationUrl }}
+    </p>
+
+<p>A bientôt sur J'aime Gérer !</p>
+
+<div class="apparte">
+Nous sommes friands de vos retours !<br/>
+Envoyez-nous vos besoins, vos remarques, vos critiques, vos conseils, vos mots doux, vos idées (même les plus folles),... ou juste de vos nouvelles ! :-)
+</div>
+
+<p class="signature">
+Laura de J'aime Gérer<br/>
+<a href="mailto:laura@jaime-gerer.com">laura@jaime-gerer.com</a><br/>
+04 79 75 76 29
+</p>
+
+</div>

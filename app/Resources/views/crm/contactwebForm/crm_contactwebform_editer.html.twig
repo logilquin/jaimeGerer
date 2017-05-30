@@ -1,0 +1,18 @@
+{% extends 'crm/crm_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Modifier un formulaire web</h1>	
+		</div>
+	</div>
+	
+	{% include 'crm/contactwebForm/crm_contactwebform_form.html.twig' %}
+
+{% endblock %}
+
+
+{% block javascripts %}
+	{{ parent() }}
+{% endblock %}

@@ -1,0 +1,43 @@
+{% for ligne in arr_lignes %}
+	<tr>
+		<td>
+			{{ ligne.date|date('d/m/Y') }}
+		</td>
+		<td>
+			{% if ligne.codeJournal == "VE" %}
+			 	{% if ligne.facture is not null %}
+			 		{{ ligne.facture.objet }}
+			 	{% elseif ligne.avoir is not null %}
+			 		{{ ligne.avoir.facture.objet }}
+			 	{% endif %}
+			 {% elseif ligne.codeJournal == "AC" %}
+			 	{% if ligne.depense is not null %}
+			 		{{ ligne.depense }}
+			 	{% elseif ligne.avoir is not null %}
+			 		{{ ligne.avoir.depense }}
+			 	{% endif %}
+			 {% elseif ligne.codeJournal == "OD" %}
+			  	{{ ligne.libelle }}
+			 {% else %}
+			 	{{ ligne.nom }}
+			 {% endif %}
+		</td>
+		<td class="align-right">{{ ligne.debit|number_format(2,',',' ')  }}</td>
+		<td class="align-right">{{ ligne.credit|number_format(2,',',' ')  }}</td>
+		<td>{{ ligne.codeJournal }}</td>
+		<td>	<a href="{{ path('compta_compte-comptable_corriger', {
+			'id' : ligne.id,
+			'codeJournal' : ligne.codeJournal,
+			'redirectRoute' : 'compta_compte_voir' }) }}"
+			class="btn btn-xs btn-info" data-toggle="modal" data-target="#modal">
+				Corriger
+			</a></td>
+	</tr>
+{% endfor %}
+<tr>
+	<td class="no-border"></td>
+	<td class="no-border"></td>
+	<td class="align-right"><strong>{{ total_debit|number_format(2,',',' ') }}</strong></td>
+	<td class="align-right"><strong>{{ total_credit|number_format(2,',',' ')  }}</strong></td>
+	<td class="no-border"></td>
+</tr>

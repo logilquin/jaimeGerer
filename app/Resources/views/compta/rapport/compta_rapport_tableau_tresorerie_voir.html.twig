@@ -1,0 +1,374 @@
+{% if app.session.flashBag.get('danger')is not empty %}
+    ERREUR
+    {% for flash_message in app.session.flashBag.get('danger') %}
+        <div class="alert alert-danger">
+            {{ flash_message }}
+        </div>
+    {% endfor %}
+{% else %}
+    {% set arr_entrees = { 'FACTURES': 'Factures', 'AVOIRS_FOURNISSEURS': 'Avoirs fournisseurs', 'REMBOURSEMENT_TAXES': 'Remboursements taxes', 'DECAISSEMENTS_EMPRUNTS': 'Décaissements emprunts', 'DECAISSEMENTS_SUBVENTIONS': 'Décaissements subventions',
+    'VIREMENTS_ENTREE': 'Virements de compte à compte', 'COMPTES_COURANTS_ASSOCIES_ENTREE': 'Comptes courants associés', 'AUTRES_ENTREES': 'Autres' } %}
+    {% for entree, label in arr_entrees %}
+        <tr>
+            {% set total_prev = 0 %}
+            {% set total_accurate = 0 %}
+            {% if loop.index == 1 %}
+                <th rowspan="8">Encaissements</th>
+            {% endif %}
+            <th class="poste">{{ label }}</th>
+            {% for i in 1..12 %}
+                <td class="prev">
+                    {% if compteBancaire is not null %}
+                        <a
+                            href="#"
+                            id="{{ i }}-{{ entree }}"
+                            data-type="number"
+                            data-pk="{{ i }}-{{ entree }}"
+                            data-url="{{ path('compta_rapport_tableau_tresorerie_previsionnel_completer', {'mois' : i, 'poste' : entree, 'compteBancaire_id' : compteBancaire.id, 'year': year } ) }}"
+                            data-title="Montant"
+                            class="prev-entree-{{ i }} prev-{{ entree }}">
+                            {% if arr_prev[i][entree] is defined %}
+                              {% if arr_prev[i][entree] == 0 %}
+                                  Completer
+                              {% else %}
+                                  {{ arr_prev[i][entree]|number_format(2,',',' ') }}
+                              {% endif %}
+                              {% set total_prev = total_prev + arr_prev[i][entree] %}
+                            {% else %}
+                                <span>Completer</span>
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        {% if arr_prev[i][entree] is defined %}
+                            {{ arr_prev[i][entree]|number_format(2,',',' ') }}
+                            {% set total_prev = total_prev + arr_prev[i][entree] %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td class="accurate">
+                    {{ arr_accurate[i][entree]|number_format(2,',',' ') }}
+                    €
+                    {% set total_accurate = total_accurate + arr_accurate[i][entree] %}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+		<tr class="ligne-sous-total">
+			<th class="poste" colspan="2">Total encaissements</th>
+			{% for i in 1..12 %}
+					<td id="total-entrees-{{ i }}" class="prev">
+							<p class="center loader hidden">
+									<img src="{{ asset('images/assets/spinner_loader.gif') }}" alt="Chargement en cours"/><br/>
+									<i>Calcul en cours...</i>
+							</p>
+							<p class="value">
+								{{ arr_prev[i]['TOTAL_ENTREES']|number_format(2,',',' ') }} €
+							</p>
+					</td>
+					<td class="accurate">
+							{{ arr_accurate[i]['TOTAL_ENTREES']|number_format(2,',',' ') }} €
+					</td>
+			{% endfor %}
+		</tr>
+
+    {% set arr_sorties = { 'DEPENSES': 'Dépenses', 'AVOIRS_CLIENTS': 'Avoirs clients', 'TAXES': 'Taxes', 'SALAIRES': 'Salaires', 'CHARGES': 'Charges', 'REMBOURSEMENTS_EMPRUNTS': 'Remboursements emprunts', 'VIREMENTS_SORTIE': 'Virements de compte à
+    compte', 'COMPTES_COURANTS_ASSOCIES_SORTIE': 'Comptes courants associés', 'AUTRES_SORTIES': 'Autres' } %}
+    {% for sortie, label in arr_sorties %}
+        <tr>
+            {% set total_prev = 0 %}
+            {% set total_accurate = 0 %}
+            {% if loop.index == 1 %}
+                <th rowspan="9">Décaissements</th>
+            {% endif %}
+            <th class="poste">{{ label }}</th>
+            {% for i in 1..12 %}
+                <td class="prev">
+                    {% if compteBancaire is not null %}
+                        <a
+                            href="#"
+                            id="{{ i }}-{{ sortie }}"
+                            data-type="number"
+                            data-pk="{{ i }}-{{ sortie }}"
+                            data-url="{{ path('compta_rapport_tableau_tresorerie_previsionnel_completer', {'mois' : i, 'poste' : sortie, 'compteBancaire_id' : compteBancaire.id, 'year' : year } ) }}"
+                            data-title="Montant"
+                            class="prev-sortie-{{ i }}">
+                            {% if arr_prev[i][sortie] is defined %}
+                              {% if arr_prev[i][sortie] == 0 %}
+                                Completer
+                              {% else %}
+                                {{ arr_prev[i][sortie]|number_format(2,',',' ') }} €
+                              {% endif %}
+                                {% set total_prev = total_prev + arr_prev[i][sortie] %}
+                            {% else %}
+                                <span>Completer</span>
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        {% if arr_prev[i][sortie]is defined %}
+                            {{ arr_prev[i][sortie]|number_format(2,',',' ') }} €
+                            {% set total_prev = total_prev + arr_prev[i][sortie] %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td class="accurate">
+                    {{ arr_accurate[i][sortie]|number_format(2,',',' ') }} €
+                    {% set total_accurate = total_accurate + arr_accurate[i][sortie] %}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+		<tr class="ligne-sous-total">
+			<th class="poste" colspan="2">Total décaissements</th>
+			{% for i in 1..12 %}
+					<td id="total-sorties-{{ i }}" class="prev">
+						<p class="center loader hidden">
+								<img src="{{ asset('images/assets/spinner_loader.gif') }}" alt="Chargement en cours"/><br/>
+								<i>Calcul en cours...</i>
+						</p>
+						<p class="value">
+							{{ arr_prev[i]['TOTAL_SORTIES']|number_format(2,',',' ') }} €
+						</p>
+					</td>
+					<td class="accurate">
+							{{ arr_accurate[i]['TOTAL_SORTIES']|number_format(2,',',' ') }} €
+					</td>
+			{% endfor %}
+		</tr>
+
+		<!-- flux net -->
+		<tr class="ligne-total ">
+			<th class="poste" colspan="2">Flux net</th>
+			{% for i in 1..12 %}
+					<td id="flux-net-{{ i }}" class="prev">
+						<p class="center loader hidden">
+								<img src="{{ asset('images/assets/spinner_loader.gif') }}" alt="Chargement en cours"/><br/>
+								<i>Calcul en cours...</i>
+						</p>
+						<p class="value {{ arr_prev[i]['FLUX_NET'] >=0 ? 'green' : 'red' }}">
+							{{ arr_prev[i]['FLUX_NET']|number_format(2,',',' ') }} €
+						</p>
+					</td>
+					<td class="{{ arr_accurate[i]['FLUX_NET'] >=0 ? 'green' : 'red' }} accurate">
+							{{ arr_accurate[i]['FLUX_NET']|number_format(2,',',' ') }} €
+					</td>
+			{% endfor %}
+		</tr>
+
+		<!-- solde compte bancaire -->
+    <tr class="ligne-total">
+        {% set total_prev = 0 %}
+        {% set total_accurate = 0 %}
+        <th class="poste" colspan="2">Solde fin de mois
+            {{ compteBancaire is not null ? compteBancaire.nom : 'tous comptes' }}</th>
+        {% for i in 1..12 %}
+            <td class="prev" id="total-prev-{{ i }}">
+                <p class="value {{ arr_prev[i].TOTAL_COMPTE >=0 ? 'green' : 'red' }}">{{ arr_prev[i].TOTAL_COMPTE|number_format(2,',',' ') }}
+                    €</p>
+                <p class="center loader hidden">
+                    <img src="{{ asset('images/assets/spinner_loader.gif') }}" alt="Chargement en cours"/><br/>
+                    <i>Calcul en cours...</i>
+                </p>
+                {% set total_prev = total_prev + arr_prev[i].TOTAL_COMPTE %}
+            </td>
+            <td class="accurate {{ arr_accurate[i].TOTAL_COMPTE >=0 ? 'green' : 'red' }}">
+                {{ arr_accurate[i].TOTAL_COMPTE|number_format(2,',',' ') }}
+                €
+                {% set total_accurate = total_accurate + arr_accurate[i].TOTAL_COMPTE %}
+            </td>
+        {% endfor %}
+    </tr>
+
+    {% block javascripts %}
+        <script type="text/javascript">
+            $(document).ready(function() {
+                {% if compteBancaire is not null %}
+                    {% for entree, label in arr_entrees %}
+                        {% for i in 1..12 %}
+                            var id = "#{{ i }}-{{ entree }}";
+                            $(id).editable({
+                                step: 'any',
+                                display: function(value, response) {
+                                    if (value != "Completer") {
+                                        if (value == "" || value == 0){
+                                            $(this).html("Completer");
+                                        } else {
+                                            $(this).html(value + " €");
+                                        }
+                                    }
+                                }
+                            });
+
+                            // replacer les popover car ils sont décalés de 100px vers la droite
+                            $(id).on('shown.bs.popover', function () {
+                              var popover = $(this).next('.popover');
+                              var left = popover.position().left;
+                              popover.css('left', left-50);
+                              popover.find('input').val($(id).val());
+                            })
+
+                            //recalculer les totaux
+                            $(id).on('save', function(e, params) {
+
+                                var mois = {{ i }};
+                                var poste = "{{ entree }}";
+                                var compteBancaire_id = {{ compteBancaire.id }};
+                                var year = $(".year-select").val();
+
+																//display loaders
+																$("#total-entrees-" + mois + " .value").addClass('hidden').text("");
+																$("#total-entrees-" + mois + " .loader").removeClass('hidden');
+
+                                $("#total-prev-" + mois + " .value").addClass('hidden').text("");
+                                $("#total-prev-" + mois + " .loader").removeClass('hidden');
+
+                                $("#total-tous-comptes-" + mois + " .value").addClass('hidden').text("");
+                                $("#total-tous-comptes-" + mois + " .loader").removeClass('hidden');
+
+																$("#flux-net-" + mois + " .value").addClass('hidden').text("");
+																$("#flux-net-" + mois + " .loader").removeClass('hidden');
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: Routing.generate('compta_rapport_tableau_tresorerie_totaux', {
+                                        'mois': mois,
+                                        'poste': poste,
+                                        'compteBancaire_id': compteBancaire_id,
+                                        'year': year
+                                    }),
+                                    success: function(data) {
+
+																				$("#total-entrees-" + mois + " .value").text(accounting.formatMoney(data.totalEntrees, { symbol: "€",  format: "%v %s", decimal: ",", thousand: " ", precision: 2 }))
+																																							 .removeClass("hidden");
+																				$("#total-entrees-" + mois + " .loader").addClass('hidden');
+
+                                        $("#total-prev-" + mois + " .value").text(accounting.formatMoney(data.totalMois, { symbol: "€",  format: "%v %s", decimal: ",", thousand: " ", precision: 2 }))
+																																						.removeClass("hidden");
+                                        $("#total-prev-"+ mois + " .loader").addClass('hidden');
+                                        if (data.totalMois > 0) {
+                                            $("#total-prev-" + mois + " .value").removeClass("red").addClass("green");
+                                        } else {
+                                            $("#total-prev-" + mois + " .value").removeClass("green").addClass("red");
+                                        }
+
+																				$("#flux-net-" + mois + " .value").text(accounting.formatMoney(data.fluxNet, { symbol: "€",  format: "%v %s", decimal: ",", thousand: " ", precision: 2 }))
+																																					.removeClass("hidden");
+																				$("#flux-net-" + mois + " .loader").addClass('hidden');
+																				if (data.fluxNet > 0) {
+																						$("#flux-net-" + mois + " .value").removeClass("red").addClass("green");
+																				} else {
+																						$("#flux-net-" + mois + " .value").removeClass("green").addClass("red");
+																				}
+                                    },
+                                    error: function(jqXHR, textStatus, errorThrown) {
+                                        console.log(jqXHR.status);
+                                        console.log(textStatus);
+                                        console.log(errorThrown);
+                                    }
+                                });
+
+                            });
+                        {% endfor %}
+                    {% endfor %}
+
+                    {% for sortie, label in arr_sorties %}
+                        {% for i in 1..12 %}
+                            var id = "#{{ i }}-{{ sortie }}";
+                            $(id).editable({
+                                step: 'any',
+                                display: function(value, response) {
+                                    if (value != "Completer") {
+                                        if (value > 0) {
+                                            $(this).html(-value + " €");
+                                        } else if (value < 0){
+                                            $(this).html(value + " €");
+                                        } else if (value == "" || value == 0 || value == null){
+                                            $(this).html("Completer");
+                                        }
+                                    }
+                                }
+                            });
+
+                            // replacer les popover car ils sont décalés de 100px vers la droite
+                            $(id).on('shown.bs.popover', function () {
+                              var popover = $(this).next('.popover');
+                              var left = popover.position().left;
+                              popover.css('left', left-50);
+                            })
+
+                            //recalculer les totaux
+                            $(id).on('save', function(e, params) {
+															var mois = {{ i }};
+															var poste = "{{ sortie }}";
+															var compteBancaire_id = {{ compteBancaire.id }};
+                              var year = $(".year-select").val();
+
+															//display loaders
+															$("#total-sorties-" + mois + " .value").addClass('hidden').text("");
+															$("#total-sorties-" + mois + " .loader").removeClass('hidden');
+
+															$("#total-prev-" + mois + " .value").addClass('hidden').text("");
+															$("#total-prev-" + mois + " .loader").removeClass('hidden');
+
+															$("#total-tous-comptes-" + mois + " .value").addClass('hidden').text("");
+															$("#total-tous-comptes-" + mois + " .loader").removeClass('hidden');
+
+															$("#flux-net-" + mois + " .value").addClass('hidden').text("");
+															$("#flux-net-" + mois + " .loader").removeClass('hidden');
+
+															$.ajax({
+																	type: "POST",
+																	url: Routing.generate('compta_rapport_tableau_tresorerie_totaux', {
+																			'mois': mois,
+																			'poste': poste,
+																			'compteBancaire_id': compteBancaire_id,
+                                      'year': year
+																	}),
+																	success: function(data) {
+
+																			$("#total-sorties-" + mois + " .value").text(accounting.formatMoney(data.totalSorties, { symbol: "€",  format: "%v %s", decimal: ",", thousand: " ", precision: 2 }))
+																																						 .removeClass("hidden");
+																			$("#total-sorties-" + mois + " .loader").addClass('hidden');
+
+																			$("#total-prev-" + mois + " .value").text(accounting.formatMoney(data.totalMois, { symbol: "€",  format: "%v %s", decimal: ",", thousand: " ", precision: 2 }))
+																																					.removeClass("hidden");
+																			$("#total-prev-"+ mois + " .loader").addClass('hidden');
+																			if (data.totalMois > 0) {
+																					$("#total-prev-" + mois + " .value").removeClass("red").addClass("green");
+																			} else {
+																					$("#total-prev-" + mois + " .value").removeClass("green").addClass("red");
+																			}
+
+
+																			$("#flux-net-" + mois + " .value").text(accounting.formatMoney(data.fluxNet, { symbol: "€",  format: "%v %s", decimal: ",", thousand: " ", precision: 2 }))
+																																				.removeClass("hidden");
+																			$("#flux-net-" + mois + " .loader").addClass('hidden');
+																			if (data.fluxNet > 0) {
+																					$("#flux-net-" + mois + " .value").removeClass("red").addClass("green");
+																			} else {
+																					$("#flux-net-" + mois + " .value").removeClass("green").addClass("red");
+																			}
+																	},
+																	error: function(jqXHR, textStatus, errorThrown) {
+																			console.log(jqXHR.status);
+																			console.log(textStatus);
+																			console.log(errorThrown);
+																	}
+                            	});
+														});
+
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+
+
+
+
+            });
+        </script>
+    {% endblock %}
+
+{% endif %}

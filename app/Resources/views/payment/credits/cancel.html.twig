@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/homepage.css') }}" type="text/css" />
+{% endblock %}
+
+{% block body %}
+    <div class="row wrap-index">
+        <div class="col-md-12">
+            <div class="buy_credits">
+                <h1 class="center">Achat de crédits annulé</h1>
+                <p>
+                    Paypal nous informe que votre achat de crédits d'un montant de {{ amount }} a été annulé.
+                </p>
+                <p>
+                    Si cette annulation est due à une erreur de manipulation, n'hésitez pas à recommencer
+                    l'opération.<br />
+                    Si vous rencontrez des difficultés à réaliser ce paiement, n'hésitez pas à nous contacter :
+                    <a href="mailto:support@jaime-gerer.com">support@jaime-gerer.com</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+{%  endblock %}

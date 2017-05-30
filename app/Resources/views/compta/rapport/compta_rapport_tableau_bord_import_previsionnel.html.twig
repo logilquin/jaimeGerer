@@ -1,0 +1,37 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Documents comptables</h1>
+		</div>
+	</div>
+
+	<div class="row">
+			<div class="col-md-12">
+					{% include 'compta/rapport/compta_rapport_submenu.html.twig' %}
+			</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<h2>Tableau de bord</h2>
+			<h3>Importer le prévisonnel</h3>
+		</div>
+	</div>
+
+
+	<div class="row">
+		<div class="col-md-12">
+			<p>
+				<a class="btn btn-info" href="{{ path('compta_rapport_tableau_bord_exporter_import_previsionnel-excel') }}">
+					Télécharger le fichier à remplir
+				</a>
+			</p>
+
+			{{ form(form) }}
+		</div>
+	</div>
+
+
+{% endblock %}

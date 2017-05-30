@@ -1,0 +1,170 @@
+<div class="modal-header">
+	<a class="close" data-dismiss="modal">×</a>
+	<h3>Dépense</h3>
+	<p>
+		<a href="{{ path('compta_depense_editer', {'id' : depense.id}) }}"  class="btn btn-warning">
+			<span class="glyphicon glyphicon-pencil"></span> Modifier
+		</a>
+
+		<a href="{{ path('compta_depense_supprimer', {'id' : depense.id}) }}"  class="btn btn-danger">
+			<span class="glyphicon glyphicon-trash"></span> Supprimer
+		</a>
+	</p>
+</div>
+<div class="modal-body">
+
+      <div class="row">
+		<div class="col-md-12">
+			{% for flashMessage in app.session.flashbag.get('success') %}
+			    <div class="alert alert-success">
+			        {{ flashMessage }}
+			    </div>
+			{% endfor %}
+			{% for flashMessage in app.session.flashbag.get('danger') %}
+			    <div class="alert alert-danger">
+			        {{ flashMessage }}
+			    </div>
+			{% endfor %}
+		</div>
+	</div>
+
+
+	    <div class="row">
+	    	<div class="col-md-6">
+	    		<table class="contact-view-table">
+	    			<tbody>
+	    				<tr>
+	    					<td>Compte</td>
+				    		<td>
+								<a href="{{ path('compta_contact_voir', {'id' : depense.compte.id, 'type' : 'FOURNISSEUR' }) }}">
+									{{ depense.compte  }}
+								</a>
+				    		</td>
+	    				</tr>
+	    				<tr>
+	    					<td>Libellé</td>
+				    		<td>
+									{{ depense.libelle  }}
+				    		</td>
+	    				</tr>
+	    			</tbody>
+	    		</table>
+	    	</div>
+	    	<div class="col-md-6">
+	    		<table class="contact-view-table">
+	    			<tbody>
+	    				<tr>
+	    					<td>Etat</td>
+				    		<td>
+								{{ depense.formattedEtat }}
+				    		</td>
+	    				</tr>
+	    				<tr>
+	    					<td>Analytique</td>
+				    		<td>
+								{{ depense.analytique }}
+				    		</td>
+	    				</tr>
+	    			</tbody>
+	    		</table>
+	    	</div>
+	    </div>
+	    <div class="row">
+	    	<div class="col-md-6">
+	     		<table class="contact-view-table">
+	     			<tbody>
+	     				<tr>
+	     					<td>Créé le</td>
+				    		<td>
+				    			{{ depense.dateCreation|date("d/m/Y") }}
+				    		</td>
+	     				</tr>
+	     				<tr>
+	     					<td>Par</td>
+		    				<td>
+								{{ depense.userCreation }}
+							</td>
+
+	     				</tr>
+	     			</tbody>
+	     		</table>
+	     	</div>
+	     	<div class="col-md-6">
+	     		<table class="contact-view-table">
+	     			<tbody>
+	     				<tr>
+				    		<td>Modifié le</td>
+				    		<td>
+				    			{% if depense.dateEdition is empty %}
+						    		Jamais
+						    	{% else %}
+									{{ depense.dateEdition|date("d/m/Y") }}
+						    	{% endif %}
+				    		</td>
+			    		</tr>
+			    		<tr>
+		    			{% if depense.userEdition is not empty %}
+				    		<td>Par</td>
+		    				<td>
+								{{ depense.userEdition }}
+							</td>
+				    	{% endif %}
+			    		</tr>
+	     			</tbody>
+	    		</table>
+	    	</div>
+	    </div>
+
+	     <div class="row">
+	    	<hr />
+	    	<div class="col-md-12 produit-collection produit-collection-voir">
+		    	<table>
+					<thead>
+						<th class="produit-input-nom">Nom</th>
+						<th class="produit-input-type">Classification</th>
+						<th class="produit-input-number">Montant HT (€)</th>
+						<th class="produit-input-number">TVA (€)</th>
+						<th class="produit-input-number">Total TTC (€)</th>
+					</thead>
+					<tbody>
+			    	{% for ligne in depense.lignes %}
+			    		{{ include('compta/depense/compta_depense_ligne_voir.html.twig', { 'ligne': ligne }) }}
+			    	{% endfor %}
+			    	</tbody>
+			    </table>
+	    	</div>
+	    </div>
+
+	     <div class="row">
+	   	 	<div class="col-md-12" id="facture-calcul-wrapper" style="width:auto !important">
+	    		<hr />
+		    	<div class="form-group">
+		    		<span class="facture-label">Total HT</span>
+		    		<span class="facture-montant">{{ depense.totaux.HT }} €</span>
+		    	</div>
+		    	<div id="facture-taxe-wrapper" class="form-group">
+		    		<span class="facture-label">TVA</span>
+		   	 			<span class="facture-montant">{{ depense.totaux.TVA }} €</span>
+		    	</div>
+	   	 		<div class="form-group">
+	   	 		<span class="facture-label">
+	   	 			Total TTC
+	   	 		</span>
+	   	 		<span class="facture-montant">{{ depense.totaux.TTC }} €</span>
+	   	 		</div>
+	   	 		<hr />
+	   	 	</div>
+		</div>
+</div>
+	<script type="text/javascript">
+		$(document).ready( function () {
+			$('#table_contacts').DataTable({
+					language : {
+						"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"
+					},
+					paging : false,
+				    info: false,
+				    searching: false,
+			});
+		});
+	</script>

@@ -1,0 +1,8 @@
+{% block submenu %}
+			<div class="sub-menu">
+				<a href="{{ path('compta_depense_liste') }}" {% if app.request.pathInfo == "/compta/depense/liste"  %}class=" current"{% endif %}>Listes des Dépenses</a> - 
+				<a href="{{ path('compta_depense_liste_retard') }}" {% if app.request.pathInfo == "/compta/depense/liste/retard" %}class=" current"{% endif %}>Dépenses en retard</a> -
+				<a href="{{ path('compta_journal_achats_index') }}" {% if app.request.pathInfo == "/compta/journal-achats"  %}class=" current"{% endif %}>Journal des achats</a>
+			</div>
+{% endblock %}
+		

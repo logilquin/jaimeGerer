@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/homepage.css') }}" type="text/css" />
+{% endblock %}
+
+{% block body %}
+    <div class="row wrap-index">
+        <div class="col-md-12">
+            <div class="buy_credits">
+                <h1 class="center">Achat de crédits confirmé</h1>
+                <p>
+                    Nous vous remercions de votre achat de {{ amount }} € via Paypal.
+                    Cet achat vous permet d'envoyer
+                    {% set sep = '' %}
+                    {% for label, nb in nbSend %}
+                        {{ sep }}{{ nb }} {{ label }}
+                        {% set sep = ' ou ' %}
+                    {% endfor %}
+                    .<br />
+                    Dès que Paypal nous aura confirmé cet achat, votre compte de crédits sera crédité de ce montant.
+                </p>
+            </div>
+        </div>
+    </div>
+{%  endblock %}

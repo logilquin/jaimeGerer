@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/homepage.css') }}" type="text/css" />
+{% endblock %}
+
+{% block body %}
+	<div class="row wrap-index">
+		<div class="col-md-12 center">
+			<div class="wrap-index-head">
+				<img alt="Logo de J'aime le commercial" src="{{ asset('images/assets/commercial.png') }}" style="width: 200px;" />
+
+				<h1>Encore un petit effort {{ app.user.firstname }}, on a bientôt fini !</h1>
+				<p>Peut-être avez-vous déjà commencé à faire du commercial, avec une autre CRM ou dans un fichier Excel ? Vous pouvez importer vos contacts dans <span class="jaimelecommercial">J'aime le commercial</span>.</p>
+				<p><strong>Avez-vous un fichier de contacts à importer dans  <span class="jaimelecommercial">J'aime le commercial</span> ?</strong></p>
+
+				<p>
+					<a href="{{ path('crm_contact_importer', {'initialisation' : true }) }}" class="btn btn-success" style="width: 150px;"><strong>Oui</strong><br />Importer maintenant</a>
+					<a href="{{ path('crm_activer') }}" class="btn btn-danger" style="width: 150px;"><strong>Non</strong><br />Peut-être plus tard</a>
+				</p>
+			</div>
+		</div>
+	</div>
+{% endblock %}

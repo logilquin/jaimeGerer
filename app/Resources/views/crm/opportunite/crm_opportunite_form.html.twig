@@ -1,0 +1,176 @@
+{% block content %}
+
+    {{ form_start(form) }}
+    <div class="row">
+
+        <div class="col-md-12">
+            {{ form_errors(form) }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            {{ form_row(form.nom) }}
+        </div>
+        <div class="col-md-6">
+            {{ form_row(form.userGestion) }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="typeahead-container" style="margin-bottom: 15px;">
+                <div class="typeahead-field">
+                    <span class="typeahead-query">
+                        {{ form_label(form.compte_name) }}
+                        <span class="fc-taxe-hidden">(doit avoir été créée au préalable)</span>
+                        {{ form_errors(form.compte_name) }}
+                        {{ form_widget(form.compte_name, {'attr' : {'class' : 'typeahead-compte'}}) }}
+                        {{ form_row(form.compte) }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+
+            <div class="typeahead-container">
+                <div class="typeahead-field">
+                    <span class="typeahead-query">
+                        {{ form_row(form.contact_name, {'attr' : {'class' : 'typeahead-contact'}}) }}
+                        {{ form_row(form.contact) }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-2">
+            {{ form_label(form.date) }}
+            {{ form_widget(form.date.day, {'attr' : {'class' : 'hidden'}} ) }}
+            {{ form_widget(form.date.month) }}
+        </div>
+         <div class="col-md-2">
+            <span class="visibility-hidden">{{ form_label(form.date) }}</span>
+            {{ form_widget(form.date.year) }}
+        </div>
+        <div class="col-md-2"></div>
+        <div class="col-md-6">
+            {{ form_row(form.origine) }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            {{ form_row(form.type) }}
+        </div>
+        <div class="col-md-6">
+            {{ form_row(form.analytique) }}
+        </div>
+    </div>
+
+     <div class="row">
+        <div class="col-md-6">
+            {{ form_row(form.priveOrPublic) }}
+        </div>
+        <div class="col-md-6">
+            {{ form_row(form.appelOffre) }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.montant) }}
+        </div>
+
+        <div class="col-md-4">
+            {{ form_row(form.probabilite) }}
+        </div>
+
+        <div class="col-md-4">
+            {{ form_row(form.caAttendu) }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <input type="submit" value="Enregistrer" class="btn btn-success"/>
+        </div>
+    </div>
+</div>
+{{ form_end(form) }}
+{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript">
+
+    function calculateCA() {
+        var montant = $(".opp-montant").val();
+
+        montant = montant.replace(",", ".");
+        $(".opp-montant").val(montant);
+
+        var s_proba = $(".opp-probabilite option:selected").text();
+        var arr_proba = s_proba.split('-');
+        var proba = arr_proba[1].replace('%', '');
+        var caAttendu = montant * (proba / 100);
+        caAttendu = caAttendu.toFixed(2);
+        $(".opp-ca-attendu").val(caAttendu);
+    }
+
+    $(document).ready(function() {
+
+        $('.typeahead-compte').typeahead({
+            order: "desc",
+            source: {
+                url: "/web/app_dev.php/crm/compte/get-comptes"
+            },
+            callback: {
+                onInit: function(node) {
+                    console.log('Typeahead Initiated on ' + node.selector);
+                },
+                onClickAfter: function(node, a, item, event) {
+                    $('.entity-compte').val(item.id);
+                }
+            },
+            debug: true
+
+        });
+
+
+        $('.typeahead-contact').typeahead({
+            order: "desc",
+            source: {
+                url: Routing.generate('crm_contact_get_liste', {'compte_id' : null })
+            },
+            callback: {
+                onInit: function(node) {
+                    console.log('Typeahead Initiated on ' + node.selector);
+                },
+                onClickAfter: function(node, a, item, event) {
+                    console.log('Typeahead Click on ' + node.selector);
+                    $('.entity-contact').val(item.id);
+                }
+            },
+            debug: true
+
+        });
+
+        calculateCA();
+
+        $(".opp-montant").focusout(function() {
+            calculateCA();
+        });
+
+        $(".opp-probabilite").change(function() {
+            calculateCA();
+        });
+        $("#{{ form.appelOffre.vars.id }}").change(function() {
+            $("#{{ form.contact.vars.id }}").attr("required", $(this).is(':checked'));
+            $("#{{ form.contact_name.vars.id }}").attr("required", $(this).is(':checked'));
+        });
+    });
+    JqueryValidateFormName = $('form[name="{{ form.vars.id }}"]');
+</script>
+
+<script src="{{ asset('js/error.js') }}"></script>
+{% endblock %}

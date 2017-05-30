@@ -1,0 +1,182 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Ventes : dépenses en retard</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {% include 'compta/depense/compta_depense_submenu.html.twig' %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <p class="align-right">
+                <span class="xl">Total :
+                    {{ arr_totaux['ht']|number_format(2,',',' ') }}
+                    € HT</span><br/>
+                <span class="l">{{ arr_totaux['ttc']|number_format(2,',',' ') }}
+                    € TTC</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {% for flashMessage in app.session.flashbag.get('success') %}
+                <div class="alert alert-success">
+                    {{ flashMessage }}
+                </div>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('danger') %}
+                <div class="alert alert-danger">
+                    {{ flashMessage }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table id="table_depense_list" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th class="col-md-2">Numéro de dépense</th>
+                        <th class="col-md-2">Date de création</th>
+                        <th class="col-md-2">Retard</th>
+                        <th class="col-md-2">Compte</th>
+                        <th class="col-md-2">Libellé</th>
+                        <th class="col-md-2">Total</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/moment.js') }}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            var url = Routing.generate('compta_depense_liste_retard_ajax');
+            $('#table_depense_list').DataTable({
+                "dom": 'T<"clear">lfrtip',
+                "oTableTools": {
+                    "sSwfPath": "/web/lib/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
+                    "aButtons": [
+                        {
+                            "sExtends": "csv",
+                            "sButtonText": "Excel",
+                            "mColumns": [
+                                0, 1, 2, 3
+                            ],
+                            "sFileName": "depenses.csv"
+                        }, {
+                            "sExtends": "pdf",
+                            "sButtonText": "PDF",
+                            "mColumns": [
+                                0, 1, 2, 3
+                            ],
+                            "sFileName": "depenses.pdf",
+                            "sTitle": "Dépenses"
+                        }
+                    ]
+                },
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"
+                },
+                "iDisplayLength": 100,
+                "order": [
+                    [2, "asc"]
+                ],
+                "responsive": true,
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    url: url,
+                    type: "get"
+                },
+                "columns": [
+                    {
+                        "data": "num"
+                    }, {
+                        "data": "dateCreation"
+                    }, {
+                        "data": "dateConditionReglement"
+                    }, {
+                        "data": "compte_nom"
+                    }, {
+                        "data": "libelle"
+                    }, {
+                        "data": "totaux"
+                    }
+                ],
+                "columnDefs": [
+                    {
+                        "visible": false,
+                        "targets": ['id']
+                    }, {
+                        "render": function(data, type, row) {
+                            var actionUrl = Routing.generate('compta_depense_voir', {'id': row['id']});
+                            return '<a href="' + actionUrl + '">' + data + '</a>';
+                        },
+                        "targets": 0
+                    }, {
+                        "render": function(data, type, row) {
+                          return moment(data.date).format('DD/MM/YYYY');
+                        },
+                        "targets": 1
+                    }, {
+                        "render": function(data, type, row) {
+                            var end = moment(data.date);
+  													var now = moment();
+  													var d = now.diff(end, 'd'); // 88
+  													var diff = moment.localeData().relativeTime(d, false, d == 1 ? 'd' : 'dd');
+                            return "<span class='red'>" + diff + "</span>";
+                        },
+                        "targets": 2
+                    }, {
+                        "render": function(data, type, row) {
+                          var url = Routing.generate('compta_contact_voir', {
+                              'id': row['compte_id'],
+                              'type': 'FOURNISSEUR'
+                          });
+                          return '<a href="' + url + '">' + data + '</a>';
+                        },
+                        "targets": 3
+                    }, {
+                        "render": function(data, type, row) {
+                            return data.HT + " € HT<br /><i>" + data.TTC + " € TTC </i>";
+                        },
+                        "targets": 5
+                    },
+                ],
+                fnDrawCallback: function () {
+                  $( 'a', this.fnGetNodes() ).tooltip( {
+                  "delay": 0,
+                  "track": true,
+                  "fade": 250,
+                  "tooltipClass": 'btn',
+                  } );
+                },
+                fnInitComplete: function () {
+                  $( 'a', this.fnGetNodes() ).tooltip( {
+                  "delay": 0,
+                  "track": true,
+                  "fade": 250,
+                  "tooltipClass": 'btn',
+                  } );
+                },
+            });
+
+        });
+    </script>
+{% endblock %}

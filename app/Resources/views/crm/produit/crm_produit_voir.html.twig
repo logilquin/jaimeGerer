@@ -1,0 +1,24 @@
+<tr>
+	<td class="produit-input-type">{{ produit.type }}</td>
+	<td class="produit-input-nom">{{ produit.nom }}</td>
+	<td class="produit-input-number">{{ produit.tarifUnitaire }}</td>
+	<td class="produit-input-number">{{ produit.quantite }}</td>
+	<td class="produit-input-number">
+		{{ produit.montant }}
+	</td>
+	<td class="produit-input-number">
+		{% if produit.remise is null %}
+			-
+		{% else %}
+			{{ produit.remise }}
+		{% endif %}
+	</td>
+	<td class="produit-input-number">
+		{{ produit.total }}
+	</td>
+</tr>
+<tr>
+	<td colspan="2" class="produit-textarea">
+		{{ produit.description|raw }}
+	</td>
+</tr>

@@ -1,0 +1,69 @@
+<div class="modal-header">
+	<a class="close" data-dismiss="modal">×</a>
+	<h3>Ajouter un suivi</h3>
+</div>
+<div class="modal-body">
+	<div class="center">
+		
+	</div>
+{{ form_start(form, { 'attr': {'data-async': '', 'data-target' : '#modal' } , 'action': path('crm_devis_impulsion', {'id' : devis.id})} ) }}
+<div class="row">
+	{{ form_errors(form) }}
+	<div class="col-md-6">
+		{{ form_row(form.delaiNum) }}
+	</div>
+	<div class="col-md-6">
+		{{ form_row(form.delaiUnit) }}
+		{{ form_row(form._token) }}
+	</div>
+</div>
+
+<div class="row">   
+    <div class="col-md-12">
+	   	 	<input type="submit" value="Enregistrer" class="btn btn-success" />
+	    </div>
+    </div>
+</div>
+{{ form_end(form) }}
+</div>
+
+
+	<script type="text/javascript">
+
+	
+		$(document).ready( function () {   
+			$('#modal').unbind('submit');
+			$('#modal').on('submit','form[data-async]', function(event) {
+				console.log('here hich');
+				var $form = $(this);
+				var target = $form.attr('data-target');
+
+				console.log('Submit clicked');
+				$.ajax({
+					type: $form.attr('method'),
+					url: $form.attr('action'),
+					data: $form.serialize(),
+
+					success: function(data, status) {
+						if( data == 1 ) 
+						{
+							$("#ModalAlert").modal('show');
+							$("#modal").modal('hide');
+							/*$('#ModalAlert').on('hidden.bs.modal', function () {
+								window.location.reload();
+							})*/
+							//return true;
+						}
+					},
+					error: function(data, status) {
+						return false;
+					}
+				});
+
+				return false;
+				event.preventDefault();
+			});
+			
+			
+		});
+	</script>

@@ -1,0 +1,20 @@
+.wrapper-company{
+	width: 80%;
+    margin: 0 auto;
+    background: #f2f2f2;
+    padding: 20px;
+}
+
+input.colorpicker {
+	width: 80%;
+	display: inline-block;
+	vertical-align: bottom;
+}
+
+div.color{
+	width: 30px;
+	height: 32px;
+	display: inline-block;
+	border: 1px solid #EEE;
+	vertical-align: bottom;
+}

@@ -1,0 +1,97 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Documents comptables</h1>
+		</div>
+	</div>
+
+	<div class="row">
+			<div class="col-md-12">
+					{% include 'compta/rapport/compta_rapport_submenu.html.twig' %}
+			</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<h2>Balance générale</h2>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<p>
+				<a class="btn btn-primary" href="{{ path('compta_rapport_balance_generale_exporter') }}" data-toggle="modal" data-target="#modal">
+					<span class="glyphicon glyphicon-floppy-disk"></span> Exporter
+				</a>
+			</p>
+		</div>
+	</div>
+
+	<div class="row well">
+		<div class="col-md-3">
+			{{ form(form) }}
+		</div>
+		<div class="col-md-9"></div>
+	</div>
+
+	<div class="row">
+		<table class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th class="col-md-2">Compte</th>
+					<th class="col-md-6">Libellé</th>
+					<th class="col-md-1">Débit</th>
+					<th class="col-md-1">Crédit</th>
+					<th class="col-md-1">Solde débiteur</th>
+					<th class="col-md-1">Solde créditeur</th>
+				</tr>
+			</thead>
+			<tbody id="wrapper-ajax">
+			</tbody>
+		</table>
+		<p class="center" id="loader">
+			<img src="{{ asset('images/assets/dog_loader.gif') }}" alt="Chargement en cours" /><br />
+			<i>Chargement en cours...</i>
+		</p>
+	</div>
+{% endblock %}
+
+
+{% block javascripts %}
+	{{ parent() }}
+	<script type="text/javascript">
+		$(document).ready( function () {
+
+			var periode = $(".periode-select").val();
+			loadTable(periode);
+
+			$(".periode-select").change(function(){
+				$("#loader").removeClass("hidden");
+				$("#wrapper-ajax").html("");
+				var periode = $(this).val();
+				loadTable(periode);
+			});
+
+			function loadTable(periode){
+
+				$.ajax({
+					type: "GET",
+					url: Routing.generate('compta_rapport_balance_voir_periode', {'periode' : periode}),
+					success: function(data) {
+						$("#loader").addClass("hidden");
+						$("#wrapper-ajax").html(data);
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						$("#loader").addClass("hidden");
+						console.log(jqXHR.status);
+						console.log(textStatus);
+						console.log(errorThrown);
+					},
+				});
+			}
+
+		});
+	</script>
+{% endblock %}

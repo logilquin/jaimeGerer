@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/homepage.css') }}" type="text/css" />
+{% endblock %}
+
+{% block body %}
+	<div class="row wrap-index">
+		<div class="col-md-12 center">
+			<div class="wrap-index-head">
+				<img alt="Logo de J'aime la compta" src="{{ asset('images/assets/comptabilite.png') }}" style="width: 200px;" />
+			
+				<h1>La compta et vous...</h1>
+				<p>Vous déjà commencé votre comptabilité sur un autre outil, ou au contraire, c'est le baptême du feu ?<br /> 
+				<span class="jaimelacompta">J'aime la compta</span> s'adapte à votre situation !</p>
+				<p><strong>Avez-vous déjà une comptabilité ?</strong></p>
+				
+				<p>
+					<a href="{{ path('compta_compte_importer', {'initialisation' : true}) }}" class="btn btn-success" style="width: 150px;"><strong>Oui</strong><br />Je la réutilise</a>
+					<a href="{{ path('compta_compte_utiliser_general', {'initialisation' : true}) }}" class="btn btn-danger" style="width: 150px;"><strong>Non</strong><br />Je pars de zéro</a>
+				</p>
+			</div>
+		</div>
+	</div>
+{% endblock %}

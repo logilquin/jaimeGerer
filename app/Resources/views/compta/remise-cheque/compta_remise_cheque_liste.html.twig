@@ -1,0 +1,153 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Remises de chèques</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <p>
+                <a href="{{ path('compta_remise_cheque_ajouter') }}" class="btn btn-success">
+                    <span class="glyphicon glyphicon-plus"></span>
+                    Ajouter
+                </a>
+
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table id="table_remise_cheques_list" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th class="col-md-3">Numéro de remise de chèque</th>
+                        <th class="col-md-2">Date</th>
+                        <th class="col-md-2">Nombre de chèques</th>
+                        <th class="col-md-2">Total</th>
+                        <th class="col-md-3">Actions</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/moment.js') }}"></script>
+    <script src="{{ asset('js/accounting.min.js') }}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            $('#table_remise_cheques_list').DataTable({
+                "dom": 'T<"clear">lrtip',
+                "oTableTools": {
+                    "sSwfPath": "/web/lib/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
+                    "aButtons": [
+                        {
+                            "sExtends": "csv",
+                            "sButtonText": "Excel",
+                            "mColumns": [
+                                0, 1, 2, 3
+                            ],
+                            "sFileName": "remises_de_cheques.csv"
+                        }, {
+                            "sExtends": "pdf",
+                            "sButtonText": "PDF",
+                            "mColumns": [
+                                0, 1, 2, 3
+                            ],
+                            "sFileName": "remises_de_cheques.pdf",
+                            "sTitle": "Remises de chèques"
+                        }
+                    ]
+                },
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"
+                },
+                "order": [
+                    [0, "desc"]
+                ],
+                "responsive": true,
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    url: Routing.generate('compta_remise_cheque_liste_ajax'),
+                    type: "get"
+                },
+                "columns": [
+                    {
+                        "data": "num"
+                    }, {
+                        "data": "date"
+                    }, {
+                        "data": "nbCheques"
+                    }, {
+                        "data": "total"
+                    }
+                ],
+                "columnDefs": [
+                    {
+                        "visible": false,
+                        "targets": ['id']
+                    }, {
+                        "render": function(data, type, row) {
+                            var actionUrl = Routing.generate('compta_remise_cheque_voir', {'id': row['id']})
+                            return '<a href="' + actionUrl + '">' + data + '</a>';
+                        },
+                        "targets": 0
+                    }, {
+                        "render": function(data, type, row) {
+                            return moment(data.date).format('DD/MM/YYYY');
+                        },
+                        "targets": 1
+                    }, {
+                        "render": function(data, type, row) {
+                            return accounting.formatMoney(data, { symbol: "€",  format: "%v %s", decimal: ",", thousand: " ", precision: 2 });
+                        },
+                        "targets": 3
+                    }, {
+                        "render": function(data, type, row) {
+
+                            var voirUrl = Routing.generate('compta_remise_cheque_voir', {'id': row['id']});
+                            var editerUrl = Routing.generate('compta_remise_cheque_editer', {'id': row['id']})
+                            var exporterUrl = Routing.generate('compta_remise_cheque_exporter', {'id': row['id']});
+
+                            var s = "<a href=" + voirUrl + " class=\"btn btn-xs btn-info\" data-toggle=\"tooltip\" title=\"Voir la remise de chèque\">"+
+																		"<span class=\"glyphicon glyphicon-eye-open\"></span></a> "+
+																		"<a href=" + editerUrl + "  class=\"btn btn-xs btn-warning\" data-toggle=\"tooltip\" title=\"Modifier la remise de chèque\">" +
+                                    "<span class=\"glyphicon glyphicon-pencil\"></span></a> " +
+                              			"<a href=\"#\" class=\"btn btn-xs btn-default not-active\"><span class=\"glyphicon glyphicon-trash\"></span></a> " +
+																		"<a href=" + exporterUrl +" class=\"btn btn-xs btn-primary\" data-toggle=\"tooltip\" title=\"Exporter le coupon\">" +
+																		"<span class=\"glyphicon glyphicon-floppy-disk\"></span></a>"
+                            return s;
+                        },
+                        "targets": 4
+                    }
+                ],
+								fnDrawCallback: function () {
+								  $( 'a', this.fnGetNodes() ).tooltip( {
+									"delay": 0,
+									"track": true,
+									"fade": 250,
+									"tooltipClass": 'btn',
+								  } );
+								},
+								fnInitComplete: function () {
+								  $( 'a', this.fnGetNodes() ).tooltip( {
+									"delay": 0,
+									"track": true,
+									"fade": 250,
+									"tooltipClass": 'btn',
+								  } );
+								},
+            });
+
+        });
+    </script>
+{% endblock %}

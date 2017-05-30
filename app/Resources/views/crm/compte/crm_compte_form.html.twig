@@ -1,0 +1,76 @@
+ {{ form_start(form) }}
+<div class="row">
+	<div class="col-md-6">
+		{{ form_errors(form) }}
+		{{ form_row(form.nom) }}
+		{{ form_row(form.userGestion) }}
+	</div>
+	<div class="col-md-6">
+		{{ form_row(form.compteParent) }}
+	</div>
+</div>
+ <div class="row">
+	 <div class="col-md-6">
+		 {{ form_row(form.secteurActivite) }}
+	 </div>
+ </div>
+<div class="row">
+	<div class="col-md-6">
+		{{ form_row(form.addressPicker) }}
+		{{ form_row(form.adresse) }}
+		{{ form_row(form.codePostal) }}
+		{{ form_row(form.ville) }}
+		{{ form_row(form.region) }}
+		{{ form_row(form.pays) }}
+    </div>
+    
+    <div class="col-md-6">
+    	{{ form_row(form.telephone) }}
+    	{{ form_row(form.fax) }}
+    	
+    	{{ form_row(form.url) }}
+
+    	
+    </div> 
+</div>
+<div class="row">   
+    <div class="col-md-12">
+   	 	{{ form_row(form.description) }}
+	   	 	<input type="submit" value="Enregistrer" class="btn btn-success" />
+	    </div>
+    </div>
+</div>
+{{ form_end(form) }}
+{% block additionalJS %}
+	<script src="//maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+	<script type="text/javascript" src="{{ asset('js/jquery.ui.addresspicker.js') }}"></script>
+	<script type="text/javascript">
+		$(document).ready( function () {    
+			var addresspickerMap = $( "#{{ form.addressPicker.vars.id }}" ).addresspicker({
+			updateCallback: function(geocodeResult, parsedGeocodeResult){
+								//console.log(parsedGeocodeResult);
+								//$('#callback_result').html(JSON.stringify(parsedGeocodeResult, null, 4));
+								var addressToField = ( parsedGeocodeResult.street_number ? parsedGeocodeResult.street_number + ', ' : '' ) + parsedGeocodeResult.route;
+								console.log(addressToField);
+								$('#{{ form.adresse.vars.id }}').val(addressToField);
+								//$('#callback_result').html(parsedGeocodeResult.street_number + ', ' +parsedGeocodeResult.route);
+							},
+			  elements: {
+				//map								: '',
+				postal_code						: '#{{ form.codePostal.vars.id }}',
+				administrative_area_level_1		: '#{{ form.region.vars.id }}',
+			   // locality						: '#locality',
+				country							: '#{{ form.pays.vars.id }}',
+				//route							: '#sdz_blogbundle_service_adresse',
+				locality						: '#{{ form.ville.vars.id }}',
+				target_field					: false,
+			  },
+			});
+
+		});
+		JqueryValidateFormName = $('form[name="{{ form.vars.id }}"]');
+	</script>
+	
+	<script src="{{ asset('js/error.js') }}"></script>
+
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/homepage.css') }}" type="text/css" />
+{% endblock %}
+
+{% block body %}
+	<div class="row wrap-index">
+		<div class="col-md-12 center">
+			<div class="wrap-index-head">
+				<img alt="Logo de J'aime la compta" src="{{ asset('images/assets/comptabilite.png') }}" style="width: 200px;" />
+			
+				<h1>Oups, c'est embêtant... :-(</h1>
+				<p>Vous êtes dans un cas particulier que nous ne pouvons pas gérer automatiquement. Mais rassurez-vous, nous ne vous laissons pas tomber !<br />
+				Afin de vous conseiller au mieux, nous avons besoin que vous nous expliquiez votre situation.</p>
+				<p><strong>Nous sommes à votre écoute au 04 79 75 76 29. Appelez-nous !</strong></p>
+			</div>
+		</div>
+	</div>
+{% endblock %}

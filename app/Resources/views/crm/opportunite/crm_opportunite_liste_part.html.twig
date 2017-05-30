@@ -1,0 +1,81 @@
+{% block content %}
+	<div class="row" id="opportunites">
+	  	<div class="col-md-12">
+	  		<h3>Opportunités</h3>
+	  		<p>
+	  			<a href="{% if id_to_use is defined %} {{ path('crm_opportunite_ajouter_from_voir_contact_compte', {'id_to_use' : id_to_use, 'type' : id_origine_type }) }}{% else %}{{ path('crm_opportunite_ajouter') }}{% endif %}" class="btn btn-xs btn-success">
+		    		<span class="glyphicon glyphicon-plus"></span> Ajouter
+		   	 	</a>
+		   </p>
+		   <table id="table_opportunites" class="table table-bordered table-striped">
+	  			<thead>        
+		    		<tr>            
+		    			<th>Nom</th>            
+		    			<th>Montant</th>  
+		    			<th>Probabilité</th>  
+		    			<th>Date</th>
+		    			<th>Actions</th>          
+		    		</tr>    
+			    </thead>    
+			    <tbody>
+	  			{% for opportunite in arr_opportunites %}
+	  				<tr>            
+			    			<td>
+			    				<a href="{{ path('crm_opportunite_voir', {'id' : opportunite.id }) }}">{{ opportunite.nom }}</a>
+			    			</td>            
+			    			<td>
+			    				{{ opportunite.montant }} &euro;
+			    			</td> 
+			    			<td>
+			    				{{ opportunite.probabilite.valeur }}
+			    			</td>
+			    			<td>
+			    				{{ opportunite.date|date("d/m/Y") }}
+			    			</td>
+			    			<td>
+			    				<a href="{{ path('crm_opportunite_voir', {'id' : opportunite.id }) }}" class="btn btn-xs btn-info" ​data-toggle="tooltip-btn-xs" title="Voir">
+			    					<span class="glyphicon glyphicon-eye-open"></span>
+			    				</a>
+			    				<a href="{{ path('crm_opportunite_editer', {'id' : opportunite.id }) }}" class="btn btn-xs btn-warning" ​data-toggle="tooltip-btn-xs" title="Editer">
+			    					<span class="glyphicon glyphicon-pencil"></span>
+			    				</a>
+			    				<a href="{{ path('crm_opportunite_supprimer', {'id' : opportunite.id }) }}" class="btn btn-xs btn-danger" ​data-toggle="tooltip-btn-xs" title="Supprimer">
+			    					<span class="glyphicon glyphicon-trash"></span>
+			    				</a>
+			    			</td>        
+			    		</tr>
+	  			{% endfor %}
+	  			</tbody>
+	  		</table>
+	  	</div>
+	  </div>
+{% endblock %}
+
+{% block javascripts %}
+	<script type="text/javascript">
+		$("#{{ div_id }}").DataTable({
+				language : {                
+					"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"            
+				},
+				paging : false,
+			    info: false,
+			    searching: false,
+				fnDrawCallback: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				  } );
+				},
+                fnInitComplete: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				  } );
+				},
+		});
+	</script>
+{% endblock %}

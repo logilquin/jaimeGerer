@@ -1,0 +1,39 @@
+{% extends 'crm/crm_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Modifier un contact</h1>	
+		</div>
+	</div>
+	
+ 	{% include 'crm/contact/crm_contact_form.html.twig' %}
+
+{% endblock %}
+
+
+{% block javascripts %}
+	{{ parent() }}
+	
+	<script type="text/javascript">
+		$(document).ready( function () {    
+			$(".input-compte").change(function() {
+				$.ajax({
+					type: "POST",
+					url: "/web/app_dev.php/crm/compte/get_coordonnees/"+$(this).val(),
+					success: function(data) {
+						$(".input-adresse").val(data.adresse);
+						$(".input-codepostal").val(data.codePostal);
+						$(".input-ville").val(data.ville);
+						$(".input-region").val(data.region);
+						$(".input-pays").val(data.pays);
+						$(".input-telephone").val(data.telephone);
+						$(".input-fax").val(data.fax);
+					 }
+				});
+			});
+		});
+	</script>
+
+{% endblock %}

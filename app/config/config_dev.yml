@@ -1,0 +1,88 @@
+imports:
+    - { resource: config.yml }
+
+framework:
+    router:
+        resource: "%kernel.root_dir%/config/routing_dev.yml"
+        strict_requirements: true
+    profiler: { only_exceptions: false }
+
+web_profiler:
+    toolbar: true
+    intercept_redirects: false
+
+monolog:
+    handlers:
+        main:
+            type:   stream
+            path:   "%kernel.logs_dir%/%kernel.environment%.log"
+            level:  debug
+        console:
+            type:   console
+            bubble: false
+            verbosity_levels:
+                VERBOSITY_VERBOSE: INFO
+                VERBOSITY_VERY_VERBOSE: DEBUG
+            channels: ["!doctrine"]
+        console_very_verbose:
+            type:   console
+            bubble: false
+            verbosity_levels:
+                VERBOSITY_VERBOSE: NOTICE
+                VERBOSITY_VERY_VERBOSE: NOTICE
+                VERBOSITY_DEBUG: DEBUG
+            channels: ["doctrine"]
+        # uncomment to get logging in your browser
+        # you may have to allow bigger header sizes in your Web server configuration
+        #firephp:
+        #    type:   firephp
+        #    level:  info
+        #chromephp:
+        #    type:   chromephp
+        #    level:  info
+
+assetic:
+    use_controller: true
+
+#swiftmailer:
+#    delivery_address: me@example.com
+
+# KNPSnappy HtmlToPdf Configuration
+knp_snappy:
+    pdf:
+        enabled:    true
+        #binary:     /usr/local/bin/wkhtmltopdf
+        binary:     C:\wkhtmltopdf\bin\wkhtmltopdf
+        options: []
+
+# Swiftmailer Configuration
+#~ swiftmailer:
+    #~ transport:  gmail
+    #~ username:   gilquin.nicomak@gmail.com
+    #~ password:   S!ss!&B@tw0m@n
+
+cspoo_swiftmailer_mailgun:
+    #key: "key-ebd2508e9c7346eb95c5eea86240029d"
+    #domain: "sandboxfa8c7f17ce114f1b939e5dd2937d6588.mailgun.org"
+    key: "key-13587873277bfb8194c52290c0850753"
+    #domain: "sandboxd55b4a445a5948409dc77ea13bef9d5a.mailgun.org"
+    domain: "testhichem1.mdprc.com"
+
+# Swiftmailer Configuration
+swiftmailer:
+    default_mailer: gmail
+    mailers:
+        gmail:
+            transport:  gmail
+            username:   gilquin.nicomak@gmail.com
+            password:   S!ss!&B@tw0m@n
+            delivery_address: test@nicomak.eu
+        mailgun:
+            transport: "mailgun"
+            spool:     { type: memory }
+
+#    transport: "mailgun"
+#    spool:     { type: memory } # This will start sending emails on kernel.terminate event
+
+nicomak_paypal:
+    debug: true

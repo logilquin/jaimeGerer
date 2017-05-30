@@ -1,0 +1,38 @@
+{% extends 'ndf/ndf_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Supprimer un reçu</h1>
+		</div>
+	</div>
+
+	<div class="row">
+
+		<div class="col-md-6">
+			{% if recu.fileType == "pdf" %}
+				<object data="/{{ recu.path }}/{{ recu.file }}" type="application/pdf" width="100%" height="600px;">
+				 <p>Votre navigateur ne supporte pas la lecture des fichiers PDFs. <a href="/pdf/sample-3pp.pdf">Téléchargez PDF</a>.</p>
+				</object>
+			{% else %}
+				<p class="center">
+					<img src="/{{ recu.path }}/{{ recu.file }}" alt="" />
+				</p>
+			{% endif %}
+		</div>
+
+	    <div class="col-md-6">
+	    	<p>Etes-vous sur de vouloir supprimer ce reçu ?</p>
+	    	{{ form_start(form) }}
+ 				{{ form_widget(form) }}
+
+	   	 	 <a class="btn" href="{{ path('ndf_recus') }}">
+       			<span class="glyphicon glyphicon-chevron-left"></span>Annuler
+    		</a>
+	   	 	<input type="submit" value="Supprimer" class="btn btn-danger" />
+	   	 	{{ form_end(form) }}
+	    </div>
+    </div>
+
+{% endblock %}

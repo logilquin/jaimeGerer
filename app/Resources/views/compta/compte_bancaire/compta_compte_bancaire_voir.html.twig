@@ -1,0 +1,98 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Comptes bancaires</h1>	
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+		    <p class="group-btn">
+		    	<a href="{{ path('compta_compte_bancaire_editer', {'id' : compteBancaire.id }) }}"  class="btn btn-warning">
+		    		<span class="glyphicon glyphicon-pencil"></span> Modifier
+		    	</a>
+		    	<a href="{{ path('compta_compte_bancaire_supprimer', {'id' : compteBancaire.id }) }}"  class="btn btn-danger">
+		    		<span class="glyphicon glyphicon-trash"></span> Supprimer
+		    	</a>
+		    </p>
+	    </div>
+    </div>
+    
+    <div class="row">
+    	<div class="col-md-12">
+    		<h2>{{ compteBancaire.nom }}</h2>
+    		<h3> Solde : <span class="{{ solde.montant >=0 ? 'green' : 'red' }}" >{{ solde.montant|number_format(2,',',' ') }}€</span></h3>
+    	</div>
+    </div>	
+    <div class="row">
+    	<div class="col-md-12">
+    		<hr />
+    		<table class="contact-view-table">
+    			<tbody>
+	    			<tr>
+	    				<td>
+	    					Compte Comptable
+	    				</td>
+	    				<td>
+				    		{{ compteBancaire.compteComptable }}
+	    				</td>
+	    			</tr>
+	    		</tbody>
+	    	</table>
+	    	<hr />
+    	</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+    		<table class="contact-view-table">
+    			<tbody>
+    				<tr>
+	    				<td>
+	    					Numéro de compte
+	    				</td>
+	    				<td>
+							{{ compteBancaire.num }}
+	    				</td>
+	    			</tr>
+	    			<tr>
+	    				<td>
+	    					Domiciliation
+	    				</td>
+	    				<td>
+							{{ compteBancaire.domiciliation }}
+	    				</td>
+	    			</tr>
+    			</tbody>
+    		</table>
+    	</div>
+    	<div class="col-md-6">
+    		<table class="contact-view-table">
+    			<tbody>
+	    		
+	    			<tr>
+	    				<td>
+	    					IBAN 
+	    				</td>
+	    				<td>
+	    					{{ compteBancaire.iban }}
+	    				</td>
+	    			</tr>
+	    			<tr>
+	    				<td>
+	    					BIC 
+	    				</td>
+	    				<td>
+	    					{{ compteBancaire.bic }}
+	    				</td>
+	    			</tr>
+    			</tbody>
+    		</table>
+    	</div>
+    	
+    	
+    </div>
+	    	
+{% endblock %}

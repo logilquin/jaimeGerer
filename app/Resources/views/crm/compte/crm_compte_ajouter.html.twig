@@ -1,0 +1,18 @@
+{% extends 'crm/crm_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Ajouter une organisation</h1>	
+		</div>
+	</div>
+
+	{% include 'crm/compte/crm_compte_form.html.twig' %}
+
+{% endblock %}
+{% block javascripts %}
+	{{ parent() }}
+{% block additionalJS %}
+{% endblock %}
+{% endblock %}

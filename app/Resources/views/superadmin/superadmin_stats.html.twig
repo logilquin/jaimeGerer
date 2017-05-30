@@ -1,0 +1,94 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+<div class="row wrap-index">
+	<div class="col-md-12 center">
+		<div class="wrap-index-head">
+			<div class="row">
+				<div class="col-md-12">
+					<h1>Statistiques d'utilisation</h1>
+				</div>
+			</div>
+		
+			<div class="row" style="margin-top: 30px;">
+				<div class="col-md-3"></div>
+				<div class="col-md-3">
+					<h4>Entreprises inscrites</h4>
+					<p class="xl">{{ arr_stats_entreprises.nbEntreprisesInscrites }}</p>
+				</div>
+				<div class="col-md-3">
+					<h4>Entreprises actives</h4>
+					<p class="xl">{{ arr_stats_entreprises.nbEntreprisesActives }}</p>
+					<p><i>{{ (arr_stats_entreprises.nbEntreprisesActives/arr_stats_entreprises.nbEntreprisesInscrites*100)|number_format }} % des entreprises inscrites</i></p>
+				</div>
+				<div class="col-md-3"></div>
+			</div>
+			
+			<div class="row" style="margin-top: 30px;">
+				<div class="col-md-4">
+					<h4>Utilisateurs inscrits</h4>
+					<p class="xl">{{ arr_stats_users.nbUsersInscrits }}</p>
+				</div>
+				<div class="col-md-4">
+					<h4>Utilisateurs validés</h4>
+					<p class="xl">{{ arr_stats_users.nbUsersValides }}</p>
+					<p><i>{{ (arr_stats_users.nbUsersValides/arr_stats_users.nbUsersInscrits*100)|number_format }} % des utilisateurs inscrits</i></p>
+				</div>
+				<div class="col-md-4">
+					<h4>Utilisateurs actifs durant les 7 derniers jours</h4>
+					<p class="xl">{{ arr_stats_users.nbUsersActifs }}</p>
+					<p><i>{{ (arr_stats_users.nbUsersActifs/arr_stats_users.nbUsersInscrits*100)|number_format }} % des utilisateurs inscrits</i></p>
+				</div>
+			</div>
+		
+			<div class="row" style="margin-top: 30px;">
+				<div class="col-md-3">
+					<img src="{{ asset('images/assets/commercial.png') }}" alt="J'aime le commercial" style="width: 100px;" />
+					<p class="xl">{{ arr_stats_outils.JaimeLeCommercial }} entreprises</p>
+					<p><i>{{ ( arr_stats_outils.JaimeLeCommercial/arr_stats_entreprises.nbEntreprisesInscrites*100)|number_format }} % des entreprises inscrites</i></p>
+				</div>
+				<div class="col-md-3">
+					<img src="{{ asset('images/assets/comptabilite.png') }}" alt="J'aime la compta" style="width: 100px;" />
+					<p class="xl">{{ arr_stats_outils.JaimeLaCompta }} entreprises</p>
+					<p><i>{{ ( arr_stats_outils.JaimeLaCompta/arr_stats_entreprises.nbEntreprisesInscrites*100)|number_format }} % des entreprises inscrites</i></p>
+				</div>
+				<div class="col-md-3">
+					<img src="{{ asset('images/assets/communication.png') }}" alt="J'aime communiquer" style="width: 100px;" />
+					<p class="xl">{{ arr_stats_outils.JaimeCommuniquer }} entreprises</p>
+					<p><i>{{ ( arr_stats_outils.JaimeCommuniquer/arr_stats_entreprises.nbEntreprisesInscrites*100)|number_format }} % des entreprises inscrites</i></p>
+				</div>
+				<div class="col-md-3">
+					<img src="{{ asset('images/assets/recrutement.png') }}" alt="J'aime recruter" style="width: 100px;" />
+					<p class="xl">{{ arr_stats_outils.JaimeRecruter }} entreprises</p>
+					<p><i>{{ ( arr_stats_outils.JaimeRecruter/arr_stats_entreprises.nbEntreprisesInscrites*100)|number_format }} % des entreprises inscrites</i></p>
+				</div>
+			</div>
+			
+			<div class="row" style="margin-top: 30px;">
+				<div class="col-md-3">
+					<h4>Un outil activé</h4>
+					<p class="xl">{{ arr_stats_outils.nbUnOutil }} entreprises</p>
+					<p><i>{{ ( arr_stats_outils.nbUnOutil/arr_stats_entreprises.nbEntreprisesInscrites*100)|number_format }} % des entreprises inscrites</i></p>
+				</div>
+				<div class="col-md-3">
+					<h4>Deux outils activés</h4>
+					<p class="xl">{{ arr_stats_outils.nbDeuxOutils }} entreprises</p>
+					<p><i>{{ ( arr_stats_outils.nbDeuxOutils/arr_stats_entreprises.nbEntreprisesInscrites*100)|number_format }} % des entreprises inscrites</i></p>
+				</div>
+				<div class="col-md-3">
+					<h4>Trois outils activés</h4>
+					<p class="xl">{{ arr_stats_outils.nbTroisOutils }} entreprises</p>
+					<p><i>{{ ( arr_stats_outils.nbTroisOutils/arr_stats_entreprises.nbEntreprisesInscrites*100)|number_format }} % des entreprises inscrites</i></p>
+				</div>
+				<div class="col-md-3">
+					<h4>Quatre outils activés</h4>
+					<p class="xl">{{ arr_stats_outils.nbQuatreOutils }} entreprises</p>
+					<p><i>{{ ( arr_stats_outils.nbQuatreOutils/arr_stats_entreprises.nbEntreprisesInscrites*100)|number_format }} % des entreprises inscrites</i></p>
+				</div>
+			</div>
+						
+		</div>
+	</div>
+</div>
+{% endblock %}

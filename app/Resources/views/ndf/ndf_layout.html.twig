@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/ndf.css') }}" type="text/css" />
+{% endblock %}
+
+
+{% block body %}
+<div class="row full-height-minus-userbar">
+		<div class="col-md-1"></div>
+		<div class="col-md-10 wrap-content wrap-content-ndf">
+	     <div class="titre titre-ndf">
+					<h1>Notes de frais</h1>
+			 </div>
+
+	    	{% block content %}
+	    	{% endblock %}
+	  </div>
+		<div class="col-md-1"></div>
+</div>
+{% endblock %}

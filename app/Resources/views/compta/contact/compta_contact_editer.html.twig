@@ -1,0 +1,13 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Modifier un {{ type|lower }}</h1>
+		</div>
+	</div>
+
+	{% include 'compta/contact/compta_contact_form.html.twig' %}
+
+{% endblock %}

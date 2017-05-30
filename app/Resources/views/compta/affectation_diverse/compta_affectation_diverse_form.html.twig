@@ -1,0 +1,64 @@
+{% block content %} 
+
+	{{ form_start(form, {'attr' : {'id' : 'form-add-affectation_diverse'}} ) }}
+			
+	<div class="row">
+		<div class="col-md-12">
+			{{ form_errors(form) }}
+			{{ form_row(form.type) }} <!-- hidden -->
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">			
+			{{ form_row(form.nom) }}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">			
+			{{ form_row(form.filtre_comptes) }}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">			
+			{{ form_row(form.compteComptable) }}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">			
+			{{ form_row(form.recurrent) }}
+		</div>
+	</div>
+	
+	<div class="row">   
+	    <div class="col-md-12">
+		   	 <input type="submit" value="Enregistrer" class="btn btn-success" />
+		</div>
+	</div>
+	{{ form_rest(form) }}
+	{{ form_end(form) }}
+{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript">
+	$(".radio-filtre-comptes input:radio").click(function(){
+
+		var num = $(this).val();
+		var compte471 = null;
+		$(".select-compte-comptable option").each(function(){
+			if($(this).text().lastIndexOf("471 :", 0) == 0){
+				compte471 = $(this).val();
+			}
+		});
+		if(num == "471"){
+			$(".select-compte-comptable").val(compte471);
+			$(".select-compte-comptable").attr('disabled', true); 
+		} else {
+			$(".select-compte-comptable").attr('disabled', false); 
+		}
+	});
+
+	$("form").submit(function(){
+		$(".select-compte-comptable").attr('disabled', false); 
+	});
+</script>
+{% endblock %}

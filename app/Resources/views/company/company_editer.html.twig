@@ -1,0 +1,202 @@
+{% extends 'admin/admin_layout.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+		<link rel="stylesheet" href="{{ asset('css/company.css') }}" type="text/css" />
+		<link rel="stylesheet" href="{{ asset('lib/jquery-file-upload/css/jquery.fileupload.css') }}">
+{% endblock %}
+
+{% block content %}
+
+	<div class="row">
+	  <div class="col-md-12">
+			{% if company.id == null %}
+				<h1>Bonjour {{ app.user.firstname }}. Bienvenue sur J'aime Gérer !</h1>
+				<p>Et si nous faisions connaissance avant de commencer ?</p>
+				<p><strong>Dites-nous en un peu plus sur votre entreprise !</strong></p>
+			{% else %}
+					<h1>Configurer mon entreprise</h1>
+			{% endif %}
+	  </div>
+	</div>
+
+	<div class="row">
+	  <div class="col-md-12 center">
+
+			{{ form_start(form) }}
+
+			{% for flashMessage in app.session.flashbag.get('success') %}
+			    <div class="alert alert-success">
+			        {{ flashMessage }}
+			    </div>
+			{% endfor %}
+			<div class="row">
+				<div class="col-md-6">
+					{{ form_errors(form) }}
+					{{ form_row(form.nom) }}
+					{{ form_row(form.adresse, {'attr' : {'class' : 'input-adresse'}}) }}
+					{{ form_row(form.codePostal, {'attr' : {'class' : 'input-codepostal'}}) }}
+					{{ form_row(form.ville, {'attr' : {'class' : 'input-ville'}}) }}
+					{{ form_row(form.region, {'attr' : {'class' : 'input-region'}}) }}
+					{{ form_row(form.pays, {'attr' : {'class' : 'input-pays'}}) }}
+					{{ form_row(form.telephone, {'attr' : {'class' : 'input-telephone'}}) }}
+			    {{ form_row(form.fax, {'attr' : {'class' : 'input-fax'}}) }}
+			  </div>
+
+			    <div class="col-md-6">
+					<div class="form-group">
+						<p><strong>Logo</strong></p>
+						<p><i>Votre logo sera automatiquement insérée sur les factures, devis et courriers envoyés depuis J'aime Gérer.</i><br />
+						<i class="s">Formats acceptés : .jpg, .jpeg, .png, .bmp - Taille (en pixels) : entre 50x50 et 300x300</i></p>
+						<p class="red hidden" id="error-logo"></p>
+						{% if company.logo is not null %}
+							<img src="{{ asset('upload/logo/'~company.logo) }}" alt="Logo" id="logo-img"  style="max-width: 100px;" /><br /><br />
+						{% endif %}
+						<!-- The fileinput-button span is used to style the file input field as button -->
+				        <a class="btn btn-info"><span class="fileinput-button">
+				        	Choisir un fichier
+				        	<!-- The file input field used as target for the file upload widget -->
+				        	<input class="fileupload-logo" type="file" name="files[]">
+					    </span></a>
+						<br />
+					    <br />
+					    <!-- The global progress bar -->
+					    <div id="progress-logo" class="progress hidden" style="width:250px; margin: auto; margin-bottom: 20px;">
+					        <div class="progress-bar progress-bar-success progress-bar-striped"></div>
+					    </div>
+					</div>
+					<div class="form-group">
+						<p><strong>Tampon ou signature</strong></p>
+						<p><i>Votre tampon ou votre signature sera automatiquement insérée en bas des courriers envoyés depuis J'aime Gérer.</i><br />
+						<p class="red hidden" id="error-tampon"></p>
+						<i class="s">Formats acceptés : .jpg, .jpeg, .png, .bmp - Taille (en pixels) : entre 50x50 et 300x300</i></p>
+						{% if company.tampon is not null %}
+							<img src="{{ asset('upload/tampon/'~company.tampon) }}" alt="Tampon" id="tampon-img"  style="max-width: 100px;" /><br /><br />
+						{% endif %}
+						<!-- The fileinput-button span is used to style the file input field as button -->
+				        <a class="btn btn-info"><span class="fileinput-button">
+				        	Choisir un fichier
+				        	<!-- The file input field used as target for the file upload widget -->
+				        	<input class="fileupload-tampon fileupload" type="file" name="files[]">
+					    </span></a>
+						<br />
+					    <br />
+					    <!-- The global progress bar -->
+					    <div id="progress-tampon" class="progress hidden" style="width:250px; margin: auto; margin-bottom: 20px;">
+					        <div class="progress-bar progress-bar-success progress-bar-striped"></div>
+					    </div>
+					</div>
+					<div class="form-group">
+				    	{{ form_label(form.color) }}<br />
+				    	<p><i>La couleur qui sera utilisée sur vos factures et devis.</i></p>
+						{{ form_errors(form.color) }}
+						<div class="color"></div>{{ form_widget(form.color) }}<br />
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+				{% if company.id != null %}
+					<a class="btn" href="{{ path('homepage') }}" data-dismiss="modal">
+		       			<span class="glyphicon glyphicon-chevron-left"></span>Retour à l'accueil
+		   			</a>
+		   			 <input type="submit" value="Enregistrer" class="btn btn-success" />
+	   			{% else %}
+			   	 	<input type="submit" value="Enregistrer et commencer à utiliser J'aime gérer" class="btn btn-success" />
+			    {% endif %}
+			    </div>
+			</div>
+			{{ form_end(form) }}
+
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script src="{{ asset('bundles/fenrizbescolorpickertype/lib/js/iris.min.js') }}"></script>
+	<script src="{{ asset('bundles/fenrizbescolorpickertype/js/color_picker_type.js') }}"></script>
+	<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+	<script src="{{ asset('lib/jquery-file-upload/js/jquery.iframe-transport.js') }}"></script>
+	<!-- The basic File Upload plugin -->
+	<script src="{{ asset('lib/jquery-file-upload/js/jquery.fileupload.js') }}"></script>
+
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+
+		$('.color').css('background-color', $('.colorpicker').val());
+
+		$('.colorpicker').iris({
+		  change: function(event, ui) {
+			  $('.color').css('background-color', ui.color.toString());
+		    }
+		});
+
+		var url_upload_tampon = "{{ path('admin_company_upload_tampon') }}";
+	    $('.fileupload-tampon').fileupload({
+	        url: url_upload_tampon,
+	        dataType: 'json',
+  			add: function(e, data) {
+
+	            var uploadErrors = [];
+
+	            var acceptFileTypes = /^image\/(gif|jpe?g|png|bmp)$/i;
+	            if(data.originalFiles[0]['type'].length && !acceptFileTypes.test(data.originalFiles[0]['type'])) {
+	            	$('#error-tampon').text('Format de fichier non accepté.');
+    	            $('#error-tampon').removeClass("hidden");
+	            } else {
+	            	  $('#error-tampon').addClass("hidden");
+	 	                data.submit();
+	 	        }
+
+	    	},
+	        done: function (e, data) {
+			  $('#progress-tampon').addClass("hidden");
+			  $('#tampon-img').attr('src', '/web/upload/tampon/'+data.result.filename);
+	        },
+	        progressall: function (e, data) {
+	        	$('#progress-tampon').removeClass("hidden");
+	            var progress = parseInt(data.loaded / data.total * 100, 10);
+	            $('#progress-tampon .progress-bar').css(
+	                'width',
+	                progress + '%'
+	            );
+	        }
+	    });
+
+	    var url_upload_logo = "{{ path('admin_company_upload_logo') }}";
+	    $('.fileupload-logo').fileupload({
+	        url: url_upload_logo,
+	        dataType: 'json',
+	        add: function(e, data) {
+
+		            var acceptFileTypes = /^image\/(gif|jpe?g|png|bmp)$/i;
+		            if(data.originalFiles[0]['type'].length && !acceptFileTypes.test(data.originalFiles[0]['type'])) {
+		            	$('#error-logo').text('Format de fichier non accepté.');
+	    	            $('#error-logo').removeClass("hidden");
+		            } else {
+		            	  $('#error-logo').addClass("hidden");
+		 	                data.submit();
+		 	        }
+
+	    	},
+	        done: function (e, data) {
+			  $('#progress-logo').addClass("hidden");
+			  $('#logo-img').attr('src', '/web/upload/logo/'+data.result.filename);
+	        },
+	        progressall: function (e, data) {
+	        	$('#progress-logo').removeClass("hidden");
+	            var progress = parseInt(data.loaded / data.total * 100, 10);
+	            $('#progress-logo .progress-bar').css(
+	                'width',
+	                progress + '%'
+	            );
+	        }
+	    });
+
+
+	});
+	</script>
+{% endblock %}

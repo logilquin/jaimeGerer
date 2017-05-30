@@ -1,0 +1,186 @@
+{% block stylesheets %}
+	<!-- Dropdown with multiple selections : https://github.com/ehynds/jquery-ui-multiselect-widget -->
+	<link rel="stylesheet" href="{{ asset('lib/jquery-ui-multiselect-widget/jquery.multiselect.css') }}"/>
+	<link rel="stylesheet" href="{{ asset('lib/jquery-ui-multiselect-widget/jquery.multiselect.filter.css') }}"/>
+{% endblock %}
+
+{% block content %}
+
+{% if action is defined %}
+	{{ form_start(form, {'attr' : {'id' : 'form-'~action}} ) }}
+{% else %}
+	{{ form_start(form, {'attr' : {'class' : 'form-add-depense'}}) }}
+{% endif %}
+
+<div class="row">
+	<div class="col-md-12">
+		{{ form_errors(form) }}
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-6">
+		{{ form_label(form.compte_name) }}
+		<a href="{{ path('crm_compte_ajouter_modal') }}" style="margin-left:10px" class="add_compte_link btn btn-xs btn-success" data-toggle="modal" data-target="#modal"><span class="glyphicon glyphicon-plus"></span></a>
+		{{ form_errors(form.compte_name) }}
+		<div class="typeahead-container">
+			<div class="typeahead-field">
+						<span class="typeahead-query">
+					{{ form_widget(form.compte_name, {'attr' : {'class' : 'typeahead-compte input-compte-name'}}) }}
+					{{ form_row(form.compte) }}
+				</span>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6">
+
+		{{ form_row(form.date) }}
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-6">
+		{{  form_row(form.libelle) }}
+	</div>
+	<div class="col-md-6">
+		{{ form_row(form.numFournisseur) }}
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-6">
+		{{ form_row(form.modePaiement) }}
+	</div>
+	<div class="col-md-6">
+		{{ form_row(form.conditionReglement) }}
+	</div>
+</div>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="wrapper-num-cheque hidden">
+					{{ form_row(form.numCheque) }}
+			</div>
+		</div>
+		<div class="col-md-6">
+			{{ form_row(form.analytique) }}
+		</div>
+	</div>
+
+<div class="row">
+	<div class="col-md-12">
+ 		<ul class="produits" id="collectionContainer" data-prototype="
+		 {% filter escape %}
+		 	{{ include('compta/depense/compta_depense_ligne_form.html.twig', { 'form':  form.lignes.vars.prototype }) }}
+	     {% endfilter %}">
+	     {% for ligneField in form.lignes %}
+	        <li>
+		    	{{ include('compta/depense/compta_depense_ligne_form.html.twig', { 'form': ligneField }) }}
+	        </li>
+	    {% endfor %}
+	    </ul>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12" id="depense-calcul-wrapper">
+		<hr />
+		{{ form_row(form.totalHT) }}
+		{{ form_row(form.taxe) }}
+		{{ form_row(form.totalTTC) }}
+		<hr />
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12" id="sous-traitants-wrapper">
+		{{ form_row(form.opportuniteSousTraitances) }}
+		<hr />
+	</div>
+</div>
+<div class="row">
+	{% if modal is not defined %}
+		<div class="col-md-12">
+			<div class="alert alert-warning">
+				<p><strong><span class="glyphicon glypchicon-warning"></span> Vous n'avez pas sélectionné de fournisseur.</strong><br />
+					Le champ founisseur utilise l'autocomplétion. Commencez à taper le nom du fournisseur, et le champ vous proposera une liste dans laquelle choisir.
+				</p>
+			</div>
+		</div>
+	  <div class="col-md-3 center">
+		   	 <input type="submit" value="Enregistrer et voir la dépense" class="btn btn-success" name="action" />
+		</div>
+		<div class="col-md-3 center">
+		   	  <input type="submit" value="Enregistrer et créer une nouvelle dépense" class="btn btn-info" name="action" />
+		</div>
+		 <div class="col-md-6"></div>
+	{% else %}
+	 	<div class="col-md-12 center">
+				<div class="alert alert-warning"><p><strong>Vous n'avez pas sélectionné de fournisseur.</strong><br />Le champ founisseur utilise l'autocomplétion. Commencez à taper le nom du fournisseur, et le champ vous proposera une liste dans laquelle choisir. </p></div>
+		   	<input type="submit" value="Enregistrer" class="btn btn-success" name="action" />
+		</div>
+	{% endif %}
+</div>
+{{ form_rest(form) }}
+{{ form_end(form) }}
+{% endblock %}
+
+{% block javascripts %}
+	<script src="//maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+	<script type="text/javascript" src="{{ asset('js/jquery.ui.addresspicker.js') }}"></script>
+	<!-- Dropdown with multiple selections : https://github.com/ehynds/jquery-ui-multiselect-widget -->
+	<script src="{{ asset('lib/jquery-ui-multiselect-widget/src/jquery.multiselect.js') }}"></script>
+	<script src="{{ asset('lib/jquery-ui-multiselect-widget/src/jquery.multiselect.filter.js') }}"></script>
+	<script src="{{ asset('lib/jquery-ui-multiselect-widget/i18n/jquery.multiselect.fr.js') }}"></script>
+
+	<script type="text/javascript">
+		$(document).ready( function () {
+
+			$(".dateInput").datepicker({
+				dateFormat: 'dd/mm/yy',
+				firstDay:1
+			});
+
+			$(".select-sous-traitances").multiselect();
+
+
+			if( $('.select-mode-paiement').val() == 'Chèque'){
+				$('.wrapper-num-cheque').removeClass("hidden");
+			}
+
+			$('.select-mode-paiement').change(function() {
+				if($('.select-mode-paiement').val() != 'Chèque'){
+						$('.wrapper-num-cheque').addClass("hidden");
+				} else {
+						$('.wrapper-num-cheque').removeClass("hidden");
+				}
+ 			});
+
+			$('.typeahead-compte').typeahead({
+			    order: "desc",
+			    source: {
+			        url: Routing.generate('crm_compte_get_liste')
+			    },
+			    callback: {
+			        onInit: function (node) {
+			            console.log('Typeahead Initiated on ' + node.selector);
+			        },
+			        onClickAfter: function (node, a, item, event) {
+								$('.entity-compte').val(item.id).trigger('change');
+            	}
+			    },
+			    debug: true
+			});
+
+			$('.typeahead-compte').change(function(){
+				if($(this).val() == ""){
+					$('.entity-compte').val("").trigger('change');
+				}
+			});
+
+			$('.entity-compte').change(function(){
+				if($(this).val() != ""){
+					$('.alert-warning').addClass('hidden');
+				} else {
+					$('.alert-warning').removeClass('hidden');
+				}
+			});
+
+		});
+	</script>
+{% endblock %}

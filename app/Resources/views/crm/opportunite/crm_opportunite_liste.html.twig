@@ -1,0 +1,254 @@
+{% extends 'crm/crm_layout.html.twig' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Opportunités</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {% include 'crm/opportunite/crm_opportunite_submenu.html.twig' %}
+        </div>
+    </div>
+
+		{% if etat == "ONGOING" %}
+	    <div class="row" style="margin-top: 40px; margin-bottom: 40px;">
+	        <div class="col-md-6">
+							<h3>Répartition par probabilité</h3>
+	            <div id="chartdiv" style="width: 600px; height: 300px; margin:auto;"></div>
+	        </div>
+				  <div class="col-md-6">
+						<h3>Taux de transformation {{ 'now'|date('Y') }}</h3>
+						<div id="chart_taux_transformation_wrapper"></div>
+					</div>
+
+	    </div>
+
+	    <div class="row">
+	        <div class="col-md-12">
+	            <p>
+	                <a href="{{ path('crm_opportunite_ajouter') }}" class="btn btn-success">
+	                    <span class="glyphicon glyphicon-plus"></span>
+	                    Ajouter
+	                </a>
+	                <a href="#" class="btn btn-danger">
+	                    <span class="glyphicon glyphicon-trash"></span>
+	                    Supprimer
+	                </a>
+	                <!-- <a href="#myModal" class="btn btn-warning btn-large" role="button" data-toggle="modal">
+	                    <span class="glyphicon glyphicon-refresh"></span>
+	                    Nettoyer -->
+	                </a>
+	            </p>
+	        </div>
+	    </div>
+
+			<!-- <div id="myModal" class="modal fade">
+					<div class="modal-dialog">
+							<div class="modal-content">
+									<div class="modal-header">
+											<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+											<h4 class="modal-title">Nettoyer les opportunités</h4>
+									</div>
+									<div class="modal-body">
+											<p>Veuillez indiquer la date de référence</p>
+											<p class="text-warning">
+													<small>Les opportunités dont la date d'échéance est antérieure à cette date seront supprimées</small>
+											</p>
+											<input id="nettoyer_echeance" name="nettoyer_echeance" class="dateInput">
+									</div>
+									<div class="modal-footer">
+											<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+											<button type="button" class="btn btn-primary" id="nettoyer_confirm">Confirmer</button>
+									</div>
+							</div>
+					</div>
+			</div> -->
+
+		{% endif %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <table id="table_opportunite_list" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th class="col-md-3">Nom</th>
+                        <th class="col-md-1">Date</th>
+                        <th class="col-md-1">Montant</th>
+                        <th class="col-md-1">CA attendu</th>
+                        <th class="col-md-1">AO</th>
+                        <th class="col-md-3">Nom de l'organisation</th>
+                        <th class="col-md-2">Actions</th>
+                    </tr>
+                </thead>
+
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('lib/amcharts/amcharts/amcharts.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('lib/amcharts/amcharts/funnel.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('js/moment.js') }}"></script>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+			var etat = "{{ etat }}";
+			var url = Routing.generate('crm_opportunite_liste_ajax', {'etat' : etat } );
+
+            $('#table_opportunite_list').DataTable({
+                "dom": 'T<"clear">lfrtip',
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"
+                },
+                "responsive": true,
+                "order": [
+                    [1, "desc"]
+                ],
+                "responsive": true,
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    url: url, // json datasource
+                    type: "get", // method  , by default get
+                },
+                "columns": [
+                    {
+                        "data": "nom"
+                    }, {
+                        "data": "date"
+                    }, {
+                        "data": "montant"
+                    }, {
+                        "data": "ca_attendu"
+                    }, {
+                        "data": "appelOffre"
+                    }, {
+                        "data": "compte"
+                    }
+                ],
+                "columnDefs": [
+                    {
+                        "render": function(data, type, row) {
+                              var voirUrl = Routing.generate('crm_opportunite_voir', {'id': row['id']});    
+                            return '<a href="' + voirUrl + '">' + data + '</a>';
+                        },
+                        "targets": 0
+                    }, {
+                        "render": function(data, type, row) {
+                            return moment(data.date).format('DD/MM/YYYY');
+                        },
+                        "targets": 1
+                    },{
+                        "render": function(data, type, row) {
+                            return data + " €";
+                        },
+                        "targets": 2
+                    },{
+                        "render": function(data, type, row) {
+                            return data + " €";
+                        },
+                        "targets": 3
+                    }, {
+                        "render": function(data, type, row) {
+                            var s= "";
+                            if(data == true){
+                                s= '<span class="green glyphicon glyphicon-ok"></span>';
+                            } else {
+                                s= '<span class="red glyphicon glyphicon-remove"></span>';
+                            }
+                            return s;
+                        },
+                        "targets": 4
+                    },  {
+                        "render": function(data, type, row) {
+                              var compteVoirUrl = Routing.generate('crm_compte_voir', {'id': row['id']});    
+                            return '<a href="' + compteVoirUrl + '">' + data + '</a>';
+                        },
+                        "targets": 5
+                    },{
+                        "render": function(data, type, row) {
+
+                            var voirUrl = Routing.generate('crm_opportunite_voir', {'id': row['id']});
+                            var editerUrl = Routing.generate('crm_opportunite_editer', {'id': row['id']});
+                            var supprimerUrl = Routing.generate('crm_opportunite_supprimer', {'id': row['id']});
+                            var dupliquerUrl = Routing.generate('crm_opportunite_dupliquer', {'id': row['id']});
+                            var gagnerUrl = Routing.generate('crm_opportunite_gagner', {'id': row['id']});
+                            var perdreUrl = Routing.generate('crm_opportunite_perdre', {'id': row['id']});
+
+                            var s= "<p><a href=" + voirUrl + " class=\"btn btn-xs btn-info\" ​data-toggle=\"tooltip-btn-xs\" title=\"Voir\"><span class=\"glyphicon glyphicon-eye-open\"></span></a> " +
+																			"<a href=" + editerUrl + " class=\"btn btn-xs btn-warning\" ​data-toggle=\"tooltip-btn-xs\" title=\"Editer\"><span class=\"glyphicon glyphicon-pencil\"></span></a> "+
+																			"<a href=" + dupliquerUrl + " class=\"btn btn-xs btn-primary\" ​data-toggle=\"tooltip-btn-xs\" title=\"Dupliquer\"><span class=\"glyphicon glyphicon-duplicate\"></span></a> "+
+																			"<a href=" + supprimerUrl + " class=\"btn btn-xs btn-danger\" ​data-toggle=\"tooltip-btn-xs\" title=\"Supprimer\"><span class=\"glyphicon glyphicon-trash\"></span></a></p> ";
+
+														{% if etat == "ONGOING" %}
+															s+="<p><a href=" + gagnerUrl + " class=\"btn btn-xs btn-success\" ​data-toggle=\"tooltip-btn-xs\" title=\"Gagnée\"><span class=\"glyphicon glyphicon-thumbs-up\"></span></a> "+
+																		"<a href=" + perdreUrl + " class=\"btn btn-xs btn-danger\" ​data-toggle=\"tooltip-btn-xs\"  title=\"Perdue\"><span class=\"glyphicon glyphicon-thumbs-down\"></span></a></p>";
+														{% endif %}
+														return s;
+                        },
+                        "targets": 6
+                    }, {
+                        "visible": false,
+                        "targets": ['id']
+                    }
+                ]
+            });
+
+						{% if etat == "ONGOING" %}
+
+							/* chart : taux de transformation */
+							{{ gc_draw(chartTauxTransformation, 'chart_taux_transformation_wrapper') }}
+
+							AmCharts.ready(function() {
+									$.ajax({
+											url: Routing.generate('crm_opportunite_chart_data', {'type': 'funnel'}),
+											success: function(data) {
+													handleDataFunnel(data);
+											}
+									});
+
+							});
+
+							function handleDataFunnel(data) {
+
+									var chart = new AmCharts.AmFunnelChart();
+									chart.titleField = "title";
+									chart.balloon.cornerRadius = 0;
+									chart.marginRight = 220;
+									chart.marginLeft = 15;
+									chart.labelPosition = "right";
+									chart.labelsEnabled = false;
+									chart.funnelAlpha = 0.9;
+									chart.valueField = "value";
+									chart.dataProvider = data;
+									chart.startX = 0;
+									chart.balloon.animationTime = 0.2;
+									chart.neckWidth = "40%";
+									chart.startAlpha = 0;
+									chart.neckHeight = "30%";
+									chart.balloonText = "Statut : [[title]]<br/>Total des montants : [[value]] &euro;";
+
+									chart.creditsPosition = "bottom-right";
+
+									var legend = new AmCharts.AmLegend();
+									legend.valueText = "";
+									legend.valueWidth = 0;
+									chart.legend = legend;
+
+									chart.write("chartdiv");
+									$('a[title="JavaScript charts"]').addClass("hidden");
+							}
+
+						{% endif %}
+
+        });
+    </script>
+{% endblock %}

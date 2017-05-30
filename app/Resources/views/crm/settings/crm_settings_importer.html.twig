@@ -1,0 +1,46 @@
+{% extends 'crm/crm_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Importer des données</h1>	
+		</div>
+	</div>
+	
+	<div class="row">
+
+		<div class="col-md-2">
+			<p>
+				<a href="{{ path('crm_compte_importer') }}">
+					Comptes
+				</a>
+			</p>
+		</div>
+		
+		<div class="col-md-2">
+			<p>
+				Contacts
+			</p>
+		</div>
+		
+		<div class="col-md-2">
+			<p>
+				Opportunités
+			</p>
+		</div>
+		
+		<div class="col-md-2">
+			<p>
+				Devis
+			</p>
+		</div>
+		
+		<div class="col-md-2">
+			<p>
+				Factures
+			</p>
+		</div>
+	
+	</div>
+{% endblock %}

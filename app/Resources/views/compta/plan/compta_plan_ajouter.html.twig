@@ -1,0 +1,23 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Ajouter un compte</h1>	
+		</div>
+	</div>
+
+ {{ form_start(form) }}
+	<div class="row">
+		
+		<div class="col-md-12">
+			{{ form_errors(form) }}
+			{{ form_row(form.num) }}
+			{{ form_row(form.nom) }}
+		   	 <input type="submit" value="Enregistrer" class="btn btn-success" />
+	    </div>
+	</div>
+	{{ form_end(form) }}
+
+{% endblock %}

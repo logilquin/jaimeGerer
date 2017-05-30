@@ -1,0 +1,620 @@
+{% extends 'crm/crm_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Phoning de la campagne {{ prospection.nom }}</h1>
+			<h3>Suivi du phoning</h3>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+		    <p>
+		    	Aujourd'hui je souhaite appeler <input id="nbre_contact" class="" type="number" value="{{ prospection.nbreAffichage }}"> personnes
+		    <a class="btn btn-primary btn-xs" id="refresh_liste">
+					Remplir la liste
+				</a>
+			</p>
+
+<script>
+	$(document).ready(function() {
+
+		$("* [rel='tooltip']").tooltip({
+		   html: true,
+		   placement: 'top'
+		});
+
+	});
+	{#{{ dump(prospection.rapport.data) }}#}
+	var data = {{ data|raw }};
+
+</script>
+
+
+	    </div>
+    </div>
+
+	    <div class="row">
+	    	<div class="col-md-12">
+			    <table id="table_contact_list" class="table table-bordered table-striped" style="width: 100%;">
+			    	<tbody>
+			    		<tr style="background: none;">
+			    			<td style="width:33%; padding: 10px; vertical-align:top">
+								<div id="phoningContacts">
+								</div>
+			    			</td>
+			    			<td style="padding : 10px 10px 10px 30px; vertical-align:top" id="rightContent">
+								<div class="row">
+									<div class="col-md-10" id="phoning-compte">
+
+									</div>
+									<div class="col-md-2">
+										<a href="#" class="btn btn-success" style="float:right" id="next">
+											<span class="glyphicon glyphicon-arrow-right"></span> Suivant
+										</a>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-6" id="phoning-tentative">
+										J'ai déjà essayé d'appeler <br />
+										<h3><span class="nbr-tentatives"></span> fois</h3><a title="+1" ​data-toggle="tooltip" class="btn btn-success" href="#" data-prototype=""><strong>+1</strong></a><br /><br />
+										<button class="btn btn-primary btn-xs" href="javascript:void(0)" data-toggle="modal" data-target="#ModalBlacklistConfirmation" id="block_today" > Ne plus afficher aujourd'hui </button>
+									</div>
+									<div class="col-md-6" id="phoning-derniere-tentative">
+										Dernière tentative le <br />
+										<h3></h3>
+									</div>
+								</div>
+								<hr />
+
+								<div class="row">
+
+									<div class="col-md-6">
+										<a data-toggle="modal" data-target="#ajouterContactConfirmation"  class="btn btn-success" id="ajouter_contact">
+											Enregistrer dans les contacts
+										</a>
+									</div>
+									<div class="col-md-6">
+										<a data-toggle="modal" data-target="#ModalBlacklistConfirmation" class="btn btn-danger" style="float:right" id="block">
+											Blacklister
+										</a>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-12">
+										<hr />
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-12">
+										<div class="form-group">
+											<label class="control-label" for="note">Note</label>
+											<textarea id="note" name="note" class="form-control tinymce"></textarea>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-12">
+										<hr />
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-6">
+										<table class="contact-view-table">
+											<tbody>
+												<tr>
+													<td>
+														Adresse
+													</td>
+													<td id='table_adresse'>
+
+													</td>
+												</tr>
+												<tr>
+													<td>
+														Code postal
+													</td>
+													<td id='table_codePostal'>
+
+													</td>
+												</tr>
+												<tr>
+													<td>
+														Ville
+													</td>
+													<td id='table_ville'>
+
+													</td>
+												</tr>
+												<tr>
+													<td>
+														Région
+													</td>
+													<td id='table_region'>
+
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+									<div class="col-md-6">
+										<table class="contact-view-table">
+											<tbody>
+												<tr>
+													<td>
+														Pays
+													</td>
+													<td id='table_pays'>
+
+													</td>
+												</tr>
+												<tr>
+													<td>Téléphone fixe</td>
+													<td id='table_telephoneFixe'></td>
+												</tr>
+												<tr>
+													<td>Tél. portable pro</td>
+													<td id='table_telephonePortable'></td>
+												</tr>
+												<tr>
+													<td>Email</td>
+													<td id='table_email'></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+							   </div>
+			    			</td>
+			    		</tr>
+			    	</tbody>
+
+			    </table>
+			</div>
+	</div>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script src="{{ asset('js/moment.js') }}"></script>
+	<script type="text/javascript">
+
+		$('body').on('hidden.bs.modal', '#ModalBlacklistConfirmation', function() {
+		    $('.modal-content', this).empty();
+		    $(this).removeData('bs.modal');
+		});
+
+		$('body').on('hidden.bs.modal', '#ajouterContactConfirmation', function() {
+		    $('.modal-content', this).empty();
+		    $(this).removeData('bs.modal');
+		});
+
+
+		//affiche la liste des contacts en fonction du nombre demandé
+
+		function refresh_liste(){
+
+			var date_serveur = '{{ date_serveur }}';
+			$('#phoningContacts').html('');
+			for( i in data )
+			{
+				console.log(data[i]);
+
+				//affiche les contacts
+
+				if(data[i].blacklisteToday !== "yes" && data[i].blackliste !== true ){
+					$('#phoningContacts').append('<div id="contact-'+data[i].id+'" data-prototype="'+i+'">'+data[i].compte+'<br>'+data[i].prenom+' '+data[i].nom+', '+data[i].titre+'</div>');
+				}
+				//verif du nombre de contact
+				if( $('#phoningContacts div').length >= $('#nbre_contact').val() || $('#phoningContacts div').length >= data.length )
+				{
+					break;
+				}
+			}
+
+			$('#phoningContacts div').unbind('click');
+			$('#phoning-tentative a').unbind('click');
+
+			//Quand on clique sur le contact que l'on souhaite afficher
+			$('#phoningContacts div').click(function(){
+				if( $('#phoningContacts div.active').length > 0 )
+				{
+					var indexData = $('#phoning-tentative a').attr('data-prototype');
+					var noteContent = tinyMCE.get('note').getContent();
+					data[indexData].last_seen = 0;
+					if(noteContent !== null){
+						data[indexData].note = noteContent;
+					}
+					else{
+						data[indexData].note = " ";
+					}
+					$.ajax({
+						url: "{{ path('crm_prospection_maj_row_rapport', {'id': prospection.id}) }}",
+						method: 'POST',
+						data: { rowData : data[indexData],
+								indexData : indexData,
+								noteContent : noteContent },
+						dataType : 'json',
+						async : false,
+						success : function(d, statut){
+							console.log(d);
+						}
+					});
+
+				}
+				indexData = $(this).attr('data-prototype');
+
+				if(typeof data[indexData].date_tentative === 'string' ){
+					var date_tentative = data[indexData].date_tentative;
+				}
+				else if(data[indexData].date_tentative != null && data[indexData].date_tentative.date != 'undefined' ) {
+
+					var date_tentative = typeof(data[indexData].date_tentative.date) == 'undefined' ? '' : data[indexData].date_tentative.date.toString();
+					date_tentative = new Date(date_tentative);
+					var mm = date_tentative.getMonth() + 1;
+					var dd = date_tentative.getDate();
+
+
+					date_tentative = [
+						(dd>9 ? '' : '0') + dd,
+						(mm>9 ? '/' : '/0') + mm,
+						'/'+date_tentative.getFullYear()
+					].join('');
+				}
+				else{
+					var date_tentative = "-";
+				}
+
+				for( tableElement in data[indexData] )
+				{
+					if( $('#table_'+tableElement).length > 0 ) $('#table_'+tableElement).html(data[indexData][tableElement]);
+					if( $('#champ_'+tableElement).length > 0 ) $('#champ_'+tableElement).val(data[indexData][tableElement]);
+				}
+
+				data[indexData].email == '' ? $('a#ecrire').addClass('not-active') : $('a#ecrire').removeClass('not-active');
+				data[indexData].onlyProspect == false ? $('a#ajouter_contact').addClass('not-active') : $('a#ajouter_contact').removeClass('not-active');
+				$('#note').val();
+				note_content = typeof(data[indexData].note) == 'undefined' ? '' : data[indexData].note;
+				tinymce.get('note').setContent(note_content);
+				$('#phoningContacts div').removeClass('active');
+				$('#phoning-derniere-tentative h3').html(date_tentative);
+				$('#phoning-compte').html('<h2>'+data[indexData].compte+' <span class="small">'+data[indexData].prenom+' '+data[indexData].nom+' - '+data[indexData].titre+'</span></h2><p class="telNumber">' +data[indexData].telephoneFixe+' / '+data[indexData].email+' <a title="Editer" ​data-toggle="tooltip" class="btn btn-xs btn-warning" href="javascript:void(0)" data-toggle="modal" data-target="#ModalEditer"><span class="glyphicon glyphicon-pencil"></span></a></p>');
+				var tentative = typeof(data[indexData].tentative) == null ? 0 : data[indexData].tentative;
+				$('#phoning-tentative h3 .nbr-tentatives').html(tentative);
+				$('#phoning-tentative a').unbind('click');
+				$('#phoning-tentative a').attr('data-prototype', indexData);
+
+				$('#phoning-tentative a').click(function(e){
+					e.preventDefault();
+					var tentative = parseInt($('#phoning-tentative span').text()) + 1;
+
+					data[indexData].tentative = tentative;
+					data[indexData].date_tentative = moment().format('DD/MM/YYYY');
+					data[indexData].last_seen = 1;
+					$('#phoning-derniere-tentative h3').html(moment().format('DD/MM/YYYY'));
+					$('#phoning-tentative span').html(tentative);
+					var active = $('#phoningContacts div.active').attr('id');
+					$('#phoningContacts div.active').trigger('click');
+				});
+				$(this).addClass('active');
+				$('#phoningContacts').height($('#rightContent').height()+'px');
+			});
+		}
+
+
+
+		$('#note').val();
+		$(document).ready( function () {
+
+			//sauvgarder les changements (tous)
+
+			$('#maj_row').click(function(){
+				var save_row = false;
+				var indexData = $('#phoning-tentative a').attr('data-prototype');
+				for( champelement in data[indexData] )
+				{
+					if( $('#champ_'+champelement).length > 0 && $('#champ_'+champelement).val() != data[indexData][champelement] )
+					{
+						data[indexData][champelement] = $('#champ_'+champelement).val();
+						save_row = true;
+					}
+				}
+				if( save_row )
+				{
+					var noteContent = tinyMCE.get('note').getContent();
+					$.ajax({
+						url: "{{ path('crm_prospection_maj_row_rapport', {'id': prospection.id}) }}",
+						method: 'POST',
+						data: { rowData : data[indexData],
+								indexData : indexData,
+								noteContent : noteContent },
+						dataType : 'json',
+						async : false,
+						success : function(d, statut){
+							$('#phoningContacts div.active').trigger('click');
+							console.log(d);
+							console.log(statut);
+						}
+					});
+				}
+				$('#ModalEditer').modal('hide');
+			});
+
+
+			// Blacklist generale
+
+			$('#block').click(function(){
+				var indexData = $('#phoning-tentative a').attr('data-prototype');
+				$('.modal-body').html('<p>Êtes vous sûr de Blacklister '+data[indexData].prenom+' '+data[indexData].nom+' ?</p>');
+				$('#ConfirmBlackliste').html('<span class="glyphicon glyphicon-ban-circle"> </span> Blacklister !');
+				$('#ConfirmBlackliste').unbind('click');
+				$('#ConfirmBlackliste').click(function(){
+					var indexData = $('#phoning-tentative a').attr('data-prototype');
+					data[indexData].blackliste = 1;
+					var supprime = $('#phoningContacts div.active');
+					$('#next').trigger('click');
+					$('#ModalBlacklistConfirmation').modal('hide');
+				//	supprime.next().trigger('click');
+					supprime.remove();
+				});
+			});
+
+
+
+			//blackLister aujourd'hui
+
+			$('#block_today').click(function(){
+				var indexData = $('#phoning-tentative a').attr('data-prototype');
+				$('.modal-body').html('<p>Êtes vous sûr de ne plus afficher '+data[indexData].prenom+' '+data[indexData].nom+' aujourd\'hui ?</p>');
+				$('#ConfirmBlackliste').html('<span class="glyphicon glyphicon-ban-circle"> </span> Blacklister Aujourd\'hui');
+				$('#ConfirmBlackliste').unbind('click');
+				$('#ConfirmBlackliste').click(function(){
+					var indexData = $('#phoning-tentative a').attr('data-prototype');
+					data[indexData].blacklisteToday = "yes";
+					var supprime = $('#phoningContacts div.active');
+					$('#next').trigger('click');
+					$('#ModalBlacklistConfirmation').modal('hide');
+					supprime.remove();
+				});
+			});
+
+			// passer au contact suivant
+
+			$('#next').click(function(e){
+				e.preventDefault();
+				if( $('#phoningContacts div.active').length > 0 )
+				{
+					var indexData = $('#phoning-tentative a').attr('data-prototype');
+					var noteContent = tinyMCE.get('note').getContent();
+					data[indexData].last_seen = 1;
+					if(noteContent !== null){
+						data[indexData].note = noteContent;
+					}
+					else{
+						data[indexData].note = "";
+					}
+
+					$.ajax({
+						url: "{{ path('crm_prospection_maj_row_rapport', {'id': prospection.id}) }}",
+						method: 'POST',
+						data: { rowData : data[indexData],
+								indexData : indexData,
+								noteContent : noteContent },
+						dataType : 'json',
+						async : false,
+						success : function(d, statut){
+							$('#phoningContacts div.active').next().trigger('click');
+							//var $span = $('<span class="green glyphicon glyphicon-ok"></span>');
+							//$(td).empty().append($span);
+						}
+					});
+
+				}
+			});
+
+
+			$.typeahead({
+				input: '.typeahead-compte',
+				order: "desc",
+				source: {
+					url: "/web/app_dev.php/crm/compte/get-comptes"
+				},
+				callback: {
+					onInit: function (node) {
+						console.log('Typeahead Initiated on ' + node.selector);
+					},
+					onClickAfter: function (node, a, item, event) {
+						console.log(node);
+						$('#entity-compte').val(item.id);
+
+					}
+				},
+				debug: true
+			});
+
+
+			//enregistrer dans les contacts
+
+			$('#ajouter_contact').click(function(e){
+				e.preventDefault();
+				if( $('#phoningContacts div.active').length > 0 )
+				{
+					var indexData = $('#phoning-tentative a').attr('data-prototype');
+					var noteContent = tinyMCE.get('note').getContent();
+
+
+
+					$('#ajouter_contactModal').click(function (e) {
+						var compte =  $('#entity-compte').val();
+						$.ajax({
+							url: "{{ path('crm_prospection_ajouter_contact') }}",
+							method: 'POST',
+							data: { compte : compte,
+								rowData : data[indexData],
+								noteContent : noteContent },
+							dataType : 'json',
+							async : false,
+							success : function(d, statut){
+								if( d.success )
+								{
+									$('#ajouter_contact').addClass('not-active');
+									$('#ajouterContactConfirmation').modal('hide');
+								}
+
+							}
+						});
+					});
+				}
+			});
+			$("#phoningContacts").niceScroll({autohidemode:false});
+			refresh_liste();
+			$('#refresh_liste').click(function(){
+			var active = $('#phoningContacts div.active').attr('id');
+				$.ajax({
+					url: "{{ path('crm_prospection_nombre_affichage', {'id': prospection.id}) }}",
+					method: 'POST',
+					data: { nbreAffichage : $('#nbre_contact').val() },
+					dataType : 'json',
+					async : false,
+					success : function(d, statut){
+					}
+				});
+				refresh_liste();
+				$('#'+active).addClass('active');
+			});
+		});
+
+
+
+		$(window).load(function(){
+			$('#phoningContacts div:eq(0)').trigger('click');
+		});
+
+
+	</script>
+{% endblock %}
+{% block additionalModals %}
+	<div id="ajouterContactConfirmation" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="ajouterContactConfirmation" aria-hidden="true" data-focus-on="input:first">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+					<h3>Confirmation requise</h3>
+
+				</div>
+				<div class="modal-body">
+					<div class="typeahead-container">
+						<div class="typeahead-field">
+		        		<span class="typeahead-query">
+							<label for="compte">Vous devez lier ce contact à une organisation </label>
+							<input type="text" id="compte" class="typeahead-compte input-compte-name" required>
+							<input type="hidden" id="entity-compte">
+						</span>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn-success btn" id="ajouter_contactModal">Ajouter</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="ModalBlacklistConfirmation" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="ModalBlacklistConfirmation" aria-hidden="true" data-focus-on="input:first">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+					 <h3>Confirmation requise</h3>
+
+				</div>
+				<div class="modal-body">
+					<p>Êtes vous sûr de Blacklister </p>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-success" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove"> </span> Annuler</button>
+					<button class="btn-danger btn" id="ConfirmBlackliste"><span class="glyphicon glyphicon-ban-circle"> </span> Blacklister !</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="ModalEditer" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="ModalEditer" aria-hidden="true" data-focus-on="input:first">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+					 <h3>Editer contact</h3>
+
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-6">
+
+							<div class="form-group">
+								<label class="control-label required" for="champ_prenom">Prénom</label><input type="text" id="champ_prenom" name="prenom" required="required" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label class="control-label required" for="champ_nom">Nom</label><input type="text" id="champ_nom" name="nom" required="required" class="form-control" />
+							</div>
+						</div>
+						<div class="col-md-6">
+
+							<div class="form-group">
+								<label class="control-label required" for="champ_compte">Organisation</label><input type="text" id="champ_compte" name="compte" required="required" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label class="control-label required" for="champ_titre">Titre</label><input type="text" id="champ_titre" name="titre" required="required" class="form-control" />
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="control-label required" for="champ_telephoneFixe">Téléphone</label><input type="text" id="champ_telephoneFixe" name="telephoneFixe" required="required" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label class="control-label required" for="champ_telephonePortable">Tél. portable pro</label><input type="text" id="champ_telephonePortable" name="telephonePortable" required="required" class="form-control" />
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="control-label required" for="champ_email">Email</label><input type="text" id="champ_email" name="email" required="required" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label class="control-label required" for="champ_adresse">Adresse</label><input type="text" id="champ_adresse" name="adresse" required="required" class="form-control" />
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="control-label required" for="champ_ville">Ville</label><input type="text" id="champ_ville" name="ville" required="required" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label class="control-label required" for="champ_codePostal">Code postal</label><input type="text" id="champ_codePostal" name="codePostal" required="required" class="form-control" />
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="control-label required" for="champ_region">Région</label><input type="text" id="champ_region" name="region" required="required" class="form-control" />
+							</div>
+							<div class="form-group">
+								<label class="control-label required" for="champ_pays">Pays</label><input type="text" id="champ_pays" name="pays" required="required" class="form-control" />
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="control-label required" for="champ_url">Site web</label><input type="text" id="champ_url" name="url" required="required" class="form-control" />
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-success" id="maj_row"><span class="glyphicon glyphicon-save"> </span> Enregistrer</button>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

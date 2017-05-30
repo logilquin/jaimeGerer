@@ -1,0 +1,6 @@
+{% block submenu %}
+			<div class="sub-menu">
+			    <a href="{{ path('compta_compte_attente_voir') }}" {% if app.request.pathInfo == "/compta/compte-attente/voir"  %}class=" current"{% endif %}>Compte d'attente</a> - 
+			    <a href="{{ path('compta_operation_diverse_liste') }}" {% if app.request.pathInfo == "/compta/operation-diverse/liste"  %}class=" current"{% endif %}>Opérations diverses</a>
+			</div>
+{% endblock %}

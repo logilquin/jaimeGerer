@@ -1,0 +1,69 @@
+{% block content %}
+{{ form_start(form) }}
+<div class="row">
+	<div class="col-md-6">
+		{{ form_row(form.user) }}
+	</div>
+	<div class="col-md-6">
+		{{ form_label(form.compteComptable) }}
+		<a data-toggle="modal" data-target="#modal" href="{{ path('compta_compte_ajouter_sous_compte', {'id' : compteComptable.id }) }}" class="do-modal">Ajouter</a><br />
+		{{ form_errors(form.compteComptable) }}
+		{{ form_widget(form.compteComptable, {'attr': {'class': 'select-compte-comptable'}}) }}
+	</div>
+</div>
+
+{{ form_errors(form) }}
+
+<strong>Date de la note de frais</strong>
+<div class="row">
+	<div class="col-md-1">
+		{{ form_widget(form.month) }}
+	</div>
+	<div class="col-md-1">
+		{{ form_widget(form.year) }}
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-6">
+		<div class="form-group">
+				{{ form_label(form.file) }}<br />
+				{{ form_errors(form.file) }}
+				{{ form_widget(form.file) }}
+				<i>Format accepté : .xlsx</i>
+		</div>
+	</div>
+</div>
+
+{{ form_rest(form) }}
+{{ form_end(form) }}
+
+{% endblock %}
+
+
+<script type="text/javascript">
+
+	//ajout d'un compte comptable
+	$(document).on("submit", '.form-sous-compte', function(e) {
+
+		e.preventDefault();
+
+		$(this).find('input:submit').addClass('hidden');
+		$(this).find('#loader').removeClass('hidden');
+
+	  	var values = {};
+	  	$.each( $(this).serializeArray(), function(i, field) {
+	    	values[field.name] = field.value;
+	  	});
+
+		$.ajax({
+			method: "POST",
+			url: $(this).attr( 'action' ),
+			data: values,
+			success     : function(data) {
+			     $(".select-compte-comptable").append('<option value="'+data.id+'">'+data.num+' : '+data.nom+'</option>');
+			     $(".select-compte-comptable").val(data.id);
+			     $("#modal").modal('toggle');
+			 }
+		});
+	});
+</script>

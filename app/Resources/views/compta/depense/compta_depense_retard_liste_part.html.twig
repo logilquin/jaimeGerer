@@ -1,0 +1,69 @@
+{% block content %}
+	  <div class="row" id="facture">
+	  	<div class="col-md-12">
+	  		<h3>Retards de paiement</h3>
+	  		<table id="{{ div_id }}" class="table table-bordered table-striped">
+	  			<thead>        
+		    		<tr>            
+		    			<th>Objet</th>            
+{# 		    			<th>Numéro de depense</th>  #}
+		    			<th>Total</th>  
+		    			<th>Date d'echeance</th> 
+		    			<th>Retard</th>          
+		    		</tr>    
+			    </thead>    
+			    <tbody>
+	  			{% for depense in arr_depenses %}
+	  				<tr>
+	  					<td>
+	  						<a href="{{ path('compta_depense_voir', {'id' : depense.id}) }}">{{ depense }}</a>
+	  					</td>
+{# 	  					<td>#}
+{# 			    			{{ facture.num }}#}
+{# 	  					</td>#}
+	  					<td>
+			    			{{ depense.Totaux().HT }} € HT<br />
+			    			<i class="small">{{ depense.Totaux().TTC }} € TTC</i>
+			    		</td>
+	  					<td>
+			    			{{ depense.dateEcheance|date('d/m/Y') }}
+	  					</td>
+	  					<td>
+			    			{{ arr_retard_temps[depense.id] }} jours
+			    		</td>
+	  				</tr>
+	  			{% endfor %}
+	  			</tbody>
+	  		</table>
+	  	</div>
+	  </div>
+{% endblock %}
+
+{% block javascripts %}
+	<script type="text/javascript">
+		$("#{{ div_id }}").DataTable({
+				language : {                
+					"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"            
+				},
+				paging : false,
+			    info: false,
+			    searching: false,
+				fnDrawCallback: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				  } );
+				},
+                fnInitComplete: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				  } );
+				},
+		});
+	</script>
+{% endblock %}

@@ -1,0 +1,131 @@
+ {{ form_start(form) }}
+
+<div class="row">
+	<div class="col-md-6">
+		{{ form_errors(form) }}
+		{{ form_row(form.nom) }}
+		{{ form_row(form.userGestion) }}
+	</div>
+	<div class="col-md-6">
+		{{ form_row(form.compteParent) }}
+
+		{% if ajout is defined %}
+			{{ form_row(form.both) }}
+		{% else %}
+			{% if type == "CLIENT" %}
+	    		{{ form_label(form.compteComptableClient) }}
+	    		<a href="{{ path('compta_compte_ajouter_sous_compte', {'id' : compte411.id }) }}" class="btn btn-success btn-xs" data-toggle="modal" data-target="#modal">
+	    			<span class="glyphicon glyphicon-plus"></span> 
+	    		</a>
+	    		{{ form_widget(form.compteComptableClient) }}
+	    	{% else %}
+				{{ form_label(form.compteComptableFournisseur) }}
+	    		<a href="{{ path('compta_compte_ajouter_sous_compte', {'id' : compte401.id }) }}" class="btn btn-success btn-xs" data-toggle="modal" data-target="#modal">
+	    			<span class="glyphicon glyphicon-plus"></span> 
+	    		</a>
+	    		{{ form_widget(form.compteComptableFournisseur) }}
+	    	{% endif %}
+    	{% endif %}
+
+	</div>
+</div>
+ <div class="row">
+	 <div class="col-md-6">
+		 {{ form_row(form.secteurActivite) }}
+	 </div>
+ </div>
+<div class="row">
+	<div class="col-md-6">
+		{{ form_row(form.addressPicker) }}
+		{{ form_row(form.adresse) }}
+		{{ form_row(form.codePostal) }}
+		{{ form_row(form.ville) }}
+		{{ form_row(form.region) }}
+		{{ form_row(form.pays) }}
+    </div>
+
+    <div class="col-md-6">
+    	{{ form_row(form.telephone) }}
+    	{{ form_row(form.fax) }}
+    	{{ form_row(form.url) }}
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+   	 	{{ form_row(form.description) }}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+   	 	<input type="submit" value="Enregistrer" class="btn btn-success" />
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+	{{ form_rest(form) }}
+	{{ form_end(form) }}
+	</div>
+</div>
+{% block additionalJS %}
+	<script src="//maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+	<script type="text/javascript" src="{{ asset('js/jquery.ui.addresspicker.js') }}"></script>
+	<script type="text/javascript">
+		$(document).ready( function () {
+
+			var addresspickerMap = $( "#{{ form.addressPicker.vars.id }}" ).addresspicker({
+			updateCallback: function(geocodeResult, parsedGeocodeResult){
+								//console.log(parsedGeocodeResult);
+								//$('#callback_result').html(JSON.stringify(parsedGeocodeResult, null, 4));
+								var addressToField = ( parsedGeocodeResult.street_number ? parsedGeocodeResult.street_number + ', ' : '' ) + parsedGeocodeResult.route;
+								console.log(addressToField);
+								$('#{{ form.adresse.vars.id }}').val(addressToField);
+								//$('#callback_result').html(parsedGeocodeResult.street_number + ', ' +parsedGeocodeResult.route);
+							},
+			  elements: {
+				//map								: '',
+				postal_code						: '#{{ form.codePostal.vars.id }}',
+				administrative_area_level_1		: '#{{ form.region.vars.id }}',
+			   // locality						: '#locality',
+				country							: '#{{ form.pays.vars.id }}',
+				//route							: '#sdz_blogbundle_service_adresse',
+				locality						: '#{{ form.ville.vars.id }}',
+				target_field					: false,
+			  },
+			});
+		});
+		JqueryValidateFormName = $('form[name="{{ form.vars.id }}"]');
+
+		//ajout d'un compte comptable
+		$(document).on("submit", '.form-sous-compte', function(e) {
+
+			e.preventDefault();
+
+			$(this).find('input:submit').addClass('hidden');
+			$(this).find('#loader').removeClass('hidden');
+
+		  	var values = {};
+		  	$.each( $(this).serializeArray(), function(i, field) {
+		    	values[field.name] = field.value;
+		  	});
+			
+			$.ajax({
+				method: "POST",
+				url: $(this).attr( 'action' ),
+				data: values,
+				success     : function(data) {
+				     $(".select-compte-comptable").append('<option value="'+data.id+'">'+data.num+' : '+data.nom+'</option>');
+				     $(".select-compte-comptable").val(data.id);
+				     $("#modal").modal('toggle');
+				 }
+			});
+		});
+
+		
+
+	</script>
+
+	<script src="{{ asset('js/error.js') }}"></script>
+
+{% endblock %}

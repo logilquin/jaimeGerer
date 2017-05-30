@@ -1,0 +1,200 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/jquery.comiseo.daterangepicker.css') }}" type="text/css"/>
+		<link rel="stylesheet" href="{{ asset('css/ndf.css') }}" type="text/css" />
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Notes de frais</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <p>
+                <a href="{{ path('ndf_uploader') }}" class="btn btn-success">
+                    <span class="glyphicon glyphicon-plus"></span>
+                    Ajouter
+                </a>
+
+            </p>
+        </div>
+    </div>
+
+    <div id="filter" class="row well">
+        <h3 class=" col-md-offset-5">Filtres :</h3>
+        <span id="filterState" class="col-md-offset-1 col-md-4">
+            <h5>Etat</h5>
+            <input type="radio" name="filter_state" id="toutes" class="filter_state" value="" checked/>
+            <label for="enregistre">Toutes</label><br/>
+            <input type="radio" name="filter_state" id="enregistre" class="filter_state" value="ENREGISTRE"/>
+            <label for="enregistre">Enregistrées</label><br/>
+            <input type="radio" name="filter_state" id="rapproche" class="filter_state" value="RAPPROCHE"/>
+            <label for="rapproche">Rapprochées</label>
+        </span>
+        <span class="col-md-3">
+            <h5>Date</h5>
+            <label id="NodesToMove class="hidden""><input id="dateRange" name="dateRange"></label>
+        </span>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+
+            <table id="table_note_frais_list" class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Nom du salarié</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Etat</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('js/moment.js') }}"></script>
+    <script src="{{ asset('js/jquery.comiseo.daterangepicker.js') }}"></script>
+    <script src="{{ asset('js/datepicker-fr.js') }}"></script>
+    <script src="{{ asset('js/dateFilterConfig.js') }}"></script>
+    <script src="{{ asset('js/accounting.min.js') }}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var tableau = $('#table_note_frais_list').DataTable({
+              	"dom": '<"dataTables_dateRange">T<"clear">lfrtip',
+                "oTableTools": {
+                    "sSwfPath": "/web/lib/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
+                    "aButtons": [
+                        {
+                            "sExtends": "csv",
+                            "sButtonText": "Excel",
+                            "mColumns": [
+                                0, 1, 2, 3
+                            ],
+                            "sFileName": "notes_de_frais.csv"
+                        }, {
+                            "sExtends": "pdf",
+                            "sButtonText": "PDF",
+                            "mColumns": [
+                                0, 1, 2, 3
+                            ],
+                            "sFileName": "notes_de_frais.pdf",
+                            "sTitle": "Notes de frais"
+                        }
+                    ]
+                },
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"
+                },
+                "order": [
+                    [1, "desc"]
+                ],
+                "responsive": true,
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    url: Routing.generate("ndf_liste_ajax"),
+                    type: "post",
+                    "data": function(d) {
+                        d.dateRange = $("#dateRange").daterangepicker("getRange");
+                        if (document.getElementById('enregistre').checked === true) {
+                            d.etat = document.getElementById('enregistre').value;
+                        } else if (document.getElementById('rapproche').checked === true) {
+                            d.etat = document.getElementById('rapproche').value;
+                        } else {
+                            d.etat = document.getElementById('toutes').value;
+                        }
+                    }
+                },
+                "initComplete": function(settings, json) {
+
+                    $('#dateRange').change(function() {
+                        $('#table_note_frais_list tbody').find('tr').remove();
+                        tableau.draw();
+                    })
+                    $('#filterState').change(function() {
+                        $('#table_note_frais_list tbody').find('tr').remove();
+                        tableau.draw();
+                    })
+                },
+                "columns": [
+                    {
+                        "data": "nom"
+                    }, {
+                        "data": "date"
+                    }, {
+                        "data": "total"
+                    }, {
+                        "data": "etat"
+                    }
+                ],
+                "columnDefs": [
+                    {
+                        "visible": false,
+                        "targets": ['id']
+                    }, {
+                        "render": function(data, type, row) {
+														var actionUrl = Routing.generate("ndf_voir", {'id' : row['id']});
+                            return '<a href="' + actionUrl + '">' + data + '</a>';
+                        },
+                        "targets": 0
+                    }, {
+                        "render": function(data, type, row) {
+                            return row['month'] + "/" + row['year'];
+                        },
+                        "targets": 1
+                    }, {
+                        "render": function(data, type, row) {
+                            return accounting.formatMoney(row['total'], { symbol: "€",  format: "%v %s", decimal: ",", thousand: " ", precision: 2 })+ " TTC";
+                        },
+                        "targets": 2
+                    }, {
+                        // The `data` parameter refers to the data for the cell (defined by the `data` option, which defaults to the column being worked with, in this case `data: 0`.
+                        "render": function(data, type, row) {
+													var voirUrl = Routing.generate("ndf_voir", {'id' : row['id']})
+													var editerUrl = Routing.generate("ndf_editer", {'id' : row['id']})
+													var supprimerUrl = Routing.generate("ndf_supprimer", {'id' : row['id']})
+                          var s = "<p><a href=" + voirUrl + " class=\"btn btn-xs btn-info\" ​data-toggle=\"tooltip\" title=\"Voir\"><span class=\"glyphicon glyphicon-eye-open\"></span></a> "+
+																	"<a href=" + editerUrl+ " class=\"btn btn-xs btn-warning\" ​data-toggle=\"tooltip\" title=\"Editer\"><span class=\"glyphicon glyphicon-pencil\"></span></a> "+
+																	" <a href=" + supprimerUrl + " class=\"btn btn-xs btn-danger\" ​data-toggle=\"tooltip\" title=\"Supprimer\"><span class=\"glyphicon glyphicon-trash\"></span></a></p>";;
+                          return s;
+                        },
+                        "targets": 4
+                    }
+                ],
+                fnDrawCallback: function () {
+                  $( 'a', this.fnGetNodes() ).tooltip( {
+                  "delay": 0,
+                  "track": true,
+                  "fade": 250,
+                  "tooltipClass": 'btn',
+                  } );
+                },
+                fnInitComplete: function () {
+                  $( 'a', this.fnGetNodes() ).tooltip( {
+                  "delay": 0,
+                  "track": true,
+                  "fade": 250,
+                  "tooltipClass": 'btn',
+                  } );
+                  $("#NodesToMove").detach().removeClass("hidden").appendTo('div.dataTables_dateRange');
+                  $('#dateRange').change(function() {
+                      $('#table_note_frais_list tbody').find('tr').remove();
+                      tableau.draw();
+                  });
+                },
+            });
+
+        });
+    </script>
+{% endblock %}

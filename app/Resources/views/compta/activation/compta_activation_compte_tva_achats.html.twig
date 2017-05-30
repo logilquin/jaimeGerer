@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/homepage.css') }}" type="text/css" />
+{% endblock %}
+
+{% block body %}
+	<div class="row wrap-index">
+		<div class="col-md-12 center">
+			<div class="wrap-index-head">
+				<img alt="Logo de J'aime la compta" src="{{ asset('images/assets/comptabilite.png') }}" style="width: 200px;" />
+			
+				<h1>Haaaa, la TVA...</h1>
+				<p>Afin de permettre à <span class="jaimelacompta">J'aime la compta</span> de réaliser automatiquement vos écritures comptables d'achat, vous devez indiquer quel compte de TVA d'achats vous souhaitez utiliser.<br /> 
+				Vous ne savez pas ? Nous avons pré-sélectionné un compte de TVA pour vous, vous n'avez plus qu'à valider !</p>
+				<p><strong>Quel compte de TVA sur achats souhaitez-vous utiliser dans <span class="jaimelacompta">J'aime la compta</span> ?</strong></p>
+				
+					{{ form(form) }}
+				
+				
+{# 				<p>#}
+{# 					<a href="#" class="btn btn-success" style="width: 150px;"><strong>OK</strong><br />On continue !</a>#}
+{# 				</p>#}
+			</div>
+		</div>
+	</div>
+{% endblock %}

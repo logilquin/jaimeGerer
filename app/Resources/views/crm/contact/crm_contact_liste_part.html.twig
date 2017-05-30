@@ -1,0 +1,97 @@
+{% block content %}
+	<div class="row" id="contacts">
+	  	<div class="col-md-12">
+	  		<h3>Contacts</h3>
+	  		<p>
+	  		{% if compte.id is defined %}
+	  			<a href=" {{ path('crm_contact_ajouter_depuis_compte', {'compte' : compte.id }) }}{% else %}{{ path('crm_contact_ajouter') }}{% endif %}" class="btn btn-xs btn-success">
+	  			<!--a href="{{ path('crm_contact_ajouter') }}" class="btn btn-xs btn-success"-->
+		    		<span class="glyphicon glyphicon-plus"></span> Ajouter
+		   	 	</a>
+		   </p>
+	  		<table id="table_contacts" class="table table-bordered table-striped">
+	  			<thead>        
+		    		<tr>            
+		    			<th>Nom</th>            
+		    			<th>Titre</th>  
+		    			<th>Téléphone</th>  
+		    			<th>Email</th> 
+		    			<th>Actions</th>          
+		    		</tr>    
+			    </thead>    
+			    <tbody>
+	  			{% for contact in arr_contacts %}
+	  				<tr>
+	  					<td>
+	  						<a href="{{ path('crm_contact_voir', {'id' : contact.id}) }}">{{ contact.prenom }} {{ contact.nom }}</a>
+	  					</td>
+	  					
+	  					<td>
+	  						{% if contact.titre is not empty %}
+			    				{{ contact.titre }}
+			    			{% endif %}
+	  					</td>
+	  					
+	  					<td>
+	  						{% if contact.telephoneFixe is not empty %}
+			    				{{ contact.telephoneFixe }}<br />
+			    			{% endif %}
+			    				
+			    			{% if contact.telephonePortable is not empty %}
+			    				{{ contact.telephonePortable }}
+			    			{% endif %}
+	  					</td>
+	  					
+	  					<td>
+	  						{% if contact.email is not empty %}
+			    				{{ contact.email }}
+			    			{% endif %}
+	  					</td>
+	  					<td>
+			    				<a href="{{ path('crm_contact_voir', {'id' : contact.id}) }}" class="btn btn-xs btn-info" ​data-toggle="tooltip-btn-xs" title="Voir">
+			    					<span class="glyphicon glyphicon-eye-open"></span>
+			    				</a>
+			    				<a href="{{ path('crm_contact_editer', {'id' : contact.id }) }}" class="btn btn-xs btn-warning" ​data-toggle="tooltip-btn-xs" title="Editer">
+			    					<span class="glyphicon glyphicon-pencil"></span>
+			    				</a>
+			    				<a href="{{ path('crm_contact_supprimer', {'id' : contact.id }) }}" class="btn btn-xs btn-danger" ​data-toggle="tooltip-btn-xs" title="Supprimer">
+			    					<span class="glyphicon glyphicon-trash"></span>
+			    				</a>
+			    			</td>   
+	  					
+	  				</tr>
+	  			{% endfor %}
+	  			</tbody>
+	  		</table>
+	  	</div>
+	  </div>
+{% endblock %}
+
+{% block javascripts %}
+	<script type="text/javascript">
+		$("#{{ div_id }}").DataTable({
+				language : {                
+					"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"            
+				},
+				paging : false,
+			    info: false,
+			    searching: false,
+				fnDrawCallback: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default'
+				  } );
+				},
+                fnInitComplete: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default'
+				  } );
+				},
+		});
+	</script>
+{% endblock %}

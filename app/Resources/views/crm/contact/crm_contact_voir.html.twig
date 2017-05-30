@@ -1,0 +1,468 @@
+{% extends 'crm/crm_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12 bread-crumb-back">
+		<a href="{{ path('crm_contact_liste') }}" class="small">< Retour à la listes des contacts</a>
+		</div>
+	</div>
+	<div class="row" id="compte_details">
+	    <div class="col-md-6">
+	    		<h1 style="float:left;">{{ contact.prenom }} {{ contact.nom }}
+	    		<a href="{{ path('crm_compte_voir', {'id' : contact.compte.id }) }}" class="small">( {{ contact.compte }} )</a>
+	    			{% if contact.titre is not empty %}
+				    	<span class="l"> - {{ contact.titre }}</span>
+				    {% endif %} 
+	    		</h1>
+	    			
+	    </div>
+
+		<div class="col-md-6">
+		    <p class="group-btn">
+		    	<a href="{{ path('crm_contact_editer', {'id' : contact.id }) }}"  class="btn btn-warning">
+		    		<span class="glyphicon glyphicon-pencil"></span> Modifier
+		    	</a>
+		    	<a href="{{ path('crm_contact_supprimer', {'id' : contact.id }) }}"  class="btn btn-danger">
+		    		<span class="glyphicon glyphicon-trash"></span> Supprimer
+		    	</a>
+		    	<a href="{{ path('crm_contact_ecrire', {'id' : contact.id }) }}"  class="btn {% if contact.email is null %} btn-default not-active {% else %} btn-primary {% endif %}"  data-toggle="modal" data-target="#modal">
+			    	<span class="glyphicon glyphicon-send"></span> Envoyer un message
+			    </a>
+			    {% if fusion %}
+		    	<a href="{{ path('crm_contact_fusionner', {'id' : contact.id }) }}"  class="btn btn-default"  data-toggle="modal" data-target="#modal">
+			    	<span class="glyphicon glyphicon-transfer"></span> Fusionner
+			    </a>	
+			    {% endif %}
+		    </p>
+	    </div>
+	    <div class="col-md-12">
+	    		<p>
+	    			<a href="#opportunites">Opportunités du contact</a> - 
+	    			<a href="#devis">Devis du contact</a> - 
+	    			<a href="#factures">Factures du contact</a> - 
+	    			<a href="#prises_contact">Historique des prises de contact</a>
+	    		</p>
+	    	</div>
+    </div>
+
+	<div class="row">
+		<div class="col-md-12">
+			{% for flashMessage in app.session.flashbag.get('success') %}
+			    <div class="alert alert-success">
+			        {{ flashMessage }}
+			    </div>
+			{% endfor %}
+			{% for flashMessage in app.session.flashbag.get('danger') %}
+			    <div class="alert alert-danger">
+			        {{ flashMessage }}
+			    </div>
+			{% endfor %}
+		</div>
+	</div>
+	    <div class="row">
+	    	<div class="col-md-12">
+	    		<hr />
+	    		<table class="contact-view-table">
+	    			<tbody>
+		    			<tr>
+		    				<td>
+		    					Gestionnaire du contact 
+		    				</td>
+		    				<td>
+					    		{{ contact.userGestion }}
+					    		{% if contact.userGestion.enabled == false %}
+					    			<a tabindex="0" role="button" data-toggle="popover" data-trigger="hover" title="Utilisateur inactif" data-content="Cet utilisateur est inactif. Vous devriez changer le gestionnaire du contact."><span class="glyphicon glyphicon-warning-sign red"></span></a>
+					    		{% endif %}
+					    		  <p>
+					    		  	<span class="glyphicon glyphicon-time"></span>
+									{% if impulsion is not null %}
+							    	 	<a href="{{ path('crm_impulsion_liste') }}">
+									    {% if impulsion.delaiUnit == "WEEK" %}
+					    					Toutes
+					    				{% else %}
+					    					Tous
+					    				{% endif %}
+					    				les {{ impulsion.delaiNum }}
+					    				{% if impulsion.delaiUnit == "DAY" %}
+					    					jours
+					    				{% elseif impulsion.delaiUnit == "WEEK" %}
+					    					semaines
+					    				{% else %}
+					    					mois
+					    				{% endif %}
+					    				</a>
+					    			{% else %}
+					    				Pas de suivi <a href="{{ path('crm_impulsion_ajouter', {'contact' : contact.id}) }}" class="bnt btn-xs btn-success">
+					    					<span class="glyphicon glyphicon-plus"></span> Ajouter
+					    				</a>
+								    {% endif %}
+							    </p>
+		    				</td>
+		    			</tr>
+		    		</tbody>
+		    	</table>
+		    	<hr />
+	    	</div>
+		</div>
+		<div class="row">
+	    	<div class="col-md-6">
+	    		<table class="contact-view-table">
+	    			<tbody>
+		    			<tr>
+		    				<td>
+		    					Adresse 
+		    				</td>
+		    				<td>
+		    					{% if contact.adresse is empty %}
+					    			-
+					    		{% else %}
+					    			{{ contact.adresse }}
+					    		{% endif %}
+		    				</td>
+		    			</tr>
+		    			<tr>
+		    				<td>
+		    					Code postal 
+		    				</td>
+		    				<td>
+		    					{% if contact.codePostal is empty %}
+					    			-
+					    		{% else %}
+					    			{{ contact.codePostal }}
+					    		{% endif %}
+		    				</td>
+		    			</tr>
+		    			<tr>
+		    				<td>
+		    					Ville 
+		    				</td>
+		    				<td>
+		    					{% if contact.ville is empty %}
+					    			-
+					    		{% else %}
+					    			{{ contact.ville }}
+					    		{% endif %}
+		    				</td>
+		    			</tr>
+		    			<tr>
+		    				<td>
+		    					Région 
+		    				</td>
+		    				<td>
+		    					{% if contact.region is empty %}
+					    			-
+					    		{% else %}
+					    			{{ contact.region }}
+					    		{% endif %}
+		    				</td>
+		    			</tr>
+		    			<tr>
+		    				<td>
+		    					Pays 
+		    				</td>
+		    				<td>
+		    					{% if contact.pays is empty %}
+					    			-
+					    		{% else %}
+					    			{{ contact.pays }}
+					    		{% endif %}
+		    				</td>
+		    			</tr>
+	    			</tbody>
+	    		</table>
+	    	</div>
+	    	<div class="col-md-6">
+	    		<table class="contact-view-table">
+	    			<tbody>
+		    			<tr>
+		    				<td>Téléphone fixe</td>  
+			    			<td>
+				    			{% if contact.telephoneFixe is empty %}
+						    		-
+						    	{% else %}
+						    		{{ contact.telephoneFixe }}
+						    	{% endif %}	
+					   	 	</td> 
+				   	 	</tr>
+				   	 	<tr>
+				    		<td>Tél. portable pro</td>  
+				    		<td>
+				    			{% if contact.telephonePortable is empty %}
+						    		-
+						    	{% else %}
+						    		{{ contact.telephonePortable }}
+						    	{% endif %}	
+						    </td> 
+						 </tr>
+						<tr>
+							<td>Tél. (autre)</td>
+							<td>
+								{% if contact.telephoneAutres is empty %}
+									-
+								{% else %}
+									{{ contact.telephoneAutres }}
+								{% endif %}
+							</td>
+						</tr>
+						 <tr>
+						 	<td>Fax</td>  
+				    		<td>
+				    			{% if contact.fax is empty %}
+						    		-
+						    	{% else %}
+						    		{{ contact.fax }}
+						    	{% endif %}
+						    </td> 
+						 </tr>
+						 <tr>
+						 	<td>Email</td>  
+				    		<td>
+								{% if contact.email is empty %}
+						    		-
+						    	{% else %}
+						    		{{ contact.email }}
+						    	{% endif %}	    	
+						    </td>
+						 </tr>
+						 <tr>
+							<td>Email 2</td>
+							<td>
+								{% if contact.email2 is empty %}
+									-
+								{% else %}
+									{{ contact.email2 }}
+								{% endif %}
+							</td>
+						 </tr>
+		    		</tbody>
+		    	</table>  	
+	    	</div>
+	   </div>
+	    <div class="row">
+	    	<div class="col-md-12">
+	    		<hr />
+	    	</div>
+	    </div>
+	    <div class="row">
+	    	<div class="col-md-6">
+	     		<table class="contact-view-table">
+	    			<tbody>
+	    				<tr>
+							<td>Secteur d'activité</td>
+							<td>
+								<ul>
+									{% for secteur in contact.settings if secteur.parametre == 'SECTEUR' %}
+										<li>{{ secteur.valeur }}</li>
+									{% endfor %}
+								</ul>
+							</td>
+						</tr>
+				    		<td>Thèmes d'intérêt</td> 
+				    		<td>
+				    			<ul>
+				    			{% for theme in contact.settings if theme.parametre == 'THEME_INTERET' %}
+				    				<li>{{ theme.valeur }}</li>
+				    			{% endfor %}
+				    			</ul>
+				    		</td>
+		    			</tr>
+		    			<tr>
+			    			<td>Services d'intérêt</td>  
+			    			<td>
+				    			<ul>
+				    			{% for service in contact.settings if service.parametre == 'SERVICE_INTERET' %}
+				    				<li>{{ service.valeur }}</li>
+				    			{% endfor %} 
+				    			</ul>
+			    			</td>
+			    		</tr>
+			    		<tr>
+				    		<td>Newsletter</td>  
+				    		<td>
+								{% if contact.newsletter == true %}
+						    		<span class="glyphicon glyphicon-ok"></span>
+						    	{% endif %}	    	
+						    </td> 
+						</tr>
+			    		<tr>
+				    		<td>Carte de voeux</td>  
+				    		<td>
+								{% if contact.carteVoeux == true %}
+						    		<span class="glyphicon glyphicon-ok"></span>
+						    	{% endif %}	    	
+						    </td> 
+						</tr>
+			    	</tbody>
+			    </table>
+		    </div>
+		    <div class="col-md-6">
+		    	<table class="contact-view-table">
+		    		<tbody>
+		    			<tr>
+				    		<td>Type de relation commerciale</td>  
+							<td>
+								<ul>
+								{% for type in contact.settings if type.parametre == 'TYPE' %}
+				    				<li>{{ type.valeur }}</li>  				
+				    			{% endfor %}  
+				    			</ul>
+				    		</td>
+				    	</tr>
+				    	<tr>
+				    		<td>Réseau</td>  
+				    		<td>
+				    		
+				    			{% if contact.reseau is empty %}
+						    		-
+						    	{% else %}
+									{{ contact.reseau.valeur }}
+						    	{% endif %}
+				    		</td> 
+				    	</tr>
+				    	<tr>
+				    		<td>Origine :</td>  
+				    		<td>
+				    			{% for type in contact.settings if type.parametre == 'TYPE' %}
+				    			
+				    			{% endfor %}
+				    			{% if contact.origine is empty %}
+						    		-
+						    	{% else %}
+									{{ contact.origine.valeur }}	
+						    	{% endif %}
+				    		</td>
+				    	</tr>
+				    	
+				    </tbody>
+	    		</table>
+	    	</div>
+	   </div>
+	   <div class="row">
+	    	<div class="col-md-12">
+	    		<hr />
+	    		<table class="contact-view-table">
+	    			<tbody>
+	    				<tr>
+				    		<td>Description</td> 
+				    		<td>
+				    			{% if contact.description is empty %}
+						    		-
+						    	{% else %}
+									{{ contact.description|raw }}	
+						    	{% endif %}
+				    		</td> 
+			    		</tr>
+		    		</tbody>
+		    	</table> 
+		    	<hr />
+	    	</div>
+	  </div>
+	   <div class="row">
+	    	<div class="col-md-6">
+	     		<table class="contact-view-table">
+	     			<tbody>
+	     				<tr>
+	     					<td>Créé le</td>  
+				    		<td>
+				    			{{ contact.dateCreation|date("d/m/Y") }}
+				    		</td> 
+	     				</tr>
+	     				<tr>
+	     					<td>Par</td>  
+		    				<td>
+								{{ contact.userCreation }}
+							</td>
+	     				
+	     				</tr>
+	     			</tbody>
+		    	</table>
+		    </div>
+		    <div class="col-md-6">
+		    	<table class="contact-view-table">
+		    		<tbody>
+	     				<tr>
+				    		<td>Modifié le</td>  
+				    		<td>
+				    			{% if contact.dateEdition is empty %}
+						    		Jamais
+						    	{% else %}
+									{{ contact.dateEdition|date("d/m/Y") }}	
+						    	{% endif %}
+				    		</td> 
+			    		</tr>
+			    		<tr>
+		    			{% if contact.userEdition is not empty %}
+				    		<td>Par</td>  
+		    				<td>
+								{{ contact.userEdition }}
+							</td>
+				    	{% endif %}
+			    		</tr>
+			    	</tbody>
+	    		</table>
+	    	</div>
+	   </div>
+
+	  {{ include('crm/opportunite/crm_opportunite_liste_part.html.twig', {'arr_opportunites': arr_opportunites, 'div_id': 'table_opportunites', 'id_to_use': contact.id, 'id_origine_type': 'contact'}) }}
+	  {{ include('crm/devis/crm_devis_liste_part.html.twig', {'arr_devis': arr_devis, 'div_id': 'table_devis'}) }}
+	  {{ include('crm/facture/crm_facture_liste_part.html.twig', {'arr_facture': arr_factures, 'div_id': 'table_factures'}) }}
+  	  {{ include('crm/priseContact/crm_prise_contact_liste_part.html.twig', {'contact': contact, 'div_id': 'table_prises_contact'}) }}
+	  
+{% endblock %}
+{% block additionalModals %}
+	<div id="ModalFusionConfirmation" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalFusionConfirmation" aria-hidden="true" data-focus-on="input:first">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+					 <h3 id="myModalFusionConfirmation">Confirmation requise</h3>
+
+				</div>
+				<div class="modal-body">
+					<p>Cette opération est irréversible, veuillez confirmer la fusion</p>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-danger" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove"> </span> Annuler</button>
+					<button class="btn-primary btn" id="SubForm"><span class="glyphicon glyphicon-ok"> </span> Confirmer la fusion</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="ModalAlert" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalAlert" aria-hidden="true" data-focus-on="input:first">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+					 <h3 id="myModalAlert">Fusion terminée</h3>
+
+				</div>
+				<div class="modal-body">
+					<p><span class="glyphicon glyphicon glyphicon-ok"> </span> Fusion effectuée avec succès</p>
+				</div>
+				<div class="modal-footer">
+					<button class="btn-primary btn" id="okAlert" data-dismiss="modal" aria-hidden="true">ok</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+<script>
+	/* Create a fixed menu on scroll for /voir */
+		$(document).ready(function() {
+		var positionElementInPage = $('#compte_details').offset().top;
+		$(window).scroll(
+			 function() {
+			        if ($(window).scrollTop() >= positionElementInPage) {
+			            // fixed
+			            $('#compte_details').addClass("fixed-top");
+			        } else {
+			            // relative
+			            $('#compte_details').removeClass("fixed-top");
+			        }
+			    }
+		);
+		});
+</script>
+
+{% endblock %}

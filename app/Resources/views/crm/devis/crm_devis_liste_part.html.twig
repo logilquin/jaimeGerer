@@ -1,0 +1,93 @@
+{% block content %}
+	  <div class="row" id="devis">
+	  	<div class="col-md-12">
+	  		<h3>Devis</h3>
+	  		<p>
+	  			<a href="{{ path('crm_devis_ajouter') }}" class="btn btn-xs btn-success">
+		    		<span class="glyphicon glyphicon-plus"></span> Ajouter
+		   	 	</a>
+		   </p>
+	  		<table id="table_devis" class="table table-bordered table-striped">
+	  			<thead>        
+		    		<tr>            
+		    			<th>Objet</th>            
+		    			<th>Numéro de devis</th>  
+		    			<th>Total</th>  
+		    			<th>Date de création</th> 
+		    			<th>Etat</th>
+		    			<th>Actions</th>          
+		    		</tr>    
+			    </thead>    
+			    <tbody>
+	  			{% for devis in arr_devis %}
+	  				<tr>
+	  					<td>
+	  						<a href="{{ path('crm_devis_voir', {'id' : devis.id}) }}">{{ devis.objet }}</a>
+	  					</td>
+	  					
+	  					<td>
+			    			{{ devis.num }}
+	  					</td>
+	  					
+	  					<td>
+			    			{{ devis.Totaux().HT }} € HT<br />
+			    			<i class="small">{{ devis.Totaux().TTC }} € TTC</i>
+			    		</td>
+	  					
+	  					<td>
+			    			{{ devis.dateCreation|date('d/m/Y') }}
+	  					</td>
+	  					<td>
+			    			{{ devis.formattedEtat }}
+	  					</td>
+	  					<td>
+			    				<a href="{{ path('crm_devis_voir', {'id' : devis.id}) }}" class="btn btn-xs btn-info" ​data-toggle="tooltip-btn-xs" title="Voir">
+			    					<span class="glyphicon glyphicon-eye-open"></span>
+			    				</a>
+			    				<a href="{{ path('crm_devis_editer', {'id' : devis.id }) }}" class="btn btn-xs btn-warning" ​data-toggle="tooltip-btn-xs" title="Editer">
+			    					<span class="glyphicon glyphicon-pencil"></span>
+			    				</a>
+			    				<a href="{{ path('crm_devis_exporter', {'id' : devis.id }) }}" class="btn btn-xs btn-primary" ​data-toggle="tooltip-btn-xs" title="Exporter">
+			    					<span class="glyphicon glyphicon-floppy-disk"></span>
+			    				</a>
+			    				<a href="{{ path('crm_devis_supprimer', {'id' : devis.id }) }}" class="btn btn-xs btn-danger" data-toggle="tooltip-btn-xs" title="Supprimer">
+			    					<span class="glyphicon glyphicon-trash"></span>
+			    				</a>
+			    			</td>   
+	  					
+	  				</tr>
+	  			{% endfor %}
+	  			</tbody>
+	  		</table>
+	  	</div>
+	  </div>
+{% endblock %}
+
+{% block javascripts %}
+	<script type="text/javascript">
+		$("#{{ div_id }}").DataTable({
+				language : {                
+					"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"            
+				},
+				paging : false,
+			    info: false,
+			    searching: false,
+				fnDrawCallback: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				  } );
+				},
+                fnInitComplete: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				  } );
+				},
+		});
+	</script>
+{% endblock %}

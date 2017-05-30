@@ -1,0 +1,39 @@
+imports:
+    - { resource: config.yml }
+
+#framework:
+#    validation:
+#        cache: apc
+
+#doctrine:
+#    orm:
+#        metadata_cache_driver: apc
+#        result_cache_driver: apc
+#        query_cache_driver: apc
+
+monolog:
+    handlers:
+        main:
+            type:         fingers_crossed
+            action_level: error
+            handler:      nested
+        nested:
+            type:  stream
+            path:  "%kernel.logs_dir%/%kernel.environment%.log"
+            level: debug
+        console:
+            type:  console
+            
+# KNPSnappy HtmlToPdf Configuration
+knp_snappy:
+    pdf:
+        enabled:    true
+        binary:     /usr/local/bin/wkhtmltopdf
+        options: []
+
+cspoo_swiftmailer_mailgun:
+    #key: "key-ebd2508e9c7346eb95c5eea86240029d"
+    #domain: "sandboxfa8c7f17ce114f1b939e5dd2937d6588.mailgun.org"
+    key: "key-13587873277bfb8194c52290c0850753"
+    #domain: "sandboxd55b4a445a5948409dc77ea13bef9d5a.mailgun.org"
+    domain: "testhichem1.mdprc.com"

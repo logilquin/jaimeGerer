@@ -1,0 +1,77 @@
+<thead>
+    <tr>
+        <th>Code journal</th>
+        <th>Date</th>
+        <th>Compte</th>
+        <th>Compte auxiliaire</th>
+        <th>Libellé</th>
+        <th>Tiers</th>
+        <th>Débit</th>
+        <th>Crédit</th>
+        <th>Analytique</th>
+        <th>Mode de paiement</th>
+    </tr>
+</thead>
+<tbody>
+    {% set old_id = null %}
+    {% for ligneJournal in arr_journalBanque %}
+        {% set current_id = ligneJournal.mouvementBancaire.id %}
+        <tr{% if old_id != current_id %} class="thick-border" {% endif %}>
+            <td>&nbsp;{{ ligneJournal.codeJournal }}</td>
+            <td>&nbsp;{{ ligneJournal.date|date('j/m/Y') }}</td>
+            <td>&nbsp;{{ ligneJournal.compteComptable.num|truncate(3, false, '') }}</td>
+            <td>&nbsp;{{ ligneJournal.compteComptable.num }}</td>
+            <td>
+                {% for rapprochement in ligneJournal.mouvementBancaire.rapprochements %}
+                    {% if rapprochement.remiseCheque is not null %}
+                        <a href="{{ path('compta_remise_cheque_voir', {'id' : rapprochement.remiseCheque.id} ) }}">{{ ligneJournal.libelle }}</a>
+                    {% elseif rapprochement.facture is not null %}
+                        <a href="{{ path('compta_facture_voir', {'id' : rapprochement.facture.id} ) }}">{{ ligneJournal.libelle }}</a>
+                    {% elseif rapprochement.depense is not null %}
+                        <a href="{{ path('compta_depense_voir', {'id' : rapprochement.depense.id} ) }}">{{ ligneJournal.libelle }}</a>
+                    {% elseif rapprochement.avoir is not null %}
+                        <a href="{{ path('compta_avoir_voir', {'id' : rapprochement.avoir.id} ) }}">{{ ligneJournal.libelle }}</a>
+                    {% elseif rapprochement.affectationDiverse is not null %}
+                        {{ ligneJournal.piece }}
+                        {{ ligneJournal.libelle }}
+                    {% endif %}
+                {% endfor %}
+                &nbsp;</td>
+            <td>
+                {% for rapprochement in ligneJournal.mouvementBancaire.rapprochements %}
+                    {% if rapprochement.facture is not null %}
+                        {{ rapprochement.facture.compte }}
+                    {% elseif rapprochement.depense is not null %}
+                        {{ rapprochement.depense.compte }}
+                    {% elseif rapprochement.avoir is not null %}
+                        {% if rapprochement.avoir.facture is not null %}
+                            {{ rapprochement.avoir.facture.compte }}
+                        {% elseif rapprochement.avoir.depense is not null %}
+                            {{ rapprochement.avoir.depense.compte }}
+                        {% endif %}
+                    {% elseif rapprochement.accompte is not null %}
+                        {{ rapprochement.accompte.devis.compte }}
+                    {% elseif rapprochement.remiseCheque is not null %}
+
+                    {% elseif rapprochement.affectationDiverse is not null %}
+                        -
+                    {% endif %}
+                {% endfor %}
+                &nbsp;</td>
+            <td class="align-left">&nbsp;{{ ligneJournal.debit|number_format(2,',',' ') }}</td>
+            <td>&nbsp;{{ ligneJournal.credit|number_format(2,',',' ') }}</td>
+            <td>&nbsp;{{ ligneJournal.analytique }}</td>
+            <td>&nbsp;{{ ligneJournal.modePaiement }}</td>
+        </tr>
+
+        {% set old_id = ligneJournal.mouvementBancaire.id %}
+    {% endfor %}
+</tbody>
+<tfoot>
+    <tr>
+        <td colspan="6" class="align-right">Totaux :</td>
+        <td class="align-right" style="white-space: nowrap;">{{ arr_totaux.debit|number_format(2,',',' ') }}</td>
+        <td class="align-right" style="white-space: nowrap;">{{ arr_totaux.credit|number_format(2,',',' ') }}</td>
+        <td colspan="2"></td>
+    </tr>
+</tfoot>

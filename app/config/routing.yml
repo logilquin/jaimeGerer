@@ -1,0 +1,60 @@
+nicomak_paypal:
+    resource: "@NicomakPaypalBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
+nicomak_user:
+    resource: "@NicomakUserBundle/Controller/"
+    type:     annotation
+
+app:
+    resource: "@AppBundle/Controller/"
+    type:     annotation
+
+shtumi_useful:
+    resource: '@ShtumiUsefulBundle/Resources/config/routing.xml'
+
+fos_user_security:
+    resource: "@FOSUserBundle/Resources/config/routing/security.xml"
+
+fos_user_profile:
+    resource: "@FOSUserBundle/Resources/config/routing/profile.xml"
+    prefix: /profile
+
+fos_user_register:
+    resource: "@FOSUserBundle/Resources/config/routing/registration.xml"
+    prefix: /register
+
+fos_user_resetting:
+    resource: "@FOSUserBundle/Resources/config/routing/resetting.xml"
+    prefix: /resetting
+
+fos_user_change_password:
+    resource: "@FOSUserBundle/Resources/config/routing/change_password.xml"
+    prefix: /profile
+
+# SONATA ADMIN BUNDLE
+admin:
+    resource: '@SonataAdminBundle/Resources/config/routing/sonata_admin.xml'
+    prefix:   /admin
+
+_sonata_admin:
+    resource: .
+    type: sonata_admin
+    prefix:   /admin
+
+sonata_user:
+    resource: '@SonataUserBundle/Resources/config/routing/admin_security.xml'
+    prefix:   /
+
+sonata_user_profile:
+    resource: '@SonataUserBundle/Resources/config/routing/sonata_profile_1.xml'
+    prefix:   /profile
+
+# FOS JS BUNDLE
+fos_js_routing:
+    resource: "@FOSJsRoutingBundle/Resources/config/routing/routing.xml"
+
+# SnowcapImBundle
+snowcap_im:
+    resource: "@SnowcapImBundle/Resources/config/routing.yml"

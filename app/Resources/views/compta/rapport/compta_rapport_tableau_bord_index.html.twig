@@ -1,0 +1,182 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Documents comptables</h1>
+		</div>
+	</div>
+
+	<div class="row">
+			<div class="col-md-12">
+					{% include 'compta/rapport/compta_rapport_submenu.html.twig' %}
+			</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<h2>Tableau de bord</h2>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<p>
+				<a class="btn btn-primary" href="{{ path('compta_rapport_tableau_bord_importer_previsionnel') }}">
+					Importer le prévisionnel
+				</a>
+			</p>
+		</div>
+	</div>
+
+	<div class="row well">
+		<div class="col-md-3">
+			{{ form_start(form) }}
+			{{ form_widget(form) }}
+			{{ form_end(form) }}
+		</div>
+		<div class="col-md-9">
+			<input type="checkbox" class="checkbox-hide" id="prev" /> <label for="prev">Masquer les montants prévisionnels</label><br />
+			<input type="checkbox" class="checkbox-hide" id="predictif" /> <label for="predictif">Masquer les montants prédictifs</label><br />
+			<input type="checkbox" class="checkbox-hide" id="accurate" /> <label for="accurate">Masquer les montants réalisés</label>
+			
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12 tableau-bord-wrapper">
+			<table class="table table-bordered" id="tableau-bord">
+				<thead id="header-row">
+					<tr>
+						<th class="poste" rowspan="2"></th>
+						<th colspan="{{ moisDebutPredictif > 1 ? 2 : 3 }}" class="mois" id="mois-1">Janvier</th>
+						<th colspan="{{ moisDebutPredictif > 2 ? 2 : 3 }}" class="mois" id="mois-2">Février</th>
+						<th colspan="{{ moisDebutPredictif > 3 ? 2 : 3 }}" class="mois" id="mois-3">Mars</th>
+						<th colspan="{{ moisDebutPredictif > 4 ? 2 : 3 }}" class="mois" id="mois-4">Avril</th>
+						<th colspan="{{ moisDebutPredictif > 5 ? 2 : 3 }}" class="mois" id="mois-5">Mai</th>
+						<th colspan="{{ moisDebutPredictif > 6 ? 2 : 3 }}" class="mois" id="mois-6">Juin</th>
+						<th colspan="{{ moisDebutPredictif > 7 ? 2 : 3 }}" class="mois" id="mois-7">Juillet</th>
+						<th colspan="{{ moisDebutPredictif > 8 ? 2 : 3 }}" class="mois" id="mois-8">Août</th>
+						<th colspan="{{ moisDebutPredictif > 9 ? 2 : 3 }}" class="mois" id="mois-9">Septembre</th>
+						<th colspan="{{ moisDebutPredictif > 10 ? 2 : 3 }}" class="mois" id="mois-10">Octobre</th>
+						<th colspan="{{ moisDebutPredictif > 11 ? 2 : 3 }}" class="mois" id="mois-11">Novembre</th>
+						<th colspan="{{ moisDebutPredictif > 12 ? 2 : 3 }}" class="mois" id="mois-12">Décembre</th>
+						<th colspan="3" class="mois">Total</th>
+					</tr>
+					<tr>
+						{% for i in 1..12 %}
+							<th class="prev">Prévisionnel</th>
+							{% if i >=  moisDebutPredictif %}
+								<th class="predictif">Prédictif</th>
+							{% endif %}
+							<th class="accurate">Réalisé</th>
+						{% endfor %}
+						<th class="prev">Prévisionnel</th>
+						<th class="predictif">Prédictif</th>
+						<th class="accurate">Réalisé</th>
+					</tr>
+				</thead>
+				<tbody id="wrapper-ajax">
+				</tbody>
+			</table>
+			<p class="center" id="loader">
+				<img src="{{ asset('images/assets/dog_loader.gif') }}" alt="Chargement en cours" /><br />
+				<i>Chargement en cours...</i>
+			</p>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+  <script src="{{ asset('js/accounting.min.js') }}"></script>
+	<script type="text/javascript">
+		$(document).ready( function () {
+
+			var year = $(".year-select").val();
+			loadTable(year);
+
+			$(".year-select").change(function(){
+				$("#loader").removeClass("hidden");
+				$("#wrapper-ajax").html("");
+				var year = $(this).val();
+				loadTable(year);
+			});
+
+			function loadTable(year){
+
+				$.ajax({
+					type: "POST",
+					url: Routing.generate('compta_rapport_tableau_bord_voir', {'year' : year}),
+					success: function(data) {
+						$("#loader").addClass("hidden");
+						$("#wrapper-ajax").html(data);
+
+						if($('#checkbox-hide-accurate').is(':checked')){
+							$('td.accurate').toggle();
+						}
+
+						if($('#checkbox-hide-prev').is(':checked')){
+							$('td.prev').toggle();
+						}
+
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						$("#loader").addClass("hidden");
+					},
+				});
+			}
+
+			//cacher accurate
+			$('.checkbox-hide').click(function(){
+
+				var numCheckboxesChecked = $('.checkbox-hide:checked').length;
+				var type = $(this).attr('id');
+				var moisDebutPredictif = "{{ moisDebutPredictif }}";
+
+				for(var i =1; i<=12; i++){
+					var moisId = "#mois-"+i;
+					if(i < moisDebutPredictif){
+
+						if(numCheckboxesChecked == 0){
+							$(moisId).attr('colspan',2);
+						} else if(numCheckboxesChecked == 1){
+							
+							if( $("#prev").is(':checked') || $("#accurate").is(':checked') ){
+								$(moisId).show();
+								$(moisId).attr('colspan',1);
+							} else {
+								$(moisId).attr('colspan',2);
+							}
+
+						} else {
+							if( $("#prev").is(':checked') && $("#accurate").is(':checked') ){
+								$(moisId).hide();
+							} else if( $("#prev").is(':checked') || $("#accurate").is(':checked') ){
+								$(moisId).attr('colspan',1);
+							}
+						}
+
+					} else {
+						if(numCheckboxesChecked == 0){
+							$(moisId).attr('colspan',3);
+						} else if(numCheckboxesChecked == 1){
+							$(moisId).attr('colspan',2);
+						} else if(numCheckboxesChecked == 2){
+							$(moisId).attr('colspan',1);
+						} else {
+							$(moisId).attr('colspan',0);
+						}
+
+					}
+				}
+
+				$('.'+type).toggle();
+
+			});
+
+		});
+
+	</script>
+{% endblock %}

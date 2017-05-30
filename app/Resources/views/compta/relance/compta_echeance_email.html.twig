@@ -1,0 +1,12 @@
+<p>
+    Madame, Monsieur,
+</p>
+<p>Nous vous rappelons que la facture n°{{ facture.num }}, du
+    {{ facture.dateCreation|date('d/m/Y')  }}, arrive à échéance le
+    {{ facture.dateValidite|date('d/m/Y')  }}.
+<p>
+    Nous vous prions de croire, Madame, Monsieur, en l'assurance de notre considération distinguée.
+</p>
+<p>
+    {{ app.user }}
+</p>

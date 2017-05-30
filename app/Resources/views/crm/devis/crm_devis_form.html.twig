@@ -1,0 +1,187 @@
+{% block content %}
+
+{{ form_start(form) }}
+{{ form_errors(form) }}
+
+<div class="row">
+	<div class="col-md-6">
+		{{ form_errors(form) }}
+		{{ form_row(form.objet) }}
+		{{ form_row(form.etat) }}
+	</div>
+	<div class="col-md-6">
+		{{ form_row(form.dateValidite) }}
+		{{ form_row(form.userGestion) }}
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-6">
+		  <div class="typeahead-container">
+	        <div class="typeahead-field">
+	        	<span class="typeahead-query">
+							{{ form_row(form.compte_name, {'attr' : {'class' : 'typeahead-compte input-compte-name'}}) }}
+							{{ form_row(form.compte) }}
+						</span>
+	        </div>
+	    </div>
+	</div>
+	<div class="col-md-6">
+		  <div class="typeahead-container" id="typeahead-container-contact">
+	        <div class="typeahead-field">
+	        	<span class="typeahead-query">
+							{{ form_row(form.contact_name, {'attr' : {'class' : 'typeahead-contact'}}) }}
+							{{ form_row(form.contact) }}
+						</span>
+	        </div>
+	    </div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-6">
+		{{ form_row(form.adresse) }}
+		{{ form_row(form.codePostal) }}
+    </div>
+    <div class="col-md-6">
+    	{{ form_row(form.ville) }}
+		{{ form_row(form.region) }}
+		{{ form_row(form.pays) }}
+    </div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+
+		 <ul class="produits" id="collectionContainer" data-prototype="
+		 {% filter escape %}
+		    	{{ include('crm/produit/crm_produit_form.html.twig', { 'form':  form.produits.vars.prototype }) }}
+	     {% endfilter %}">
+	     {% for produitField in form.produits %}
+	        <li>
+		    	{{ include('crm/produit/crm_produit_form.html.twig', { 'form': produitField }) }}
+	        </li>
+	    {% endfor %}
+	    </ul>
+
+	</div>
+</div>
+
+<div class="row">
+    <div class="col-md-12" id="devis-calcul-wrapper">
+    	<hr />
+   		{{ form_row(form.sousTotal) }}
+    	{{ form_row(form.remise) }}
+    	{{ form_row(form.totalHT) }}
+    	<div id="devis-taxe-wrapper">
+    		{{ form_row(form.taxePercent) }}
+   	 		{{ form_row(form.taxe) }}
+    	</div>
+		<p class="fc-taxe-hidden hidden">Vous ne pouvez pas taxer les produits de type FC.</p>
+   	 	{{ form_row(form.totalTTC) }}
+   	 	<hr />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+    	{{ form_row(form.cgv) }}
+   	 	{{ form_row(form.description) }}
+	   	 	<input type="submit" value="Enregistrer" class="btn btn-success" />
+	</div>
+</div>
+{{ form_rest(form) }}
+{{ form_end(form) }}
+{% endblock %}
+
+{% block javascripts %}
+	<script type="text/javascript">
+
+
+		$(document).ready( function () {
+
+			$('.typeahead-compte').typeahead({
+			    order: "desc",
+			    source: {
+			        url: "/web/app_dev.php/crm/compte/get-comptes"
+			    },
+			    callback: {
+			        onInit: function (node) {
+			            console.log('Typeahead Initiated on ' + node.selector);
+			        },
+			        onClickAfter: function (node, a, item, event) {
+						$('.entity-compte').val(item.id);
+						changeAddress();
+					}
+			    },
+			    debug: true
+
+			});
+			$('.typeahead-compte').blur(function(){
+				$('div.typeahead-result', '#typeahead-container-contact').remove();
+				$(".typeahead-contact").typeahead("destroy");
+				$(".typeahead-contact").off();
+				$(".typeahead-contact").data('typeahead', (data = null))
+				$('.typeahead-contact').typeahead({
+					order: "desc",
+					source: {
+						url: "/web/app_dev.php/crm/contact/get-contacts"+ ($('.entity-compte').val() > 0 ? '/'+$('.entity-compte').val() : '')
+					},
+					callback: {
+						onInit: function (node) {
+							console.log('Typeahead Devis Initiated on ' + node.selector);
+							console.log($('.entity-compte').val());
+						},
+						onClickAfter: function (node, a, item, event) {
+							console.log('Typeahead Devis Click on ' + node.selector);
+							$('.entity-contact').val(item.id);
+
+						}
+					},
+					debug: true
+				});
+			});
+
+			$('.typeahead-contact').typeahead({
+			    order: "desc",
+				/*source: function (typeahead, query) {
+					return $.get('/web/app_dev.php/crm/contact/get-contacts', { query: query }, function (data) {
+						return typeahead.process(data);
+					});
+				},*/
+			    source: {
+			        url: "/web/app_dev.php/crm/contact/get-contacts"+ ($('.entity-compte').val() > 0 ? '/'+$('.entity-compte').val() : '')
+			    },
+			    callback: {
+			        onInit: function (node) {
+			            console.log('Typeahead Devis Initiated on ' + node.selector);
+			            console.log($('.entity-compte').val());
+			        },
+			        onClickAfter: function (node, a, item, event) {
+			        	console.log('Typeahead Devis Click on ' + node.selector);
+						$('.entity-contact').val(item.id);
+
+					}
+			    },
+			    debug: true
+
+			});
+
+			function changeAddress() {
+				$.ajax({
+					type: "POST",
+					url: "/web/app_dev.php/crm/compte/get_coordonnees_by_id/"+$('.entity-compte').val(),
+					success: function(data) {
+						$(".input-adresse").val(data.adresse);
+						$(".input-codepostal").val(data.codePostal);
+						$(".input-ville").val(data.ville);
+						$(".input-region").val(data.region);
+						$(".input-pays").val(data.pays);
+						$(".input-telephone").val(data.telephone);
+						$(".input-fax").val(data.fax);
+					 }
+				});
+			}
+
+		});
+
+	</script>
+
+	<script src="{{ asset('js/error.js') }}"></script>
+{% endblock %}

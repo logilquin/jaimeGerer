@@ -1,0 +1,240 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{{ type|capitalize }}s</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="sub-menu">
+                <a href="{{ path('compta_contact_liste', {'type' : 'CLIENT'}) }}" {% if type == "CLIENT" %} class=" current" {% endif %}>Clients</a>
+                -
+                <a href="{{ path('compta_contact_liste', {'type' : 'FOURNISSEUR'}) }}" {% if type == "FOURNISSEUR"  %} class=" current" {% endif %} >Fournisseurs</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <p>
+                {% if type == "CLIENT" %}
+                    <a href="{{ path('compta_contact_ajouter', {'type' : 'CLIENT'}) }}" class="btn btn-success">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        Ajouter un nouveau client
+                    </a>
+
+                     <a href="{{ path('compta_contact_ajouter_existant', {'type' : 'CLIENT'}) }}" class="btn btn-info">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        Ajouter un client depuis J'aime le Commercial
+                    </a>
+                {% else %}
+                    <a href="{{ path('compta_contact_ajouter', {'type' : 'FOURNISSEUR'}) }}" class="btn btn-success">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        Ajouter un nouveau fournisseur
+                    </a>
+
+                     <a href="{{ path('compta_contact_ajouter_existant', {'type' : 'FOURNISSEUR'}) }}" class="btn btn-info">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        Ajouter un fournisseur depuis J'aime le Commercial
+                    </a>
+                {% endif %}
+
+               
+            </p>
+        </div>
+    </div>
+
+    {% if type == "FOURNISSEUR" %}
+        <div class="row well">
+            <div class="col-md-12 center">
+                <h3>Filtres</h3>
+                <p>
+                    <strong>Date des dépenses</strong>
+                </p>
+                <input type="checkbox" name="filtre_fournisseurs_annee" id="filtre_fournisseurs_annee" class="filte"/>
+                Fournisseurs de l'année<br/>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <table id="table_compte_list" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Ville, région et pays</th>
+                        <th>Téléphone</th>
+                        <th>Compte Comptable</th>
+                        <th>Total
+                            {% if type == "CLIENT" %}
+                                factures
+                            {% else %}
+                                dépenses
+                            {% endif %}
+                        </th>
+                        <th>
+                            {% if type == "CLIENT" %}
+                                Factures
+                            {% else %}
+                                Dépenses
+                            {% endif %}
+                            sur l'année</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            var contactType = "{{ type }}";
+
+            var table = $('#table_compte_list').DataTable({
+                "dom": 'T<"clear">lfrtip',
+                "oTableTools": {
+                    "sSwfPath": "/web/lib/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
+                    "aButtons": [
+                        {
+                            "sExtends": "csv",
+                            "sButtonText": "Excel",
+                            "mColumns": [
+                                0, 1, 2, 3
+                            ],
+                            "sFileName": "comptes.csv"
+                        }, {
+                            "sExtends": "pdf",
+                            "sButtonText": "PDF",
+                            "mColumns": [
+                                0, 1, 2, 3
+                            ],
+                            "sFileName": "comptes.pdf",
+                            "sTitle": "Comptes"
+                        }
+                    ]
+                },
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"
+                },
+                "responsive": true,
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    url: Routing.generate('compta_contact_liste_ajax', {
+                        'type': contactType,
+                        'year': ($("#filtre_fournisseurs_annee").is(':checked'))
+                            ? "true"
+                            : "false"
+                    }),
+                    type: "post", // method  , by default get
+                },
+                "columns": [
+                    {
+                        "data": "nom"
+                    }, {
+                        "data": "region"
+                    }, {
+                        "data": "telephone"
+                    }, {
+                        "data": "num_compte_comptable"
+                    }, {
+                        "data": "total"
+                    }, {
+                        "data": "total_annee"
+                    }
+                ],
+                fnDrawCallback: function() {
+                    $('a', this.fnGetNodes()).tooltip({"delay": 0, "track": true, "fade": 250, "tooltipClass": 'btn btn-default'});
+                },
+                fnInitComplete: function() {
+                    $('a', this.fnGetNodes()).tooltip({"delay": 0, "track": true, "fade": 250, "tooltipClass": 'btn btn-default'});
+                },
+                "columnDefs": [
+                    {
+                        "render": function(data, type, row) {
+                            var actionUrl = Routing.generate('compta_contact_voir', {
+                                'id': row['id'],
+                                'type': contactType
+                            });
+                            return '<a href="' + actionUrl + '">' + data + '</a>';
+                        },
+                        "targets": 0
+                    }, {
+                        "render": function(data, type, row) {
+                            var s = "";
+                            if (row.ville) {
+                                s += row.ville + "<br />";
+                            }
+                            if (row.region) {
+                                s += row.region + "<br />";
+                            }
+                            if (row.pays) {
+                                s += row.pays + "<br />";
+                            }
+
+                            return s;
+                        },
+                        "targets": 1
+                    }, {
+                        "render": function(data, type, row) {
+													if(row['id_compte_comptable']){
+														var actionUrl = Routing.generate('compta_compte_voir', {'id': row['id_compte_comptable']});
+														return "<a href=\"" + actionUrl + "\">" + data + "</a>";
+													}
+													return "";
+                        },
+                        "targets": 3
+                    }, {
+                        "render": function(data, type, row) {
+                            return data + " € HT";
+                        },
+                        "targets": 4
+                    }, {
+                        "render": function(data, type, row) {
+                            return data + " € HT";
+                        },
+                        "targets": 5
+                    }, {
+                        "render": function(data, type, row) {
+                            var voirUrl = Routing.generate('compta_contact_voir', {
+                                'id': row['id'],
+                                'type': contactType
+                            });
+                            var editerUrl = Routing.generate('compta_contact_editer', {
+                                'id': row['id'],
+                                'type': contactType
+                            });
+
+                            return "<a href=\"" + voirUrl + "\" class=\"btn btn-xs btn-info\" ​data-toggle=\"tooltip-btn-xs\" title=\"Voir\"><span class=\"glyphicon glyphicon-eye-open\"></span></a> <a href=\"" + editerUrl + "\" class=\"btn btn-xs btn-warning\" ​data-toggle=\"tooltip\" title=\"Editer\"><span class=\"glyphicon glyphicon-pencil\"></span></a> ";
+                        },
+                        "targets": 6
+                    }, {
+                        "visible": false,
+                        "targets": ['id']
+                    }
+                ]
+            });
+
+            $("#filtre_fournisseurs_annee").change(function() {
+                table.ajax.url(Routing.generate('compta_contact_liste_ajax', {
+                    'type': contactType,
+                    'year': ($("#filtre_fournisseurs_annee").is(':checked'))
+                        ? "true"
+                        : "false"
+                }));
+                table.ajax.reload();
+            });
+
+        });
+    </script>
+{% endblock %}

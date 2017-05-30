@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <title>
+            {% block title %}J'aime gérer{% endblock %}
+        </title>
+
+        <!--  CSS  -->
+        {% block stylesheets %}
+            <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+            <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css"/>
+            <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.2.2/css/buttons.bootstrap.min.css"/>
+            <link rel="stylesheet" media="screen" href="{{ asset('lib/handsontable/dist/handsontable.full.css') }}">
+            <link rel="stylesheet" type="text/css" href="{{ asset('css/jquery.datetimepicker.css') }}"/>
+            <link rel="stylesheet" type="text/css" href="{{ asset('css/base.css') }}"/>
+            <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/ui-lightness/jquery-ui.css" type="text/css"/>
+            <link rel="stylesheet" href="{{ asset('js/bootstrap3-editable/css/bootstrap-editable.css') }}" type="text/css"/>
+            <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+            <link rel="stylesheet" type="text/css" href="{{ asset('lib/jquery-typeahead/dist/jquery.typeahead.min.css') }}">
+
+            <!-- fonts -->
+            <link href='https://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'>
+
+        {% endblock %}
+
+        {% block javascripts %}
+            <!-- bloody IE8 doesn't support JQuery >= 2 -->
+            <!--[if (!IE)|(gt IE 8)]><!-->
+            <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+            <!--<![endif]-->
+            <!--[if lte IE 8]> <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> <![endif]-->
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+            <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+
+            <script src="https://cdn.datatables.net/1.10.15/js/dataTables.bootstrap.min.js"></script>
+            <script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
+            <script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.bootstrap.min.js"></script>
+            <script src="//cdn.datatables.net/plug-ins/1.10.9/sorting/date-eu.js"></script>
+
+            <script src="https://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+
+            <script src="{{ asset('lib/handsontable/dist/handsontable.full.js') }}"></script>
+            <script src="{{ asset('js/dateinput.js') }}"></script>
+            <script src="{{ asset('js/jquery.datetimepicker.full.js') }}"></script>
+            <script src="{{ asset('js/jquery.validate.js') }}"></script>
+            <script src="{{ asset('js/datepicker-fr.js') }}"></script>
+            <script src="{{ asset('lib/jquery-typeahead/dist/jquery.typeahead.js') }}"></script>
+            <script src="{{ asset('js/bootstrap3-editable/js/bootstrap-editable.js') }}"></script>
+            <script src="{{ asset('js/jquery.nicescroll.min.js') }}"></script>
+            <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+            <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+            <script src="{{ path('fos_js_routing_js', {'callback': 'fos.Router.setData'}) }}"></script>
+
+            {% if hide_tiny is not defined or hide_tiny == false %}
+                {{ tinymce_init() }}
+            {% endif %}
+
+            <script type="text/javascript">
+                $(document).ready(function() {
+
+                    /* empty modals content when they are closed */
+                    $('body').on('hidden.bs.modal', '#modal', function() {
+                        $('.modal-content', this).empty();
+                        $(this).removeData('bs.modal');
+                    });
+                    $('body').on('hidden.bs.modal', '#modal-lg', function() {
+                        $('.modal-content', this).empty();
+                        $(this).removeData('bs.modal');
+                    });
+
+                    /* initialize bootstrap tooltip */
+                    $('[data-toggle="tooltip"]').tooltip({"tooltipClass": 'btn'});
+                    /* initialize bootstrap popover */
+                    $('[data-toggle="popover"]').popover({});
+
+                    $.fn.editable.defaults.mode = 'popup';
+
+                    $('#displayCredits').click(function(e) {
+                        e.preventDefault();
+                        var url = Routing.generate('payment_credits_display');
+                        $('#modal div.modal-dialog').load(url);
+                        $('#modal').modal('show');
+                    });
+                });
+            </script>
+
+            <!-- display top menu according to page -->
+            <script type="text/javascript">
+                $(document).ready(function() {
+                    var url = window.location.pathname;
+                    if (url == "{{ path('homepage') }}") {
+                        $('#menu-main').show();
+                    } else {
+                        $('#menu-secondary').show();
+                        $('#userbar').css({'background': 'none'});
+                    }
+                });
+            </script>
+
+            {% if app.environment == "prod" %}
+                <!--Start of Zopim Live Chat Script-->
+                <script type="text/javascript">
+                    window.$zopim || (function(d, s) {
+                        var z = $zopim = function(c) {
+                                z._.push(c)
+                            },
+                            $ = z.s = d.createElement(s),
+                            e = d.getElementsByTagName(s)[0];
+                        z.set = function(o) {
+                            z.set._.push(o)
+                        };
+                        z._ = [];
+                        z.set._ = [];
+                        $.async = !0;
+                        $.setAttribute("charset", "utf-8");
+                        $.src = "//v2.zopim.com/?3hIj1v8egEgVBlhX1G0JuwQgaYYtnFE2";
+                        z.t =+ new Date;
+                        $.type = "text/javascript";
+                        e.parentNode.insertBefore($, e)
+                    })(document, "script");
+                </script>
+                <!--End of Zopim Live Chat Script-->
+            {% endif %}
+
+        {% endblock %}
+
+        <!--favicon -->
+        <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}"/>
+    </head>
+
+    <body>
+        <div class="container-fluid">
+
+            <div class="row" id="userbar">
+                <div class="col-xs-4">
+                    {% if app.request.attributes.get('_route') == 'homepage' %}
+                        <div id="menu-main">
+                            <a href="{{ path('homepage') }}">
+                                <img class="logo-top" src="{{ asset('images/assets/jaimegerer-logo-250.png') }}" alt="logo-jaimegerer"/>
+                            </a>
+                        </div>
+                    {% else %}
+                        <div id="menu-secondary" hidden>
+                            <div id="menu-secondary-main">
+                                <a href="{{ path('homepage') }}">
+                                    <img class="logo-visuel-top" src="{{ asset('images/assets/jaimegerer-logo-visuel.png') }}" alt="logo-jaimegerer"/>
+                                </a>
+                            </div>
+                            <div id="menu-secondary-hover">
+                                <a href="{{ path('crm_index') }}" class="active">
+                                    <img src="{{ asset('images/assets/commercial.png') }}" alt="CRM"/>
+                                </a>
+                                <a href="#" class="inactive">
+                                    <img src="{{ asset('images/assets/communication.png') }}" alt="Emailing"/>
+                                </a>
+                                <a href="{{ path('compta_index') }}" class="active">
+                                    <img src="{{ asset('images/assets/comptabilite.png') }}" alt="Comptabilité"/>
+                                </a>
+                                <a href="#" class="inactive">
+                                    <img src="{{ asset('images/assets/recrutement.png') }}" alt="Recrutement"/>
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-xs-7">
+                    <p id="login-info">
+                        {% if app.user is not null %}
+                            {{ app.user.username }}
+                            <br/>
+                            {% if app.user.company is not null %}
+                                <a href="" id="displayCredits">
+                                    Crédit :
+                                    {{ app.user.company.credits|number_format(2, ',') }}
+                                    €
+                                </a>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-xs-1">
+                        <div id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img src="{{ asset('images/assets/user.png') }}" alt="CRM" width="60"/></div>
+                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dLabel">
+
+                            {% if is_granted('ROLE_SUPER_ADMIN') %}
+                                <li>
+                                    <a href="{{ path('superadmin_stats') }}">Stats d'utilisation</a>
+                                </li>
+                            {% endif %}
+
+                            {% if (app.user.company is not null)
+                                and is_granted('ROLE_ADMIN') %}
+                                <li>
+                                    <a href="{{ path('admin_company_edit') }}">
+                                        {{ app.user.company.nom }}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ path('admin_utilisateurs_liste') }}">
+                                        Utilisateurs
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            <li>
+                                <a href="{{ path('fos_user_security_logout') }}">Déconnexion</a>
+                            </li>
+                        </ul>
+
+                    {% else %}
+                        <a href="{{ path('fos_user_security_login') }}">- Connexion</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid full-height">
+
+            {% block body %}{% endblock %}
+
+            <!-- wrapper for modal -->
+            <div class="modal" id="modal" data-focus-on="input:first">
+                <div class="modal-dialog">
+                    <div class="modal-content"></div>
+                </div>
+            </div>
+
+            <!-- wrapper for large modal -->
+            <div class="modal" id="modal-lg" data-focus-on="input:first">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content"></div>
+                </div>
+            </div>
+
+            {% block additionalModals %}{% endblock %}
+
+        </div>
+
+    </body>
+
+</html>

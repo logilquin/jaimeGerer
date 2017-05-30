@@ -1,0 +1,43 @@
+{% block content %} 
+
+{{ form_start(form) }}
+			
+<div class="row">
+	<div class="col-md-6">
+		{{ form_errors(form) }}
+		{{ form_row(form.objet) }}
+		{% if type == 'CLIENT' %}
+			{{ form_row(form.facture) }}
+		{% elseif type == 'FOURNISSEUR' %}
+			{{ form_row(form.depense) }}
+		{% endif %}
+	</div>
+	<div class="col-md-6">
+		{{ form_row(form.dateValidite) }}
+		{{ form_row(form.userGestion) }}
+	</div>
+</div>
+<div class="row">   
+	<div class="col-md-12">
+ 		<ul class="produits" id="collectionContainer" data-prototype="
+		 {% filter escape %}
+		 	{{ include('compta/avoir/compta_avoir_ligne_form.html.twig', { 'form':  form.lignes.vars.prototype }) }}
+	     {% endfilter %}">
+	     {% for ligneField in form.lignes %}
+	        <li>
+		    	{{ include('compta/avoir/compta_avoir_ligne_form.html.twig', { 'form': ligneField }) }}
+	        </li>
+	    {% endfor %}
+	    </ul>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-6">
+		<input type="submit" value="Enregistrer" class="btn btn-success" />
+	</div>
+	<div class="col-md-6"></div>
+</div>
+
+{{ form_rest(form) }}
+{{ form_end(form) }}
+{% endblock %}

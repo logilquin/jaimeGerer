@@ -1,0 +1,109 @@
+{% extends 'ndf/ndf_layout.html.twig' %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Modifier un reçu</h1>
+		</div>
+	</div>
+
+
+  <div class="row">
+		<div class="col-md-6">
+			{% if recu.fileType == "pdf" %}
+				<object data="/{{ recu.path }}/{{ recu.file }}" type="application/pdf" width="100%" height="600px;">
+				 <p>Votre navigateur ne supporte pas la lecture des fichiers PDFs. <a href="/pdf/sample-3pp.pdf">Téléchargez PDF</a>.</p>
+				</object>
+			{% else %}
+				<p class="center">
+					<img src="/{{ recu.path }}/{{ recu.file }}" alt="" />
+				</p>
+			{% endif %}
+		</div>
+
+		<div class="col-md-6">
+			{{ form_start(form) }}
+
+			<div class="form-group">
+				{{ form_row(form.date) }}
+			</div>
+
+			<div class="form-group">
+				{{ form_row(form.fournisseur) }}
+			</div>
+
+			<div class="form-group">
+				{{ form_row(form.analytique) }}
+			</div>
+
+			<div class="form-group">
+				{{ form_row(form.compteComptable) }}
+			</div>
+
+			<div class="form-group">
+				{{ form_row(form.montantHT) }}
+			</div>
+
+			<div class="form-group">
+				{{ form_row(form.tva) }}
+			</div>
+
+			<div class="form-group">
+				{{ form_row(form.montantTTC) }}
+			</div>
+
+			<div class="form-group center">
+				{{ form_row(form.submit, {'attr' : {'class' : 'btn btn-success'}}) }}
+			</div>
+
+			{{ form_rest(form) }}
+			{{ form_end(form) }}
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script type="text/javascript">
+
+		$(document).ready( function () {
+
+			console.log('ready');
+
+			$('.montant-ht').change(function(){
+				console.log('change');
+				updateMontants();
+			});
+			$('.montant-tva').change(function(){
+				updateMontants();
+			});
+			$('.montant-ttc').change(function(){
+				updateMontants();
+			});
+
+			function updateMontants(){
+				console.log("update");
+				var ht = $('.montant-ht').val();
+				ht = ht.replace(",", ".");
+				$('.montant-ht').val(ht);
+
+				var tva = $('.montant-tva').val();
+				tva = tva.replace(",", ".");
+				$('.montant-tva').val(tva);
+
+				var ttc = $('.montant-ttc').val();
+				ttc = ttc.replace(",", ".");
+				$('.montant-ttc').val(ttc);
+
+				if(tva != 0){
+					var ttc = +ht + +tva;
+					$('.montant-ttc').val(ttc.toFixed(2));
+				} else {
+					$('.montant-ttc').val(ht);
+				}
+			}
+
+		});
+
+	</script>
+{% endblock %}

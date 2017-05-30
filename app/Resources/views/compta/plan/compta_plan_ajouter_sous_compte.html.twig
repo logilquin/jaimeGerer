@@ -1,0 +1,51 @@
+<div class="modal-header">
+	<a class="close" data-dismiss="modal">×</a>
+	<h3>Ajouter un sous-compte</h3>
+</div>
+<div class="modal-body">
+	<p>Créer un sous-compte à partir du compte {{ parent }}</p>
+
+ 	{{ form_start(form, {'action': path('compta_compte_ajouter_sous_compte', {'id' : parent.id, 'redirect' : redirect }), 'attr': {'class': 'form-sous-compte'}} ) }}
+
+	{{ form_errors(form) }}
+
+	<div class="form-group">
+	   	{{ form_label(form.num) }}<br />
+	   	 <div class="input-group">
+	    	{{ form_errors(form.num) }}
+	    	<div class="input-group-addon">{{ parent.num }}</div>{{ form_widget(form.num, { 'attr': {'class': 'num'}}) }}
+	    </div>
+	</div>
+
+	<div class="form-group">
+	   	{{ form_label(form.nom) }}<br />
+	    {{ form_errors(form.nom) }}
+	    {{ form_widget(form.nom) }}
+	</div>
+
+	<a class="btn" href="#" data-dismiss="modal">
+       	<span class="glyphicon glyphicon-chevron-left"></span>Annuler
+    </a>
+	<input type="submit" value="Enregistrer" class="btn btn-success" />
+ 	<p class="center"><img src="{{ asset('images/assets/cat_loader.gif') }}" alt="Chargement" class="hidden" id="loader"/></p>
+	{{ form_end(form) }}
+
+</div>
+
+<script type="text/javascript">
+$(document).ready( function () {
+	$('.num').keypress(function(e){
+
+		if(e.keyCode != 8 && e.keyCode != 13 && e.keyCode != 37 && e.keyCode != 39 && e.keyCode != 46){
+			var parentNum = "{{ parent.num }}";
+			var leftChars = 8-(parentNum.length);
+
+			if($(this).val().length >= leftChars){
+				return false;
+			}
+		}
+
+	});
+
+});
+</script>

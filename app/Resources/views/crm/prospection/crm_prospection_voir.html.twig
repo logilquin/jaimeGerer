@@ -1,0 +1,120 @@
+{% extends 'crm/crm_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12 bread-crumb-back">
+		<a href="{{ path('crm_prospection_liste') }}" class="small">< Retour à la listes des prospections</a>
+		</div>
+	</div>
+	<div class="row" id="compte_details">
+	    <div class="col-md-6">
+	    		<h1 style="float:left;">Prospection : {{ prospection.nom }}</h1>
+	    			
+	    </div>
+
+		<div class="col-md-6">
+		    <p class="group-btn">
+		    	<a href="{{ path('crm_prospection_gerer_liste', {'id' : prospection.id }) }}"  class="btn btn-warning">
+		    		<span class="glyphicon glyphicon-list-alt"></span> Gérer la liste
+		    	</a>
+		    	<a href="{{ path('crm_prospection_phoning', {'id' : prospection.id }) }}"  class="btn btn-success">
+		    		<span class="glyphicon glyphicon-earphone"></span> Suivi du phoning
+		    	</a>
+		    	{% if prospection.nbreJour > 0 and nbre_contact > 0 %}
+		    	<a href="{{ path('crm_prospection_stats', {'id' : prospection.id }) }}"  class="btn btn-info"  data-toggle="modal" data-target="#modal">
+			    	<span class="glyphicon glyphicon-stats"></span> Statistiques
+			    </a>
+			    {% endif %}
+		    </p>
+	    </div>
+    </div>
+
+	    <div class="row">
+	    	<div class="col-md-12">
+				<hr />
+			</div>
+		</div>
+	    <div class="row">
+	    	<div class="col-md-6">
+	    		<table class="contact-view-table">
+	    			<tbody>
+		    			<tr>
+		    				<td>
+		    					Nom de la campagne
+		    				</td>
+		    				<td>
+					    		{{ prospection.nom }}
+		    				</td>
+		    			</tr>
+		    			<tr>
+		    				<td>
+		    					Date de création
+		    				</td>
+		    				<td>
+					    		{{ prospection.dateCreation|date("d/m/Y") }}
+		    				</td>
+		    			</tr>
+		    			<tr>
+		    				<td>
+		    					Taille de la liste
+		    				</td>
+		    				<td>
+								{{ nbre_contact }} personne{% if nbre_contact > 1 %}s{% endif %}
+		    				</td>
+		    			</tr>
+		    		</tbody>
+		    	</table>
+	    	</div>
+	    	<div class="col-md-6">
+	    		<table class="contact-view-table">
+	    			<tbody>
+		    			<tr>
+		    				<td>
+		    					Créée par 
+		    				</td>
+		    				<td>
+					    		{{ prospection.userCreation }}
+		    				</td>
+		    			</tr>
+		    			<tr>
+		    				<td>
+		    					Dernière prospection
+		    				</td>
+		    				<td>
+				    			{% if prospection.dateLastOpen is empty %}
+						    		Jamais
+						    	{% else %}
+									{{ prospection.dateLastOpen|date("d/m/Y") }}
+								{% endif %}
+		    				</td>
+		    			</tr>
+		    			<tr>
+		    				<td colspan="2">
+		    					{{ prospection.nbreAffichage }} personne{% if prospection.nbreAffichage > 1 %}s{% endif %} à appeler par jour.
+		    				</td>
+		    			</tr>
+	    			</tbody>
+	    		</table>
+	    	</div>
+    	</div>
+
+<script>
+	/* Create a fixed menu on scroll for /voir */
+		$(document).ready(function() {
+		var positionElementInPage = $('#compte_details').offset().top;
+		$(window).scroll(
+			 function() {
+			        if ($(window).scrollTop() >= positionElementInPage) {
+			            // fixed
+			            $('#compte_details').addClass("fixed-top");
+			        } else {
+			            // relative
+			            $('#compte_details').removeClass("fixed-top");
+			        }
+			    }
+		);
+		});
+</script>
+
+{% endblock %}

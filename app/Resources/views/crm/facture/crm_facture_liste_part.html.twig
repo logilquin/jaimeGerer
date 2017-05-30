@@ -1,0 +1,183 @@
+{% block content %}
+	  <div class="row" id="facture">
+	  	<div class="col-md-12">
+	  		<h3>Factures</h3>
+	  		<p>
+	  			<a href="{{ path('crm_facture_ajouter') }}" class="btn btn-xs btn-success">
+		    		<span class="glyphicon glyphicon-plus"></span> Ajouter
+		   	 	</a>
+		   </p>
+	  		<table id="table_factures" class="table table-bordered table-striped">
+	  			<thead>        
+		    		<tr>            
+		    			<th>Objet</th>            
+		    			<th>Numéro de facture</th>  
+		    			<th>Total</th>  
+		    			<th>Date de création</th> 
+		    			<th>Etat</th>
+		    			<th>Actions</th>          
+		    		</tr>    
+			    </thead>    
+			    <tbody>
+	  			{% for facture in arr_facture %}
+	  				<tr>
+	  					<td>
+	  						<a href="{{ path('crm_facture_voir', {'id' : facture.id}) }}">{{ facture.objet }}</a>
+	  					</td>
+	  					
+	  					<td>
+			    			{{ facture.num }}
+	  					</td>
+	  					
+	  					<td>
+			    			{{ facture.Totaux().HT }} € HT<br />
+			    			<i class="small">{{ facture.Totaux().TTC }} € TTC</i>
+			    		</td>
+	  					
+	  					<td>
+			    			{{ facture.dateCreation|date('d/m/Y') }}
+	  					</td>
+	  					<td>
+			    				{{ facture.formattedEtat }}
+			    		</td>
+	  					<td>
+			    				<a href="{{ path('crm_facture_voir', {'id' : facture.id}) }}" class="btn btn-xs btn-info" ​data-toggle="tooltip-btn-xs" title="Voir">
+			    					<span class="glyphicon glyphicon-eye-open"></span>
+			    				</a>
+			    				<a href="{{ path('crm_facture_editer', {'id' : facture.id }) }}" class="btn btn-xs btn-warning" ​data-toggle="tooltip-btn-xs" title="Editer">
+			    					<span class="glyphicon glyphicon-pencil"></span>
+			    				</a>
+			    				<a href="{{ path('crm_facture_exporter', {'id' : facture.id }) }}" class="btn btn-xs btn-primary" ​data-toggle="tooltip-btn-xs" title="Exporter">
+			    					<span class="glyphicon glyphicon-floppy-disk"></span>
+			    				</a>
+			    				<a href="{{ path('crm_facture_supprimer', {'id' : facture.id }) }}" class="btn btn-xs btn-danger" ​data-toggle="tooltip-btn-xs" title="Supprimer">
+			    					<span class="glyphicon glyphicon-trash"></span>
+			    				</a>
+			    			</td>   
+	  					
+	  				</tr>
+	  			{% endfor %}
+	  			</tbody>
+	  		</table>
+	  	</div>
+	  </div>
+	{% if arr_factures_orga is defined %}
+	<div class="row" id="facture-organisation">
+		<div class="col-md-12">
+			<h3>Factures de l'organisation </h3>
+			<p>
+				<a href="{{ path('crm_facture_ajouter') }}" class="btn btn-xs btn-success">
+					<span class="glyphicon glyphicon-plus"></span> Ajouter
+				</a>
+			</p>
+			<table id="table_factures_orga" class="table table-bordered table-striped">
+				<thead>
+				<tr>
+					<th>Objet</th>
+					<th>Numéro de facture</th>
+					<th>Total</th>
+					<th>Date de création</th>
+					<th>Etat</th>
+					<th>Actions</th>
+				</tr>
+				</thead>
+				<tbody>
+				{% for facture in arr_factures_orga %}
+					<tr>
+						<td>
+							<a href="{{ path('crm_facture_voir', {'id' : facture.id}) }}">{{ facture.objet }}</a>
+						</td>
+
+						<td>
+							{{ facture.num }}
+						</td>
+
+						<td>
+							{{ facture.Totaux().HT }} € HT<br />
+							<i class="small">{{ facture.Totaux().TTC }} € TTC</i>
+						</td>
+
+						<td>
+							{{ facture.dateCreation|date('d/m/Y') }}
+						</td>
+						<td>
+							{{ facture.formattedEtat }}
+						</td>
+						<td>
+							<a href="{{ path('crm_facture_voir', {'id' : facture.id}) }}" class="btn btn-xs btn-info" ​data-toggle="tooltip-btn-xs" title="Voir">
+								<span class="glyphicon glyphicon-eye-open"></span>
+							</a>
+							<a href="{{ path('crm_facture_editer', {'id' : facture.id }) }}" class="btn btn-xs btn-warning" ​data-toggle="tooltip-btn-xs" title="Editer">
+								<span class="glyphicon glyphicon-pencil"></span>
+							</a>
+							<a href="{{ path('crm_facture_exporter', {'id' : facture.id }) }}" class="btn btn-xs btn-primary" ​data-toggle="tooltip-btn-xs" title="Exporter">
+								<span class="glyphicon glyphicon-floppy-disk"></span>
+							</a>
+							<a href="{{ path('crm_facture_supprimer', {'id' : facture.id }) }}" class="btn btn-xs btn-danger" ​data-toggle="tooltip-btn-xs" title="Supprimer">
+								<span class="glyphicon glyphicon-trash"></span>
+							</a>
+						</td>
+
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	{% endif %}
+
+{% endblock %}
+
+{% block javascripts %}
+	<script type="text/javascript">
+		$("#{{ div_id }}").DataTable({
+				language : {                
+					"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"            
+				},
+				paging : false,
+			    info: false,
+			    searching: false,
+				fnDrawCallback: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				  } );
+				},
+                fnInitComplete: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				  } );
+				},
+		});
+		$("#table_factures_orga").DataTable({
+			language : {
+				"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"
+			},
+			paging : false,
+			info: false,
+			searching: false,
+			fnDrawCallback: function () {
+				$( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				} );
+			},
+			fnInitComplete: function () {
+				$( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				} );
+			},
+		});
+
+	</script>
+{% endblock %}

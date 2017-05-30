@@ -1,0 +1,123 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block stylesheets %}
+	 {{ parent() }}
+	<link rel="stylesheet" href="{{ asset('lib/jquery-file-upload/css/style.css') }}">
+	<link rel="stylesheet" href="{{ asset('lib/jquery-file-upload/css/jquery.fileupload.css') }}">
+{% endblock %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Paramètres</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12"><h2>Paramètres de la TVA</h2></div>
+		{% for settings in arr_settings if settings.categorie == "TVA" %}
+			{% include 'compta/settings/compta_settings_completer_block.html.twig' %}
+		{% endfor %}
+
+
+		<div class="col-md-12"><h2>Paramètres des avoirs</h2>	</div>
+		{% for settings in arr_settings if settings.categorie == "AVOIRS" %}
+			{% include 'compta/settings/compta_settings_completer_block.html.twig' %}
+		{% endfor %}
+
+
+		<div class="col-md-12"><h2>Paramètres des remises de chèques</h2></div>
+		{% for settings in arr_settings if settings.categorie == "REMISE_CHEQUE" %}
+			{% include 'compta/settings/compta_settings_completer_block.html.twig' %}
+		{% endfor %}
+
+		<div class="col-md-12"><h2>Paramètres des notes de frais</h2></div>
+		{% for settings in arr_settings if settings.categorie == "NOTE_FRAIS" %}
+			{% include 'compta/settings/compta_settings_completer_block.html.twig' %}
+		{% endfor %}
+
+	</div>
+
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+
+	<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+	<script src="{{ asset('lib/jquery-file-upload/js/jquery.iframe-transport.js') }}"></script>
+	<!-- The basic File Upload plugin -->
+	<script src="{{ asset('lib/jquery-file-upload/js/jquery.fileupload.js') }}"></script>
+
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$('.help-popover').popover();
+		$('.editable').editable({
+			display: function(value, response) {
+		        //render response into element
+		        if(value == ""){
+		        	$(this).html('Compléter');
+		        } else {
+		        	$(this).html(value);
+			    }
+		    }
+	    });
+
+		$('.editable-liste-valeur').editable();
+
+		$('.editable-liste').editable({
+			display: function(value, response) {
+		        //render response into element
+		        $(this).html('Ajouter');
+		    }
+	    });
+
+			$('.editable-liste').on('save', function(e, params) {
+				$(this).parents('tr').before('<tr><td>'+params.newValue+'</td></tr>');
+				$(this).text('Ajouter');
+			});
+
+	    $('.editable-select-tva').editable({
+	        value: 'ENGAGEMENTS',
+	        source: [
+	              {value: 'ENGAGEMENTS', text: 'Engagements'},
+	              {value: 'ENCAISSEMENTS', text: 'Encaissements'},
+	           ]
+	    });
+
+			$('.editable-select-cc').editable({
+					source: 	{{ arr_cc|raw }},
+					 display: function(value, response) {
+								 //render response into element
+								 $(this).html('Ajouter');
+						 }
+			});
+
+			$('.editable-select-cc').on('save', function(e, params) {
+
+				console.log(params);
+				$(this).parents('tr').before('<tr><td>'+params.response+'</td></tr>');
+				$(this).text('Ajouter');
+			});
+
+
+		$('.btn-remove').click(function(){
+			var element = $(this);
+			$.ajax({
+				type: "POST",
+				url: Routing.generate('crm_settings_supprimer', {'id' : $(this).attr('id'), }),
+				success: function(data) {
+					element.parents('tr').hide('slow', function(){ element.parents('tr').remove(); });
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.log(jqXHR.status);
+					console.log(textStatus);
+					console.log(errorThrown);
+				},
+			});
+
+		});
+
+	});
+	</script>
+{% endblock %}

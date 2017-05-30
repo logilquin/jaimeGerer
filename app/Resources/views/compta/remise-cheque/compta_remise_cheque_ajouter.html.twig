@@ -1,0 +1,20 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<!-- Dropdown with multiple selections : https://github.com/ehynds/jquery-ui-multiselect-widget -->
+	<link rel="stylesheet" href="{{ asset('lib/jquery-ui-multiselect-widget/jquery.multiselect.css') }}"/>
+	<link rel="stylesheet" href="{{ asset('lib/jquery-ui-multiselect-widget/jquery.multiselect.filter.css') }}"/>
+{% endblock %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Créer une remise de chèque</h1>
+		</div>
+	</div>
+
+	{% include 'compta/remise-cheque/compta_remise_cheque_form.html.twig' %}
+
+{% endblock %}

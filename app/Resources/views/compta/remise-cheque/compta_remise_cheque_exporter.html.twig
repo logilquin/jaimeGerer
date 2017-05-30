@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+        <title>Facture</title>
+        
+		<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+		<link rel="stylesheet" type="text/css" href="{{ app.request.schemeAndHttpHost ~ asset('css/compta_pdf.css') }}" />
+		
+		<style>
+			thead { display: table-header-group }
+			tfoot { display: table-row-group }
+			tr { page-break-inside: avoid }
+		</style>
+   </head>
+    
+    <body>
+    	
+	<h1 class="align-center">Remise de chèques</h1>	
+		
+		<p class="align-right"><strong>Remise de chèque n° {{ remiseCheque.num }}</strong></p>
+    	
+    	<p>Date : {{ remiseCheque.date|date('d/m/Y') }}<br />
+    		Titulaire du compte : {{ remiseCheque.compteBancaire.company }}<br />
+    		N° du compte : {{ remiseCheque.compteBancaire.num }}
+    	</p>
+    	
+	    
+     
+    	<div class="col-md-12 produit-collection produit-collection-voir">
+    		<p class="align-right"><strong>Nombre de chèques :</strong> {{ remiseCheque.cheques|length }}</p>
+	    	<table>
+				<thead>
+					<th class="cheque-input-banque">Banque</th>
+					<th class="cheque-input-num">Numéro du chèque</th>
+					<th class="cheque-input-emetteur">Emetteur</th>
+					<th class="cheque-input-montant">Montant</th>
+				</thead>
+				<tbody>
+		    	{% for cheque in remiseCheque.cheques %}
+		    		<tr>
+						<td class="cheque-input-banque">{{ cheque.nomBanque }}</td>
+						<td class="cheque-input-num">{{ cheque.num }}</td>
+						<td class="cheque-input-emetteur">
+							<ul>
+							{% for piece in cheque.pieces %}
+								<li>
+								{% if piece.facture is not null %}
+									{{ piece.facture.compte }}
+								{% elseif piece.avoir is not null %}
+									{{ piece.avoir.compte }}
+								{% endif %}
+								</li>
+							{% endfor %}
+							</ul>
+						</td>
+						<td class="cheque-input-montant">{{ cheque.montant|number_format(2,',',' ')  }} €</td>
+					</tr>
+		    	{% endfor %}
+		    	</tbody>
+		    </table>
+	  
+   	 	<div id="cheque-calcul-wrapper">
+   	 			Total :	{{ remiseCheque.total|number_format(2,',',' ') }} €
+   	 	</div>
+   	 	
+   	 	<div id="signature">
+   	 		<p>Signature :</p>
+   	 	</div>
+
+	
+	</body>
+</html>

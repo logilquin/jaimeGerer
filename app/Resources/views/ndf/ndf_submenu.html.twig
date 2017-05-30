@@ -1,0 +1,7 @@
+{% block submenu %}
+			<div class="sub-menu">
+				<a href="{{ path('ndf_recu_upload') }}" {% if app.request.pathInfo == ""  %}class=" current"{% endif %}>Uploader un reçu </a> -
+			  <a href="{{ path('ndf_recus_liste') }}" {% if app.request.pathInfo == ""  %} class="current"{% endif %}>Mes reçus</a> -
+			  <a href="{{ path('ndf_liste') }}" {% if app.request.pathInfo == ""  %}class=" current"{% endif %}>Mes notes de frais</a>
+			</div>
+{% endblock %}

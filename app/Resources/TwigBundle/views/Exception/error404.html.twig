@@ -1,0 +1,21 @@
+{% extends "::base.html.twig" %}
+
+{% block title %} {{ parent() }} 
+{% endblock %} 
+
+
+{% block body %}
+  	<div id="content_bundle" class="narrow">
+  	
+  		<div id="content" class="center">
+  			<h1>Page inexistante</h1>
+      		 <p>La page que vous recherchez n'existe pas.</p>
+  		</div>
+        
+        <div class="center">
+	        <img src="{{ asset('images/assets/lolcat_sorry.jpg') }}" alt="Chat" />
+		</div>
+        
+    </div>
+
+{% endblock %}

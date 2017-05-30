@@ -1,0 +1,70 @@
+{% block content %}
+	<div class="row" id="prises_contact">
+	  	<div class="col-md-12">
+	  		<h3>Historique des envois</h3>
+    		<table id="table_prises_contact" class="table table-bordered table-striped">
+	  			<thead>        
+		    		<tr>            
+		    			<th>Envoyé par</th>
+		    			<th>Date</th>            
+		    			<th>Voir le message</th>
+		    		</tr>    
+			    </thead>    
+			    <tbody>
+	  			{% for prise_contact in listPriseContacts %}
+	  				<tr>
+	  					<td>
+			    			{{ prise_contact.user }}
+	  					</td>
+	  					<td>
+			    			{{ prise_contact.date|date('d/m/Y') }}
+	  					</td>
+	  					<td>
+	  						<a class="btn btn-xs btn-primary" role="button" data-toggle="collapse" href="#collapseMessage{{ prise_contact.id }}" aria-expanded="false" aria-controls="collapseMessage{{ prise_contact.id }}">
+	  							<span class="glyphicon glyphicon-eye-open"></span>
+	  						</a>
+	  						<div class="collapse" id="collapseMessage{{ prise_contact.id }}">
+							  <div class="well">
+							    {{ prise_contact.message|raw }}
+							  </div>
+							</div>
+	  					</td>
+	  				</tr>
+	  			{% endfor %}
+	  			</tbody>
+	  		</table>
+	  	</div>
+	  </div>
+{% endblock %}
+
+{% block javascripts %}
+	<script type="text/javascript">
+	$(document).ready( function () {    
+		$('#table_prises_contact').DataTable({
+				language : {                
+					"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"            
+				},
+				paging : false,
+			    info: false,
+			    searching: false,
+			    order: [[ 1, "desc" ]],
+				fnDrawCallback: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				  } );
+				},
+                fnInitComplete: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				  } );
+				},
+		});
+	});
+	</script>
+{% endblock %}

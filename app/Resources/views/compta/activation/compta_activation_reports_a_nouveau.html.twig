@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/homepage.css') }}" type="text/css" />
+{% endblock %}
+
+{% block body %}
+	<div class="row wrap-index">
+		<div class="col-md-12 center">
+			<div class="wrap-index-head">
+				<img alt="Logo de J'aime la compta" src="{{ asset('images/assets/comptabilite.png') }}" style="width: 200px;" />
+			
+				<h1>Vos reports à nouveau</h1>
+				<p>Les reports à nouveau vous permettent d'indiquer l'état initial du début et crédit de chacun de vos comptes comptables.<br /> 
+				Si vous n'importez pas de reports à nouveau, vos comptes comptables auront un débit et un crédit de 0.</p>
+				<p><strong>Souhaitez-vous importer des reports à nouveau ?</strong></p>
+				
+				<p>
+					<a href="{{ path('compta_activer_reports_a_nouveau_importer') }}" class="btn btn-success" style="width: 150px;"><strong>Oui</strong><br /></a>
+					<a href="{{ path('compta_activer_produits', {'prev' : 2}) }}" class="btn btn-danger" style="width: 150px;"><strong>Non</strong><br /></a>
+				</p>
+			</div>
+		</div>
+	</div>
+{% endblock %}

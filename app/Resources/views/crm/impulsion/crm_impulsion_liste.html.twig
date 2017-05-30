@@ -1,0 +1,180 @@
+{% extends 'crm/crm_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Suivi</h1>	
+		</div>
+	</div>
+		
+	<div class="row">
+		<div class="col-md-12">
+		    <p>
+		    	<a href="{{ path('crm_impulsion_ajouter') }}" class="btn btn-success">
+		    		<span class="glyphicon glyphicon-plus"></span> Ajouter
+		    	</a>
+		    	<a href="#" class="btn btn-danger">
+		    		<span class="glyphicon glyphicon-trash"></span> Supprimer
+		    	</a>
+		    </p>
+	    </div>
+    </div>
+    
+	   <div class="row">
+	    	<div class="col-md-12">
+			    <table id="table_impulsion_list" class="table table-bordered table-striped">    
+			    	<thead>        
+			    		<tr>            
+			    			<th>Nom du contact</th>
+			    			<th>Organisation</th> 
+			    			<th>Titre</th>
+			    			<th>Interêts</th>
+			    			<th>Contact</th>
+			    			<th>Timing</th>
+			    			<th>Actions</th>         
+			    		</tr>    
+			    	</thead>    
+			    	<tbody>
+			    		{% for impulsion in list %}
+			    		<tr {% if impulsion.tempsRestant < 0 %} class="red" {% endif %}>           
+			    			<td>
+			    				<a href="{{ path('crm_contact_voir', {'id' : impulsion.contact.id }) }}">{{ impulsion.contact }}</a>
+			    			</td>  
+			    			<td>
+			    				<a href="{{ path('crm_compte_voir', {'id' : impulsion.contact.compte.id }) }}">{{ impulsion.contact.compte }}</a>
+			    			</td>           
+			    			<td>
+			    				{{ impulsion.contact.titre }}
+			    			</td>
+							<td>
+								{% for theme in impulsion.contact.settings if theme.parametre == 'THEME_INTERET' %}
+									<p>{{ theme.valeur }}</p>
+								{% endfor %}
+								{% for service in impulsion.contact.settings if service.parametre == 'SERVICE_INTERET' %}
+									<p>{{ service.valeur }}</p>
+								{% endfor %}
+							</td>
+							<td>
+								{{ impulsion.contact.email }}
+								<br/>
+								{{ impulsion.contact.telephoneFixe }}
+								<br/>
+								{{ impulsion.contact.telephonePortable }}
+							</td>
+			    			<td>
+								{# <p>
+									<strong>Delai : </strong>
+									{% if impulsion.delaiUnit == "WEEK" %}
+										Toutes
+									{% else %}
+										Tous
+									{% endif %}
+									les {{ impulsion.delaiNum }}
+									{% if impulsion.delaiUnit == "DAY" %}
+										jours
+									{% elseif impulsion.delaiUnit == "WEEK" %}
+										semaines
+									{% else %}
+										mois
+									{% endif %}
+								</p> #}
+								
+								<p>
+									<strong>Temps restant : </strong>
+									{#{% if impulsion.tempsRestant < 0 %}#}
+										{#<span class="glyphicon glyphicon-time"></span> <strong>RETARD !</strong><br />#}
+									{#{% endif %}#}
+									{{ impulsion.tempsRestant }} jours
+									<br />
+									jusqu'au {{ impulsion.echeance|date("d/m/Y") }}
+								</p>
+								<p>
+									<strong>Denier contact : </strong>
+									{% if impulsion.contact.priseContacts|length > 0 %}
+										{{ impulsion.contact.priseContacts[0].date|date("d/m/Y") }}
+									{% else %}
+										Jamais
+									{% endif %}
+								</p>
+			    			</td>
+			    			<td>
+			    				<a href="{{ path('crm_prise_contact_ajouter', {'id' : impulsion.contact.id, 'screen' : 'impulsion' }) }}" class="btn btn-xs btn-success"  data-toggle="modal" data-target="#modal_prise_contact">
+			    					<span class="glyphicon glyphicon-ok"></span>
+			    				</a>
+			    			
+			    				<a href="{{ path('crm_impulsion_editer', {'id' : impulsion.id }) }}" class="btn btn-xs btn-warning" ​data-toggle="tooltip-btn-xs" title="Editer">
+			    					<span class="glyphicon glyphicon-pencil"></span>
+			    				</a>
+			    				<a href="{{ path('crm_impulsion_supprimer', {'id' : impulsion.id }) }}" class="btn btn-xs btn-danger"​data-toggle="tooltip-btn-xs" title="Supprimer">
+			    					<span class="glyphicon glyphicon-trash"></span>
+			    				</a>
+			    			</td>        
+			    		</tr>        
+			    		{% endfor %} 
+			    	</tbody>
+			    </table>
+			</div>
+	</div>
+	
+	<!-- wrapper for modal -->
+	<div class="modal" id="modal_prise_contact">
+  		<div class="modal-dialog">
+    		<div class="modal-content">
+    		</div>
+  		</div>
+	</div>
+	
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script type="text/javascript">
+		$(document).ready( function () {    
+			$('#table_impulsion_list').DataTable({
+				"dom": 'T<"clear">lfrtip',
+				"order": [[ 5, "asc" ]],
+		        "oTableTools": {
+		        	"sSwfPath": "/web/lib/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
+		            "aButtons": [
+		                {
+		                    "sExtends": "csv",
+		                    "sButtonText": "Excel",
+		                    "mColumns": [ 0, 1, 2, 3 ],
+		                    "sFileName": "impulsions.csv"
+		                },
+		                {
+		                    "sExtends": "pdf",
+		                    "sButtonText": "PDF",
+		                    "mColumns": [ 0, 1, 2, 3 ],
+		                    "sFileName": "impulsions.pdf",
+		                    "sTitle": "Impulsions"
+		                },
+		               
+		            ]
+		        },
+				"language" : {                
+					"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"            
+				},
+				fnDrawCallback: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				  } );
+				},
+				fnInitComplete: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				  } );
+				},
+				"responsive": true,
+			});
+
+		});
+	</script>
+{% endblock %}

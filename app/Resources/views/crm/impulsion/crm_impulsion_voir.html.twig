@@ -1,0 +1,54 @@
+{% extends 'crm/crm_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Suivi</h1>	
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="col-md-12">
+		    <p class="group-btn">
+		    	<a href="{{ path('crm_impulsion_editer', {'id' : impulsion.id }) }}"  class="btn btn-warning">
+		    		<span class="glyphicon glyphicon-pencil"></span> Modifier
+		    	</a>
+		    	<a href="{{ path('crm_impulsion_supprimer', {'id' : impulsion.id }) }}"  class="btn btn-danger">
+		    		<span class="glyphicon glyphicon-trash"></span> Supprimer
+		    	</a>
+		    </p>
+	    </div>
+    </div>
+
+    <div class="row" id="compte_details">
+    	<div class="col-md-12">
+    		<h2>{{ impulsion.contact }}</h2>
+    			<p>
+	    			<a href="{{ path('crm_compte_voir', {'id' : impulsion.contact.compte.id }) }}" class="xl">{{ impulsion.contact.compte }}</a>
+	    			{% if impulsion.contact.titre is not empty %}
+				    	<span class="l"> - {{ impulsion.contact.titre }}</span>
+				    {% endif %}
+				</p>
+				<p>
+					<span class="glyphicon glyphicon-time"></span> 
+				    {% if impulsion.delaiUnit == "WEEK" %}
+    					Toutes
+    				{% else %}
+    					Tous
+    				{% endif %}
+    				les {{ impulsion.delaiNum }}
+    				{% if impulsion.delaiUnit == "DAY" %}
+    					jours
+    				{% elseif impulsion.delaiUnit == "WEEK" %}
+    					semaines
+    				{% else %}
+    					mois
+    				{% endif %}
+			    </p>
+    	</div>
+    </div>
+    
+  {{ include('crm/priseContact/crm_prise_contact_liste_part.html.twig', {'contact': impulsion.contact, 'div_id': 'table_prises_contact'}) }}
+	  
+{% endblock %}

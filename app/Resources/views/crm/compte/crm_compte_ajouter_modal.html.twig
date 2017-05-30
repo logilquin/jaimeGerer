@@ -1,0 +1,135 @@
+<div class="modal-header">
+	<a class="close" data-dismiss="modal">×</a>
+	<h3>Ajouter une organisation</h3>
+</div>
+<div class="modal-body">
+ {{ form_start(form, { 'attr': {'class': 'compte_ajout_modal', 'data-async': '', 'data-target' : '#modal'} }) }}
+<div class="row">
+
+	<div class="col-md-6">
+		{{ form_errors(form) }}
+		{{ form_row(form.nom) }}
+		{{ form_row(form.userGestion) }}
+	</div>
+	<div class="col-md-6">
+		{{ form_row(form.compteParent) }}
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-6">
+		{{ form_row(form.secteurActivite) }}
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-6">
+		{{ form_row(form.addressPicker1) }}
+		{{ form_row(form.adresse) }}
+		{{ form_row(form.codePostal) }}
+		{{ form_row(form.ville) }}
+		{{ form_row(form.region) }}
+		{{ form_row(form.pays) }}
+    </div>
+
+    <div class="col-md-6">
+    	{{ form_row(form.telephone) }}
+    	{{ form_row(form.fax) }}
+    	{{ form_row(form.url) }}
+    	{{ form_row(form._token) }}
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+   	 	{{ form_row(form.description) }}
+	   	 	<input type="submit" value="Enregistrer" class="btn btn-success" />
+	    </div>
+    </div>
+</div>
+{{ form_end(form) }}
+</div>
+
+	<script type="text/javascript">
+		$('div#modal div.modal-dialog').css('width', '60%');
+		$(document).ready( function () {
+			$('form').submit(function(){
+				$('input').attr('readonly', true);
+				$('textarea').attr('readonly', true);
+				$('#form_submit').addClass("hidden");
+				$("#loading-message").removeClass("hidden");
+			});
+			tinyMCE.execCommand("mceAddControl",false, '{{ form.description.vars.id }}');
+			$('#modal').on('hidden.bs.modal', function (e) {
+				tinyMCE.execCommand("mceRemoveControl",false, '{{ form.description.vars.id }}');
+			});
+			var addresspickerMap = $( "#{{ form.addressPicker1.vars.id }}" ).addresspicker({
+			updateCallback: function(geocodeResult, parsedGeocodeResult){
+					//console.log(parsedGeocodeResult);
+					//$('#callback_result').html(JSON.stringify(parsedGeocodeResult, null, 4));
+					var addressToField = ( parsedGeocodeResult.street_number ? parsedGeocodeResult.street_number + ', ' : '' ) + parsedGeocodeResult.route;
+					//console.log(addressToField);
+					$('#{{ form.adresse.vars.id }}').val(addressToField);
+					//$('#callback_result').html(parsedGeocodeResult.street_number + ', ' +parsedGeocodeResult.route);
+				},
+			  elements: {
+				//map								: '',
+				postal_code						: '#{{ form.codePostal.vars.id }}',
+				administrative_area_level_1		: '#{{ form.region.vars.id }}',
+			   // locality						: '#locality',
+				country							: '#{{ form.pays.vars.id }}',
+				//route							: '#sdz_blogbundle_service_adresse',
+				locality						: '#{{ form.ville.vars.id }}',
+				target_field					: false,
+			  },
+			});
+			$( "#{{ form.addressPicker1.vars.id }}" ).autocomplete( "option", "appendTo", ".compte_ajout_modal" );
+
+			$('#modal').unbind('submit');
+			$('#modal').on('submit','form[data-async]', function(event) {
+
+
+
+				var $form = $(this);
+				var target = $form.attr('data-target');
+
+				$.ajax({
+					type: $form.attr('method'),
+					url: $form.attr('action'),
+					data: $form.serialize(),
+
+					success: function(data, status) {
+						if( data.status == 'success' )
+						{
+							$("#modal").modal('hide');
+							$("#ModalAlert").modal('show');
+							$('#ModalAlert').on('hidden.bs.modal', function () {
+								$("form").each(function(){
+									$(this).find(':input').each(function(){
+										$(this).attr("readonly", false);
+									});
+								});
+							});
+							$('.typeahead-compte').val(data.nom);
+							$('.entity-compte').val(data.id).trigger('change');
+
+							changeAddress(data.id);
+
+							return false;
+						}
+						$.each(target.split("|"),function(i,val){
+							if(val == "close"){
+								$form.closest(".modal").modal("hide");
+							}else if(val == "event"){
+								$form.trigger("ajax-submit");
+							}else{
+								$(val+' div:first-child div:first-child').html(data);
+								$('select').select2();
+							}
+						});
+					}
+				});
+				return false;
+				event.preventDefault();
+			});
+
+		});
+	</script>

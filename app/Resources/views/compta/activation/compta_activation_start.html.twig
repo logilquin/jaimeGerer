@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/homepage.css') }}" type="text/css" />
+{% endblock %}
+
+{% block body %}
+	<div class="row wrap-index">
+		<div class="col-md-12 center">
+			<div class="wrap-index-head">
+				<img alt="Logo de J'aime la compta" src="{{ asset('images/assets/comptabilite.png') }}" style="width: 200px;" />
+			
+				<h1>Prêt à vous lancer ?</h1>
+				<p>Vous n'avez encore jamais utilisé <span class="jaimelacompta">J'aime la compta</span>.<br /> 
+				Avant de pouvoir commencer, vous devez activer et paramétrer <span class="jaimelacompta">J'aime la compta</span>. Promis, ça ne sera pas long !</p>
+				<p><strong>Souhaitez-vous activer et paramétrer <span class="jaimelacompta">J'aime la compta</span> maintenant ?</strong></p>
+				
+				<p>
+					<a href="{{ path('compta_activer_reutiliser') }}" class="btn btn-success" style="width: 150px;"><strong>Ouiiiiiii !</strong><br />C'est parti !</a>
+					<a href="{{ path('homepage') }}" class="btn btn-danger" style="width: 150px;"><strong>Non merci</strong><br />Peut-être plus tard</a>
+				</p>
+			</div>
+		</div>
+	</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/homepage.css') }}" type="text/css" />
+{% endblock %}
+
+{% block body %}
+	<div class="row wrap-index">
+		<div class="col-md-12 center">
+			<div class="wrap-index-head">
+				<img alt="Logo de J'aime le commercial" src="{{ asset('images/assets/commercial.png') }}" style="width: 200px;" />
+			
+				<h1>Merci {{ app.user.firstname }}, c'est tout bon !</h1>
+				<p>Votre nouvelle CRM est paramétrée et n'attend que vous.</p>
+				<p><strong>Vous pouvez dès maintenant commencer à utiliser <span class="jaimelecommercial">J'aime le commercial</span> !</strong></p>
+				
+				<p>
+					<a href="{{ path('crm_index') }}" class="btn btn-success" style="width: 200px;"><strong>Continuer sur<br />J'aime le commercial</strong></a>
+				</p>
+			</div>
+		</div>
+	</div>
+{% endblock %}

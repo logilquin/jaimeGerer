@@ -1,0 +1,125 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Documents comptables</h1>
+		</div>
+	</div>
+
+	<div class="row">
+			<div class="col-md-12">
+					{% include 'compta/rapport/compta_rapport_submenu.html.twig' %}
+			</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<h2>TVA</h2>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<p>
+				<a class="btn btn-primary btn-export-excel" href="#">
+					<span class="glyphicon glyphicon-floppy-disk"></span> Exporter
+				</a>
+			</p>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<h2>Vos paramètres de TVA</h2>
+			<p>Entrée : {{ settingsEntree.valeur }} - Sortie : {{ settingsSortie.valeur }}</p>
+		</div>
+	</div>
+
+	<div class="row well">
+		<div class="col-md-3">
+			{{ form_start(form) }}
+			{{ form_widget(form) }}
+			{{ form_end(form) }}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<h2>Votre récapitulatif de TVA</h2>
+			<table class="table table-bordered table-transparent">
+				<thead>
+					<tr>
+						<th rowspan="2">Mois</th>
+						<th colspan="4" class="center thick-border-left">Entrée</th>
+						<th colspan="4" class="center thick-border-left">Sortie</th>
+						<th colspan="2" class="center thick-border-left">TVA à reverser</th>
+					</tr>
+					<tr class="thick-border-bottom">
+						<th class="center thick-border-left">Régime</th>
+						<th class="center">TTC</th>
+						<th class="center">HT ou prix net</th>
+						<th class="center">TVA</th>
+						<th class="center thick-border-left">Régime</th>
+						<th class="center">TTC</th>
+						<th class="center">HT ou prix net</th>
+						<th class="center">TVA</th>
+						<th class="center thick-border-left">Mois</th>
+						<th class="center">Trimestre</th>
+					</tr>
+				</thead>
+				<tbody id="wrapper-ajax">
+				</tbody>
+			</table>
+			<p class="center" id="loader">
+				<img src="{{ asset('images/assets/dog_loader.gif') }}" alt="Chargement en cours" /><br />
+				<i>Chargement en cours...</i>
+			</p>
+		</div>
+	</div>
+{% endblock %}
+
+
+{% block javascripts %}
+	{{ parent() }}
+  <script src="{{ asset('js/accounting.min.js') }}"></script>
+	<script type="text/javascript">
+		$(document).ready( function () {
+
+			loadTable();
+
+			$(".year-select").change(function(){
+				loadTable();
+			});
+
+			function loadTable(){
+
+				$('.btn-export-excel').attr('disabled', true);
+				$("#loader").removeClass("hidden");
+				$("#wrapper-ajax").html("");
+
+				var year = $(".year-select").val();
+
+				$.ajax({
+					type: "POST",
+					url: Routing.generate('compta_rapport_tva_voir', {'year' : year}),
+					success: function(data) {
+						$("#loader").addClass("hidden");
+						$("#wrapper-ajax").html(data);
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						$("#loader").addClass("hidden");
+					},
+				});
+
+				var url = Routing.generate('compta_rapport_tva_exporter', {'year' : year});
+				$('.btn-export-excel').attr('href', url)
+															.removeAttr('disabled');
+
+			}
+
+
+		});
+
+	</script>
+{% endblock %}

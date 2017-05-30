@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/homepage.css') }}" type="text/css" />
+{% endblock %}
+
+{% block body %}
+    <div class="row wrap-index">
+        <div class="col-md-12">
+            <div class="buy_credits">
+                <h1 class="center">Acheter du crédit</h1>
+                <p class="center">
+                    <br />Coût des envois :
+                    {% set sep = '' %}
+                    {% for label, price in prices %}
+                        {{ sep }}{{ price|number_format(2, ',') }} € HT / {{ label }}
+                        {% set sep = ' - ' %}
+                    {% endfor %}
+                </p>
+                <h4>De quel montant souhaitez-vous créditer votre compte ?</h4>
+                <form id="choose_amount_credits" action="" method="post">
+                    <div class="form">
+                        <input type="radio" name="amount" id="amount_34" value="34" checked />
+                        <label for="amount_34">34 € : 5 envois en recommandé avec AR ou 26 envois standards</label><br />
+                        <input type="radio" name="amount" id="amount_68" value="68" />
+                        <label for="amount_68">68 € : 10 envois en recommandé avec AR ou 52 envois standards</label><br />
+                        <input type="radio" name="amount" id="amount_102" value="102" />
+                        <label for="amount_102">
+                            102 € : 15 envois en recommandé avec AR ou 78 envois standards
+                        </label><br />
+                        <input type="radio" name="amount" id="amount_136" value="136" />
+                        <label for="amount_136">
+                            136 € : 20 envois en recommandé avec AR ou 104 envois standards
+                        </label><br />
+                        <input type="radio" name="amount" id="amount_custom" value="" />
+                        <label for="amount_custom">Montant personnalisé: </label>
+                        <input type="text" name="amount_text" id="amount_text" /><br />
+                        <span id="amount_error">Veuillez saisir un montant numérique</span>
+                    </div>
+                    <div class="buttons center">
+                        <button class="btn-success btn" id="validate">
+                            <span class="glyphicon glyphicon-shopping-cart"> </span>
+                            Payer
+                        </button>
+                    </div>
+                </form>
+                <p></p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(document).ready( function () {
+            var amountText = $('#amount_text');
+            amountText.focus(function () {
+                $('#amount_custom').prop('checked', true);
+            });
+            amountText.change(function () {
+                var amount = amountText.val();
+                amount= amount.replace(',', '.');
+                var errorMessage = $('#amount_error');
+                errorMessage.hide();
+                if (!$.isNumeric(amount) || amount <= 0) {
+                    errorMessage.show();
+                }
+                $('#amount_custom').val(amount);
+            });
+            $('#validate').click(function() {
+                console.log($('input:radio[name=amount]:checked').val());
+            });
+        });
+    </script>
+{% endblock %}

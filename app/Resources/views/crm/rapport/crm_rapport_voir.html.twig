@@ -1,0 +1,350 @@
+{% extends 'crm/crm_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Rapport : {{ rapport.nom }}</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<a class="btn btn-xs btn-success" id="btn-check-all">Tout cocher</a>
+			<a class="btn btn-xs btn-danger" id="btn-uncheck-all">Tout décocher</a>
+		</div>
+	</div>
+	
+	<div class="row" id="checkboxes-wrapper">
+		{% for key,header in arr_headers  %}
+			<div class="col-md-3">
+		 		<input type="checkbox" name="{{ key }}" value="{{ loop.index0 }}" id="checkbox-{{ key }}" checked class="filter"/>
+		 		<label for="checkbox-{{ key }}">{{ header }}</label>
+		 	</div>
+		{% endfor %}
+	</div>
+		
+	<div class="row">
+		<div class="col-md-12">
+			<form id="newColForm" novalidate >
+				<input type="text" id="new-col-name" required />
+				<input type="submit" id="add_column_button" class="btn btn-info btn-xs" value="Ajouter une colonne" />
+			</form>	
+			<hr />
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="col-md-12 center">
+			<a href="{{ path('crm_rapport_editer', {'id' : rapport.id } ) }}" class="btn btn-warning" ​data-toggle="tooltip-btn-xs" title="Editer">Editer le rapport</a>
+			<button id="save" class="btn btn-success" name="save">Enregistrer le rapport</button>
+			{% if type == "contact" %}
+			<button onclick="saveSegment()" class="btn btn-primary"  title="mautic">
+				<span id="iconUpload" class="glyphicon glyphicon-upload"></span>
+				Créer un segment sur mautic
+			</button>
+			{% endif %}
+			<div id="alert-save-success" class="alert alert-success hidden">  Les modifications ont bien été enregistrées.  </div>
+			<hr />
+		</div>
+	</div>
+
+
+	<div id="modaleMautic" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-offset-4 col-md-4">
+							<h4>Import en cours </h4>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-offset-5 col-md-4">
+							<img src="{{ asset('images/assets/spinner_loader.gif') }}" alt="loader">
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+
+	<div class="row">
+		<div class="col-md-12">
+			<div id="table"></div>
+		</div>
+	</div>
+
+	<!--link rel="stylesheet" media="screen" href="http://handsontable.com/dist/handsontable.full.css"-->
+	
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script type="text/javascript">
+	$(document).ready( function () {    
+
+		/**
+		* Check all the filters checkboxes
+		**/
+		$('#btn-check-all').click(function(){
+			$('.filter').each(function(){
+				$(this).prop('checked', true);
+				onCheckboxChange(this);
+			});
+		});
+			
+		/**
+		* Uncheck all the filters checkboxes
+		**/
+		$('#btn-uncheck-all').click(function(){
+			$('.filter').each(function(){
+				$(this).prop('checked', false);
+				onCheckboxChange(this);
+			});
+		});
+
+		function buttonRenderer (instance, td, row, col, prop, value, cellProperties) {
+       	  	var $button = $('<a class="btn btn-xs btn-success"><span class="glyphicon glyphicon-floppy-disk"></span></a>');
+       	  	$(td).empty().append($button); //empty is needed because you are rendering to an existing cell
+
+       	  	$button.click(function() {
+       	  	 var hotData = { data: hot.getSourceDataAtRow(row), type: "{{ rapport.type }}" };
+	       	 $.ajax({
+				   url: "{{ path('crm_rapport_row_maj') }}",
+				   method: 'POST',
+				   data: hotData,
+				   dataType : 'json',
+				   success : function(d, statut){ 
+					   var $span = $('<span class="green glyphicon glyphicon-ok"></span>');
+					   $(td).empty().append($span);  
+				  	}
+		 		 });
+       	 	});
+			
+			return td;
+        };
+		
+		var globalHeaders = {{ arr_headers|json_encode|raw}};
+ 		globalHeaders.push('');
+		
+		var globalColumns = {{ arr_columns|json_encode|raw}};
+		globalColumns.push({data: "action", renderer: buttonRenderer, editor: false});
+		
+		var data = {{ arr_obj|json_encode|raw }};
+		
+		var colsToHide = [];
+		
+		var container = document.getElementById('table');
+		container.style.width = "100%";
+		container.style.height = "500px";
+		container.style.overflow = "hidden";
+        var hot = new Handsontable(container, { 
+            data: data,
+            rowHeaders: true,
+            contextMenu: true,
+            columnSorting: true,
+            autoColumnSize: true,
+        	colHeaders: globalHeaders,
+            className: "htCenter htMiddle",
+			scrollToCell: true,
+            manualColumnResize: true,
+            manualRowResize: true,
+            manualColumnMove: true,
+            manualRowMove: true,
+            comments: true,
+            columns: globalColumns,
+            viewportRowRenderingOffset: 100,
+           
+          });
+
+        {% if rapport.cols is not null %}
+	        var colsRapport = {{ rapport.cols|raw }};
+			for(var i=0; i<colsRapport.length; i++){
+				var col = colsRapport[i];
+				
+				if(col[i] == "false"){
+					var checkbox_id = '#checkbox-'+i;
+					$(checkbox_id).attr('checked', false);
+					colsToHide.push(i);
+				}
+			}
+			updateSettings();
+		{% endif %}
+        
+		$('#newColForm').submit(function(event){
+			 event.preventDefault();
+		});
+        
+        $('#add_column_button').click(function(){
+
+              var index = globalColumns.length-1;
+              var colName = $('#new-col-name').val();
+
+              if(colName == ""){
+                 $('#newColForm').removeAttr('novalidate');
+            	 $('#newColForm').find(':submit').click();
+              } else {
+	        	  globalColumns.splice(index,0,{
+	                  data: globalColumns.length-1,
+	                  type: 'text',
+	                });
+	
+		            globalHeaders.splice(index,0,colName);
+		            $('#new-col-name').val("");
+		      
+		        	  hot.updateSettings({
+		  	            columns: globalColumns,
+		  	          	colHeaders: globalHeaders
+		  	        }); 
+		
+		
+		        	var html = '<div class="col-md-3">'
+		            	+'<input type="checkbox" name="'+index+'" value="'+index+'" id="checkbox-'+index+'" checked class="filter"/>'
+				 		+' <label for="checkbox-'+index+'">'+colName+'</label>'
+				 		+'</div>';
+		
+				 	$('#checkboxes-wrapper').append(html);
+				 	$('#checkbox-'+index).on("change", function(e) {
+			        	onCheckboxChange(this);
+			        });
+
+				 	 $('#newColForm').attr('novalidate', true);
+					
+		        	updateSettings();
+				}
+              
+      	});  
+
+        $('#save').click(function() {
+
+				var cols = [], libs = [];
+
+				 for (var i = 0; i < globalColumns.length; i++) {
+					 var obj = {};
+			            if (colsToHide.indexOf(i) === -1) {
+				            obj[i] = true;
+			            } else {
+			            	obj[i] = false;
+				        }
+				        cols.push(obj); 
+				        libs.push(globalColumns[i].data);
+				 }
+            
+			   //var hotData = { data: JSON.stringify(hot.getData()), id: {{ rapport.id }}, cols: cols, libs: libs };
+			   var hotData = { data: JSON.stringify(hot.observedData), id: {{ rapport.id }}, cols: cols, libs: libs };
+			   $.ajax({
+				   url: "{{ path('crm_rapport_enregistrer') }}",
+				   method: 'POST',
+				   data: hotData,
+				   dataType : 'json',
+				   success : function(d, statut){ 
+						$("#alert-save-success").removeClass("hidden");
+				  	}
+      	 		 });
+		});
+
+	
+        $(":checkbox").on("change", function(e) {
+        	onCheckboxChange(this);
+        });
+
+
+        function onCheckboxChange(checkbox) {
+        	var val = checkbox.value;
+  		    var intVal = parseInt(val);
+ 		   
+  		    if (intVal >= 0) {
+
+ 			  if($(checkbox).is(':checked')){
+ 				  var indexToRemove = colsToHide.indexOf(intVal);
+ 		          if (~indexToRemove) {
+ 		              colsToHide.splice(indexToRemove, 1);
+ 		           }
+ 			  } else {
+ 				  if (colsToHide.indexOf(intVal) === -1) {
+ 					 colsToHide.push(intVal);
+ 				  }
+ 			  }
+
+  		   }
+  		   updateSettings();
+        }
+
+        function updateSettings() {
+	        var newCols = [];
+	        var newHeaders = [];
+
+	        for (var i = 0; i < globalColumns.length; i++) {
+	            if (colsToHide.indexOf(i) === -1) {
+	                newCols.push(globalColumns[i]);
+	                newHeaders.push(globalHeaders[i]);
+	            }
+	        }
+
+	        hot.updateSettings({
+	            columns: newCols,
+	            colHeaders: newHeaders
+	        });
+	    }	
+
+
+	});
+
+	{% if actionInit is not null %}
+		$(window).load(function(){
+			saveSegment();
+		});
+
+	{% endif %}
+
+
+	function saveSegment(){
+
+		{% if token == null %}
+			document.location.href = "{{ path('emailing_homepage') }}" ;
+		{% else %}
+
+			var data = {{ arr_obj|json_encode|raw }};
+			var strData = JSON.stringify(data);
+			var sentData = { name: "{{ rapport.nom }}", comment: "{{ rapport.description }}", data: strData };
+			sentData =  JSON.stringify(sentData);
+			var spanElmt = document.getElementById('iconUpload');
+
+			spanElmt.classList.remove('glyphicon-upload');
+			spanElmt.classList.add('glyphicon-refresh');
+			spanElmt.classList.add('glyphicon-refresh-animate');
+
+
+			$('#modaleMautic').modal('show');
+
+			$.ajax({
+				url: "{{ path('emailing_create_contact_segment') }}",
+				method: 'POST',
+				data: sentData,
+				dataType : 'json',
+				success : function(d, statut){
+
+					$('#modaleMautic').modal('hide');
+					spanElmt.classList.remove('glyphicon-refresh');
+					spanElmt.classList.remove('glyphicon-refresh-animate');
+					spanElmt.classList.add('glyphicon-ok');
+				},
+				error : function(){
+
+					$('#modaleMautic').modal('hide');
+					spanElmt.classList.remove('glyphicon-refresh');
+					spanElmt.classList.remove('glyphicon-refresh-animate');
+					spanElmt.classList.add('glyphicon-remove');
+				}
+			});
+		{% endif %}
+	}
+
+
+	</script>
+{% endblock %}	          

@@ -1,0 +1,203 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Ventes : Factures en retard</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {% include 'compta/facture/compta_facture_submenu.html.twig' %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <p class="align-right">
+                <span class="xl">Total :
+                    {{ arr_totaux['ht']|number_format(2,',',' ') }}
+                    € HT</span><br/>
+                <span class="l">{{ arr_totaux['ttc']|number_format(2,',',' ') }}
+                    € TTC</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {% for flashMessage in app.session.flashbag.get('success') %}
+                <div class="alert alert-success">
+                    {{ flashMessage }}
+                </div>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('danger') %}
+                <div class="alert alert-danger">
+                    {{ flashMessage }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table id="table_facture_list" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Numéro de facture</th>
+                        <th>Date de création</th>
+                        <th>Retard</th>
+                        <th>Compte</th>
+                        <th>Objet</th>
+                        <th>Total</th>
+                        <th>Relances</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/moment.js') }}"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+
+            var url = Routing.generate('compta_facture_liste_retard_ajax');
+
+            $('#table_facture_list').DataTable({
+                "dom": 'T<"clear">lfrtip',
+                "oTableTools": {
+                    "sSwfPath": "/web/lib/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
+                    "aButtons": [
+                        {
+                            "sExtends": "csv",
+                            "sButtonText": "Excel",
+                            "mColumns": [
+                                0, 1, 2, 3
+                            ],
+                            "sFileName": "factures.csv"
+                        }, {
+                            "sExtends": "pdf",
+                            "sButtonText": "PDF",
+                            "mColumns": [
+                                0, 1, 2, 3
+                            ],
+                            "sFileName": "factures.pdf",
+                            "sTitle": "Factures"
+                        }
+                    ]
+                },
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"
+                },
+                "iDisplayLength": 100,
+                "order": [
+                    [2, "asc"]
+                ],
+                "responsive": true,
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    url: url,
+                    type: "post"
+                },
+                "columns": [
+                    {
+                        "data": "num"
+                    }, {
+                        "data": "dateCreation"
+                    }, {
+                        "data": "dateValidite"
+                    }, {
+                        "data": "compte_nom"
+                    }, {
+                        "data": "objet"
+                    }, {
+                        "data": "totaux"
+                    }, {
+                        "data": "num_relance"
+                    }
+                ],
+                "columnDefs": [
+                    {
+                        "visible": false,
+                        "targets": ['id']
+                    }, {
+                        // The `data` parameter refers to the data for the cell (defined by the `data` option, which defaults to the column being worked with, in this case `data: 0`.
+                        "render": function(data, type, row) {
+													var actionUrl = Routing.generate('compta_facture_voir', {'id' : row['id']});
+													var s = '<a href="' + actionUrl + '"  data-toggle=\"modal\" data-target=\"#modal-lg\">' + data + '</a>';
+													if (row['cheque'] != null) {
+															s += '<br /><span class="glyphicon glyphicon-paperclip s"></span> <span class="s">' + row['cheque'] + "</span>";
+													}
+													return s;
+                        },
+                        "targets": 0
+                    }, {
+                        "render": function(data, type, row) {
+                            return moment(data.date).format('DD/MM/YYYY');
+                        },
+                        "targets": 1
+                    }, {
+                        "render": function(data, type, row) {
+													var end = moment(data.date);
+													var now = moment();
+													var d = now.diff(end, 'd'); // 88
+													var diff = moment.localeData().relativeTime(d, false, d == 1 ? 'd' : 'dd');
+                          return "<span class='red'>" + diff + "</span>";
+
+                        },
+                        "targets": 2
+                    }, {
+                        "render": function(data, type, row) {
+													var actionUrl = Routing.generate('compta_contact_voir', {'type' : 'CLIENT', 'id' : row['compte_id']});
+													return '<a href="' + actionUrl + '">' + data + '</a>';
+                        },
+                        "targets": 3
+                    }, {
+                        "render": function(data, type, row) {
+                            var s = data.HT + " € HT <br /><i>" + data.TTC + " € TTC </i>";
+                            return s;
+                        },
+                        "targets": 5
+                    }, {
+                        "render": function(data, type, row) {
+                            return row['relance'];
+                        },
+                        "targets": 6
+                    }, {
+                        "render": function(data, type, row) {
+													var actionUrl = Routing.generate('compta_facture_relancer', {'id' : row['id']});
+													return '<a href="' + actionUrl + '"  data-toggle="modal" data-target="#modal" class="btn btn-xs btn-info" data-toggle="tooltip" title="Envoyer une relance"><span class="glyphicon glyphicon-envelope"></span></a>';
+												},
+                        "targets": 7
+                    }
+                ],
+								fnDrawCallback: function () {
+								  $( 'a', this.fnGetNodes() ).tooltip( {
+									"delay": 0,
+									"track": true,
+									"fade": 250,
+									"tooltipClass": 'btn',
+								  } );
+								},
+								fnInitComplete: function () {
+								  $( 'a', this.fnGetNodes() ).tooltip( {
+									"delay": 0,
+									"track": true,
+									"fade": 250,
+									"tooltipClass": 'btn',
+								  } );
+								},
+            });
+
+        });
+    </script>
+{% endblock %}

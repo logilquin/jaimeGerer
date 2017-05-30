@@ -1,0 +1,8 @@
+{% block submenu %}
+			<div class="sub-menu">
+				<a href="{{ path('compta_releve_bancaire_index') }}" {% if app.request.pathInfo == "/compta/releve-bancaire"  %}class=" current"{% endif %}>Relevés bancaires</a> - 
+				<a href="{{ path('compta_compte_bancaire_liste') }}" {% if app.request.pathInfo == "/compta/compte-bancaire"  %}class=" current"{% endif %}>Comptes bancaires</a> - 
+				<a href="{{ path('compta_journal_banque_index') }}" {% if app.request.pathInfo == "/compta/journal-banque"  %}class=" current"{% endif %}>Journal de banque</a>
+			</div>
+{% endblock %}
+		

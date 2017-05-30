@@ -1,0 +1,204 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Avoirs
+                {% if type == "CLIENT" %}clients{% elseif type == "FOURNISSEUR" %}fournisseurs{% endif %}
+            </h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+          {% include 'compta/avoir/compta_avoir_submenu.html.twig' %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <p>
+                <a href="{{ path('compta_avoir_ajouter', {'type' : type}) }}" class="btn btn-success">
+                    <span class="glyphicon glyphicon-plus"></span>
+                    Ajouter
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <label id="NodesToMove" class="hidden"><input id="dateRange" name="dateRange"></label>
+            <table id="table_avoirs_list" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Objet</th>
+                        <th>Numéro d'avoir</th>
+                        <th>Compte</th>
+                        <th>Montant</th>
+                        <th>Date de création</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/jquery.comiseo.daterangepicker.css') }}" type="text/css"/>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/moment.js') }}"></script>
+    <script src="{{ asset('js/jquery.comiseo.daterangepicker.js') }}"></script>
+    <script src="{{ asset('js/datepicker-fr.js') }}"></script>
+    <script src="{{ asset('js/dateFilterConfig.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            var type = "{{ type }}";
+            var tableau = $('#table_avoirs_list').DataTable({
+                "dom": '<"dataTables_dateRange">T<"clear">lfrtip',
+                "oTableTools": {
+                    "sSwfPath": "/web/lib/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
+                    "aButtons": [
+                        {
+                            "sExtends": "csv",
+                            "sButtonText": "Excel",
+                            "mColumns": [
+                                0, 1, 2, 3, 4
+                            ],
+                            "sFileName": "avoirs.csv"
+                        }, {
+                            "sExtends": "pdf",
+                            "sButtonText": "PDF",
+                            "mColumns": [
+                                0, 1, 2, 3, 4
+                            ],
+                            "sFileName": "avoirs.pdf",
+                            "sTitle": "Avoirs"
+                        }
+                    ]
+                },
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"
+                },
+                "order": [
+                    [1, "desc"]
+                ],
+                "responsive": true,
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    url: Routing.generate('compta_avoir_liste_ajax', {'type': type}),
+                    type: "post",
+                    "data": function(d) {
+                        d.dateRange = $("#dateRange").daterangepicker("getRange");
+                    }
+                },
+                "columns": [
+                    {
+                        "data": "objet"
+                    }, {
+                        "data": "num"
+                    }, {
+                        "data":{% if type == "CLIENT" %}"compte_nom_facture"
+                        {% else %}
+                            "compte_nom_depense"{% endif %}
+                    }, {
+                        "data": "totaux"
+                    }, {
+                        "data": "dateCreation"
+                    }
+                ],
+                "columnDefs": [
+                    {
+                        "visible": false,
+                        "targets": ['id']
+                    }, {
+                        "render": function(data, type, row) {
+                            var actionUrl = Routing.generate('compta_avoir_voir', {'id': row['id']});
+                            return '<a href="' + actionUrl + '">' + data + '</a>';
+                        },
+                        "targets": 0
+                    }, {
+                        "render": function(data, type, row) {
+                            var actionUrl = "";
+                            {% if type == "CLIENT" %}
+                                actionUrl = Routing.generate('compta_contact_voir', {
+                                    'id': row['compte_id_facture'],
+                                    'type': 'CLIENT'
+                                });
+                            {% else %}
+                                actionUrl = Routing.generate('compta_contact_voir', {
+                                    'id': row['compte_id_depense'],
+                                    'type': 'FOURNISSEUR'
+                                });
+                            {% endif %}
+                            return '<a href="' + actionUrl + '">'+ data +'</a>';
+                        },
+                        "targets": 2
+                    }, {
+                        "render": function(data, type, row) {
+                            return data.HT + " € HT<br /><i>" + data.TTC + " € TTC </i>";
+                        },
+                        "targets": 3
+                    }, {
+                        "render": function(data, type, row) {
+                            return moment(data.date).format('DD/MM/YYYY');
+                        },
+                        "targets": 4
+                    }, {
+                        "render": function(data, type, row) {
+														var voirUrl = Routing.generate('compta_avoir_voir', {'id' : row['id']});
+														var editerUrl = Routing.generate('compta_avoir_editer', {'id' : row['id']});
+														var supprimerUrl = Routing.generate('compta_avoir_supprimer', {'id' : row['id']});
+
+														var s =
+															"<p>" +
+																"<a href=" + voirUrl + " class=\"btn btn-xs btn-info\" data-toggle=\"tooltip\" title=\"Voir\"><span class=\"glyphicon glyphicon-eye-open\"></span></a> " +
+																"<a href=" + editerUrl + "  class=\"btn btn-xs btn-warning\" data-toggle=\"tooltip\" title=\"Modifier\"><span class=\"glyphicon glyphicon-pencil\"></span></a> ";
+
+															  if (row['num'] == "{{ lastNum }}") {
+																	s += "<a href=" + supprimerUrl + " class=\"btn btn-xs btn-danger\" data-toggle=\"tooltip\" title=\"Supprimer\"><span class=\"glyphicon glyphicon-trash\"></span></a>";
+																} else {
+																	s += "<a href=\"#\" class=\"btn btn-xs btn-default not-active\"><span class=\"glyphicon glyphicon-trash\"></span>";
+																}
+
+															s += "</p>";
+														return s;
+                        },
+                        "targets": 5
+                    }
+                ],
+                fnDrawCallback: function () {
+                  $( 'a', this.fnGetNodes() ).tooltip( {
+                  "delay": 0,
+                  "track": true,
+                  "fade": 250,
+                  "tooltipClass": 'btn',
+                  } );
+                },
+                fnInitComplete: function () {
+                  $( 'a', this.fnGetNodes() ).tooltip( {
+                  "delay": 0,
+                  "track": true,
+                  "fade": 250,
+                  "tooltipClass": 'btn',
+                  } );
+                  $("#NodesToMove").detach()
+                                   .removeClass("hidden")
+                                   .appendTo('div.dataTables_dateRange')
+                  $('#dateRange').change(function() {
+                      $('#table_avoir_list tbody').find('tr').remove();
+                      tableau.draw();
+                  });
+                },
+            });
+
+        });
+    </script>
+{% endblock %}

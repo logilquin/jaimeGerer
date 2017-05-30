@@ -1,0 +1,347 @@
+{% extends 'crm/crm_layout.html.twig' %}
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Campagne de prospection : <span id="title" onclick="hidde()">{{ prospection.nom }}</span> <input type="text" value="{{ prospection.nom }}" onkeyup="changeTitle(event)" id="inputHidden" size="20" style="display: none"> </h1>
+			<div id="result"></div>
+			<h2>Gérer la liste des personnes à appeler</h2>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+		    <p>
+		    	<a href="{{ path('crm_prospection_rapport_ajouter', {'id' : prospection.id}) }}" class="btn btn-success">
+		    		Ajouter depuis la CRM
+		    	</a>
+		    	<a href="#" class="btn btn-success" id="new_contact">
+		    		Ajouter au tableau
+		    	</a>
+		    	<a href="{{ path('crm_prospection_importer', {'id' : prospection.id}) }}" class="btn btn-info">
+		    		Import Excel
+		    	</a>
+		    	<span style="float:right; font-weight:bold" id="DataLength">
+		    		{{ arr_obj|length }} personne{% if arr_obj|length > 1 %}s{% endif %} à appeler.
+		    	</span>
+		    </p>
+
+			<script>
+			$(document).ready(function() {
+
+			$("* [rel='tooltip']").tooltip({
+			   html: true, 
+			   placement: 'top'
+			});
+
+			});
+			</script>
+
+			<hr />
+
+	    </div>
+	</div>
+	<!--div class="row">
+		<div class="col-md-12">
+			<div class="row" id="checkboxes-wrapper">
+			{% for key,header in arr_headers  %}
+				<div class="col-md-3">
+			 		<input type="checkbox" name="{{ key }}" value="{{ loop.index0 }}" id="checkbox-{{ key }}" checked class="filter"/>
+			 		<label for="checkbox-{{ key }}">{{ header }}</label>
+			 	</div>
+			{% endfor %}
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<form id="newColForm" novalidate >
+				<input type="text" id="new-col-name" required />
+				<input type="submit" id="add_column_button" class="btn btn-info btn-xs" value="Ajouter une colonne" />
+			</form>	
+			<hr />
+		</div>
+	</div-->
+	
+	<div class="row">
+		<div class="col-md-12 center">
+			<button id="save" class="btn btn-success" name="save">Enregistrer la liste</button>
+			<div id="alert-save-success" class="alert alert-success hidden">Les modifications ont bien été enregistrées.</div>
+			<hr />
+			<div id="alert-save-warning" class="alert alert-warning hidden">
+				<div>Ceratins prospects n'ont pas été importés veuillez verifier la validité des informations saisies pour : </div>
+				<div id="errors"> </div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<div id="table"></div>
+		</div>
+	</div>
+	
+	<!--link rel="stylesheet" media="screen" href="http://handsontable.com/dist/handsontable.full.css"-->
+	
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script type="text/javascript">
+	$(document).ready( function () {    
+
+		function buttonRenderer (instance, td, row, col, prop, value, cellProperties) {
+			//console.log(instance.getSourceDataAtRow(row));
+			var ObservedData = instance.getSourceDataAtRow(row);
+			$(td).empty().append(' ');
+			if( ObservedData.id > 0 )
+			{
+				var $button = $('<a class="btn btn-xs btn-success"><span class="glyphicon glyphicon-floppy-disk"></span></a>');
+				$(td).empty().append($button); //empty is needed because you are rendering to an existing cell
+
+				$button.click(function() {
+				 var hotData = { data: hot.getSourceDataAtRow(row), type: "prospection" };
+				 $.ajax({
+					   url: "{{ path('crm_prospection_rapport_row_maj', {'id' : prospection.id}) }}",
+					   method: 'POST',
+					   data: hotData,
+					   dataType : 'json',
+					   success : function(d, statut){
+						   var $span = $('<span class="green glyphicon glyphicon-ok"></span>');
+						   $(td).empty().append($span);  
+						}
+					 });
+				});
+			
+			}
+			return td;
+        };
+
+		var globalHeaders = {{ arr_headers|json_encode|raw}};
+ 		globalHeaders.push('');
+		
+		var globalColumns = {{ arr_columns|json_encode|raw}};
+		globalColumns.push({data: "action", renderer: buttonRenderer, editor: false});
+
+		var data = {{ arr_obj|json_encode|raw }};
+
+		var colsToHide = [];
+		
+		var container = document.getElementById('table');
+		container.style.width = "100%";
+		container.style.height = "500px";
+		container.style.overflow = "hidden";
+        var hot = new Handsontable(container, { 
+            data: data,
+            rowHeaders: true,
+            contextMenu: true,
+            columnSorting: true,
+			colWidths: [90, 90, 150, 150, 200, 150, 150, 150, 150, 150, 150, 150, 150],
+            autoColumnSize: true,
+        	colHeaders: globalHeaders,
+            className: "htCenter htMiddle",
+            manualColumnResize: true,
+            manualRowResize: true,
+            manualColumnMove: true,
+			scrollToCell: true,
+            manualRowMove: true,
+            comments: true,
+            columns: globalColumns,
+            viewportRowRenderingOffset: 100
+
+          });
+/*         var hot = new Handsontable(container, {
+            data: data,
+
+            rowHeaders: true,
+            contextMenu: true,
+            columnSorting: true,
+//        	colHeaders: globalHeaders,
+//            columns: globalColumns,
+
+
+          });
+*/
+        
+		$('#newColForm').submit(function(event){
+			 event.preventDefault();
+		});
+        
+        $('#add_column_button').click(function(){
+
+              var index = globalColumns.length-1;
+              var colName = $('#new-col-name').val();
+
+              if(colName == ""){
+                 $('#newColForm').removeAttr('novalidate');
+            	 $('#newColForm').find(':submit').click();
+              } else {
+	        	  globalColumns.splice(index,0,{
+	                  data: globalColumns.length-1,
+	                  type: 'text',
+	                });
+	
+		            globalHeaders.splice(index,0,colName);
+		            $('#new-col-name').val("");
+		      
+		        	  hot.updateSettings({
+		  	            columns: globalColumns,
+		  	          	colHeaders: globalHeaders
+		  	        }); 
+		
+		
+		        	var html = '<div class="col-md-3">'
+		            	+'<input type="checkbox" name="'+index+'" value="'+index+'" id="checkbox-'+index+'" checked class="filter"/>'
+				 		+' <label for="checkbox-'+index+'">'+colName+'</label>'
+				 		+'</div>';
+		
+				 	$('#checkboxes-wrapper').append(html);
+				 	$('#checkbox-'+index).on("change", function(e) {
+			        	onCheckboxChange(this);
+			        });
+
+				 	 $('#newColForm').attr('novalidate', true);
+					
+		        	updateSettings();
+				}
+              
+      	});  
+		$('#new_contact').click(function(e){
+			data = $.merge( [{"id":"","prenom":"","nom":"","compte":"","titre":"","adresse":"","ville":"","codePostal":"","region":"","pays":"","telephoneFixe":"","telephonePortable":"","email":"","url":""}], data);
+			e.preventDefault();
+	        hot.updateSettings({
+	            data: data
+	        });
+	        var DataLengthContent = data.length + ' personne' + (data.length > 1 ? 's' : '') + ' à appeler.';
+	        $('span#DataLength').html(DataLengthContent);
+		});
+        $('#save').click(function() {
+
+				var cols = [], libs = [];
+				 for (var i = 0; i < globalColumns.length; i++) {
+					 var obj = {};
+			            if (colsToHide.indexOf(i) === -1) {
+				            obj[i] = true;
+			            } else {
+			            	obj[i] = false;
+				        }
+				        cols.push(obj); 
+				        libs.push(globalColumns[i].data);
+				 }
+
+
+				var hotData = { data: JSON.stringify(hot.observedData), id: 0, cols: cols, libs: libs };
+
+			   $.ajax({
+				   url: "{{ path('crm_prospection_rapport_enregistrer', {'id' : prospection.id}) }}",
+				   method: 'POST',
+				   data: hotData,
+				   dataType : 'json',
+				   success : function(d, statut){
+					   console.log(d);
+
+					   var response = d.Errors;
+
+					   var container = document.getElementById("errors");
+
+					   for(var i = 0; i < response.length; i++){
+						   if(response[i].length > 0){
+							   $("#alert-save-warning").removeClass("hidden");
+
+							   console.log(response[i][0][1]);
+
+							   var div = document.createElement("div");
+							   div.textContent =  response[i][0][1]+" n'a pas été importé";
+							   container.appendChild(div);
+
+						   }
+					   }
+
+
+
+						$("#alert-save-success").removeClass("hidden");
+				  	}
+      	 		 });
+		});
+
+	
+        $(":checkbox").on("change", function(e) {
+        	onCheckboxChange(this);
+        });
+
+
+        function onCheckboxChange(checkbox) {
+        	var val = checkbox.value;
+  		    var intVal = parseInt(val);
+ 		   
+  		    if (intVal >= 0) {
+
+ 			  if($(checkbox).is(':checked')){
+ 				  var indexToRemove = colsToHide.indexOf(intVal);
+ 		          if (~indexToRemove) {
+ 		              colsToHide.splice(indexToRemove, 1);
+ 		           }
+ 			  } else {
+ 				  if (colsToHide.indexOf(intVal) === -1) {
+ 					 colsToHide.push(intVal);
+ 				  }
+ 			  }
+
+  		   }
+  		   updateSettings();
+        }
+
+        function updateSettings() {
+	        var newCols = [];
+	        var newHeaders = [];
+	        for (var i = 0; i < globalColumns.length; i++) {
+	            if (colsToHide.indexOf(i) === -1) {
+	                newCols.push(globalColumns[i]);
+	                newHeaders.push(globalHeaders[i]);
+	            }
+	        }
+	        hot.updateSettings({
+	            columns: newCols,
+	            colHeaders: newHeaders
+	        });
+	    }
+	});
+
+		function hidde(newTitle) {
+			var input = document.getElementById('inputHidden');
+			var title = document.getElementById('title');
+			if(input.style.display == "none" && newTitle == null){
+				title.style.display = "none";
+				input.style.display = "inline-block";
+			}
+			else if(newTitle != null){
+				title.textContent = newTitle;
+				title.style.display = "inline-block";
+				input.style.display = "none";
+			}
+		}
+
+		function changeTitle(event){
+			if(event.keyCode == 13) {
+				var newTitle = document.getElementById('inputHidden').value;
+				if(newTitle !== ""){
+					var path = "{{path('crm_prospection_changeListeTitle', {'id' : prospection.id})}}";
+					response(newTitle);
+					var request = new XMLHttpRequest();
+					request.open("POST", path , true);
+					request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+					request.send("title="+newTitle);
+				}
+			}
+		}
+
+		function response(newTitle){
+
+			var result = document.getElementById("result");
+			result.textContent = "Le titre de la liste à bien été modifiée";
+			result.classList.add("alert");
+			result.classList.add("alert-success");
+			hidde(newTitle);
+		}
+
+	</script>
+{% endblock %}	          

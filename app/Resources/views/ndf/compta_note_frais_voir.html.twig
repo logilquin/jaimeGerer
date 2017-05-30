@@ -1,0 +1,158 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Note de frais</h1>
+		</div>
+	</div>
+
+      <div class="row">
+		<div class="col-md-12">
+			{% for flashMessage in app.session.flashbag.get('success') %}
+			    <div class="alert alert-success">
+			        {{ flashMessage }}
+			    </div>
+			{% endfor %}
+			{% for flashMessage in app.session.flashbag.get('danger') %}
+			    <div class="alert alert-danger">
+			        {{ flashMessage }}
+			    </div>
+			{% endfor %}
+		</div>
+	</div>
+
+	    <div class="row">
+	    	<div class="col-md-6">
+	    		<table class="contact-view-table">
+	    			<tbody>
+	    				<tr>
+	    					<td>Nom du salarié</td>
+				    		<td>
+								{{ noteFrais.user  }}
+				    		</td>
+	    				</tr>
+
+	    				<tr>
+	    					<td>Compte comptable</td>
+				    		<td>
+								{{ noteFrais.compteComptable }}
+				    		</td>
+	    				</tr>
+	    			</tbody>
+	    		</table>
+	    	</div>
+	    	<div class="col-md-6">
+	    		<table class="contact-view-table">
+	    			<tbody>
+			    		<tr>
+		    				<td>Date</td>
+					    	<td>
+								{{ noteFrais.month }}/{{ noteFrais.year }}
+					    	</td>
+		    			</tr>
+		    			<tr>
+		    				<td>Etat</td>
+					    	<td>
+								{{ noteFrais.etat }}
+					    	</td>
+		    			</tr>
+		    		</tbody>
+		    	</table>
+	    	</div>
+	    </div>
+	    <div class="row">
+	    	<div class="col-md-6">
+	     		<table class="contact-view-table">
+	     			<tbody>
+	     				<tr>
+	     					<td>Créé le</td>
+				    		<td>
+				    			{{ noteFrais.dateCreation|date("d/m/Y") }}
+				    		</td>
+	     				</tr>
+	     				<tr>
+	     					<td>Par</td>
+		    				<td>
+								{{ noteFrais.userCreation }}
+							</td>
+
+	     				</tr>
+	     			</tbody>
+	     		</table>
+	     	</div>
+	     	<div class="col-md-6">
+	     		<table class="contact-view-table">
+	     			<tbody>
+	     				<tr>
+				    		<td>Modifié le</td>
+				    		<td>
+				    			{% if noteFrais.dateEdition is empty %}
+						    		Jamais
+						    	{% else %}
+									{{ noteFrais.dateEdition|date("d/m/Y") }}
+						    	{% endif %}
+				    		</td>
+			    		</tr>
+			    		<tr>
+		    			{% if noteFrais.userEdition is not empty %}
+				    		<td>Par</td>
+		    				<td>
+								{{ noteFrais.userEdition }}
+							</td>
+				    	{% endif %}
+			    		</tr>
+	     			</tbody>
+	    		</table>
+	    	</div>
+	    </div>
+
+	   <div class="row">
+	    	<hr />
+	    	<div class="col-md-12 produit-collection produit-collection-voir">
+		    	<table>
+					<thead>
+						<th class="produit-input-nom">Nom</th>
+						<th class="produit-input-type">Classification</th>
+						<th class="produit-input-number">Montant HT (€)</th>
+						<th class="produit-input-number">TVA (€)</th>
+						<th class="produit-input-number">Total TTC (€)</th>
+					</thead>
+					<tbody>
+					{% for depense in noteFrais.depenses %}
+						<tr>
+							<td colspan="5"><strong>{{ depense.analytique }}</strong></td>
+						</tr>
+
+				    	{% for ligne in depense.lignes %}
+				    		{{ include('compta/depense/compta_depense_ligne_voir.html.twig', { 'ligne': ligne }) }}
+				    	{% endfor %}
+			    	{% endfor %}
+			    	</tbody>
+			    </table>
+	    	</div>
+	    </div>
+
+	   <div class="row">
+	   	 	<div class="col-md-12" id="facture-calcul-wrapper">
+	    		<hr />
+		    	<div class="form-group">
+		    		<span class="facture-label">Total HT</span>
+		    		<span class="facture-montant">{{ noteFrais.totalHT }} €</span>
+		    	</div>
+		    	<div id="facture-taxe-wrapper" class="form-group">
+		    		<span class="facture-label">TVA</span>
+		   	 			<span class="facture-montant">{{ noteFrais.totalTVA }} €</span>
+		    	</div>
+	   	 		<div class="form-group">
+	   	 		<span class="facture-label">
+	   	 			Total TTC
+	   	 		</span>
+	   	 		<span class="facture-montant">{{ noteFrais.totalTTC }} €</span>
+	   	 		</div>
+	   	 		<hr />
+	   	 	</div>
+		</div>
+
+{% endblock %}

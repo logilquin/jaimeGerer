@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+	<div class="row wrap-index">
+		<div class="col-md-12 center">
+			<div class="wrap-index-head">
+				<img alt="Logo de J'aime la compta" src="{{ asset('images/assets/comptabilite.png') }}" style="width: 200px;" />
+			
+				<h1>Choisir les factures à importer dans la comptabilité</h1>	
+				<p>Quelles factures créées dans <span class="jaimelecommercial">J'aime le commercial</span> souhaitez-vous importer dans <span class="jaimelacompta">J'aime la compta</span> ?</p>
+				<form method="POST" action="{{ path('compta_facture_choisir', {'initialisation' : initialisation} ) }}">
+
+				<div class="panel-group row" id="accordion" role="tablist" aria-multiselectable="true">
+					{% for year, arr in arr_factures %}
+						<div class="panel panel-default">
+							<div class="panel-heading  col-md-12" role="tab" id="heading-{{ year }}">
+						    	<h4 class="panel-title">
+						        	<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-{{ year }}" aria-expanded="true" aria-controls="collapse-{{ year }}">
+						          		{{ year }}
+						        	</a>
+						      	</h4>
+						    </div>
+						    <div id="collapse-{{ year }}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading-{{ year }}">
+						    	<div class="panel-body">
+						    		<div class="col-md-12">
+						    			<p>
+											<a class="btn btn-success btn-xs select-all" id="{{ year }}">Tout sélectionner</a>
+											<a class="btn btn-danger btn-xs unselect-all" id="{{ year }}">Tout désélectionner</a>
+										</p>
+						    		</div>
+						    	
+						        	<div class="col-md-4">
+										{% for facture in arr  %}
+											{%  if loop.index <= arr|length/3 %}
+												<input type="checkbox" id="{{ facture.id }}" name="{{ facture.id }}" value="{{ facture.id }}" {% if facture.compta == true %} checked {% endif %}/> {{ facture.num }} : {{ facture.compte.nom }} : {{ facture.totalTTC }}€<br />
+											{% endif %}
+										{% endfor %}
+										</div>
+										<div class="col-md-4">
+										{% for facture in arr  %}
+											{%  if (loop.index > arr|length/3) and (loop.index <= arr|length/3*2) %}
+												<input type="checkbox" id="{{ facture.id }}" name="{{ facture.id }}" value="{{ facture.id }}" {% if facture.compta == true %} checked {% endif %}/> {{ facture.num }} : {{ facture.compte.nom }} : {{ facture.totalTTC }}€<br />
+											{% endif %}
+										{% endfor %}
+										</div>
+										<div class="col-md-4">
+										{% for facture in arr  %}
+											{%  if loop.index > arr|length/3*2 %}
+												<input type="checkbox" id="{{ facture.id }}" name="{{ facture.id }}" value="{{ facture.id }}" {% if facture.compta == true %} checked {% endif %}/> {{ facture.num }} : {{ facture.compte.nom }} : {{ facture.totalTTC }}€<br />
+											{% endif %}
+										{% endfor %}
+										</div>
+						     		</div>
+						    </div>
+						</div>
+						{% endfor %}
+					</div>
+		
+					<input type="submit" value="Valider" class="btn btn-success" />
+		
+				</form>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$('.select-all').click(function(){
+				var year = $(this).attr('id');
+				var selector= "#collapse-"+year+" input:checkbox";
+				$(selector).prop('checked', true);
+			});
+
+			$('.unselect-all').click(function(){
+				var year = $(this).attr('id');
+				var selector= "#collapse-"+year+" input:checkbox";
+				$(selector).prop('checked', false);
+			});
+		});
+
+	</script>
+{% endblock %}

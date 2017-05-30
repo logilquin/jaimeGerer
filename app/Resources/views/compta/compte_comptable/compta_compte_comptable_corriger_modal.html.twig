@@ -1,0 +1,128 @@
+<div class="modal-header">
+	<a class="close" data-dismiss="modal">×</a>
+	<h3>Corriger une affectation</h3>
+</div>
+<div class="modal-body">
+	<h4>Ligne à corriger : {{ ligneJournal.libelle }}</h4>
+
+ 	{{ form_start(form, { 'attr': {'class': 'form-correction'}, 'action' : path('compta_compte-comptable_corriger', {'id' : ligneJournal.id, 'codeJournal' : codeJournal, 'redirectRoute' : redirectRoute }) }) }}
+
+	{{ form_errors(form) }}
+
+	<div class="form-group">
+	   	{{ form_label(form.compteComptable) }}<br />
+	    {{ form_errors(form.compteComptable) }}
+	    {{ form_widget(form.compteComptable) }}
+	</div>
+
+	<div class="form-group">
+			{{ form_row(form.compteNotInList) }}
+	</div>
+
+	<div class="form-group" id="nouveau-compte" style="display: none;">
+
+		<div class="form_nouveau_compte_errors alert alert-danger hidden"></div>
+
+		<p><strong>Numéro du compte</strong></p>
+		<div class="col-md-3">
+			{{ form_errors(form.comptePrefixe) }}
+			{{ form_widget(form.comptePrefixe) }}
+		</div>
+		<div class="col-md-9">
+			{{ form_errors(form.compteNum) }}
+			{{ form_widget(form.compteNum) }}
+		</div>
+		<div class="col-md-12">
+			{{ form_errors(form.compteNom) }}
+			{{ form_row(form.compteNom) }}
+		</div>
+
+	</div>
+
+	<div class="wrapper-submit">
+		<div class="form-group center btn-submit">
+			{{ form_widget(form.corriger)}}
+		</div>
+
+		<div class="form-group center btn-submit">
+			<p>ou</p>
+			{{ form_widget(form.creerOD)}}
+		</div>
+
+		<div class="loader center" style="display:none;">
+			<img src="{{ asset('images/assets/spinner_loader.gif')}}" alt="Chargement en cours..." />
+		</div>
+	</div>
+
+
+	{{ form_rest(form) }}
+	{{ form_end(form) }}
+
+</div>
+
+<script type="text/javascript">
+	$(document).ready( function () {
+
+		//enable or disable the compte comptable dropdown when the checkbox is checked/unchecked
+		$('.checkbox-not-in-list').change(function(){
+			if($(this).is(':checked')){
+				$('.select-compte-comptable').attr('disabled', 'disabled');
+			} else {
+				$('.select-compte-comptable').removeAttr('disabled');
+			}
+				$('#nouveau-compte').toggle();
+		});
+
+		$('.input-compte-num').keypress(function(e){
+
+			if(e.keyCode != 8 && e.keyCode != 13 && e.keyCode != 37 && e.keyCode != 39 && e.keyCode != 46){
+				var leftChars = 5;
+
+				if($(this).val().length >= leftChars){
+					return false;
+				}
+			}
+
+		});
+
+
+			$('.submit-button').on('click', function(e){
+
+				e.preventDefault();
+
+				$('.form_nouveau_compte_errors').addClass('hidden');
+				$('.btn-submit').toggle();
+				$('.loader').toggle();
+
+				var data = $('.form-correction').serializeArray();
+			 	data.push( {'name':$(this).attr('name')});
+
+					$.ajax({
+							type: 'POST',
+							url: $(".form-correction").attr('action'),
+							data: data
+					})
+					.success(function (data) {
+
+						var route = "";
+						{% if redirectRoute == "compta_compte_voir" %}
+							var route = "{{ path(redirectRoute, {'id' : compteId}) }}";
+						{% else %}
+							var route = "{{ path(redirectRoute) }}";
+						{% endif %}
+						 location.href = route;
+					})
+					.error(function (jqXHR, textStatus, errorThrown) {
+						$('.form_nouveau_compte_errors').html(jqXHR.responseJSON.message);
+						$('.form_nouveau_compte_errors').removeClass('hidden');
+						$('.btn-submit').toggle();
+						$('.loader').toggle();
+					});
+
+					return false;
+
+			});
+
+
+	});
+</script>

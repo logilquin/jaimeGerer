@@ -1,0 +1,145 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Documents comptables</h1>
+		</div>
+	</div>
+
+	<div class="row">
+			<div class="col-md-12">
+					{% include 'compta/rapport/compta_rapport_submenu.html.twig' %}
+			</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<h2>Tableau de trésorerie</h2>
+		</div>
+	</div>
+
+	<div class="row well">
+		{{ form_start(form) }}
+		<div class="col-md-3">
+			{{ form_row(form.comptes) }}
+		</div>
+		<div class="col-md-3">
+			{{ form_row(form.years) }}
+		</div>
+		<div class="col-md-6">
+			<input type="checkbox" id="checkbox-hide-prev" /> <label for="checkbox-hide-prev">Masquer les montants prévisionnels</label><br />
+			<input type="checkbox" id="checkbox-hide-accurate" /> <label for="checkbox-hide-accurate">Masquer les montants réalisés</label>
+		</div>
+		{{ form_end(form) }}
+	</div>
+
+	<div class="row">
+		<div class="col-md-12 tableau-scrollable">
+			<table class="table table-bordered" id="table-rapport-treso">
+				<thead>
+					<tr>
+						<th class="poste" colspan="2" rowspan="2"></th>
+						<th colspan="2" class="mois">Janvier</th>
+						<th colspan="2" class="mois">Février</th>
+						<th colspan="2" class="mois">Mars</th>
+						<th colspan="2" class="mois">Avril</th>
+						<th colspan="2" class="mois">Mai</th>
+						<th colspan="2" class="mois">Juin</th>
+						<th colspan="2" class="mois">Juillet</th>
+						<th colspan="2" class="mois">Août</th>
+						<th colspan="2" class="mois">Septembre</th>
+						<th colspan="2" class="mois">Octobre</th>
+						<th colspan="2" class="mois">Novembre</th>
+						<th colspan="2" class="mois">Décembre</th>
+					</tr>
+					<tr>
+						{% for i in 1..12 %}
+							<th class="prev">Prévisionnel</th>
+							<th class="accurate">Réalisé</th>
+						{% endfor %}
+					</tr>
+				</thead>
+				<tbody id="wrapper-ajax">
+				</tbody>
+			</table>
+			<p class="center" id="loader">
+				<img src="{{ asset('images/assets/dog_loader.gif') }}" alt="Chargement en cours" /><br />
+				<i>Chargement en cours...</i>
+			</p>
+		</div>
+	</div>
+{% endblock %}
+
+
+{% block javascripts %}
+	{{ parent() }}
+  <script src="{{ asset('js/accounting.min.js') }}"></script>
+	<script type="text/javascript">
+		$(document).ready( function () {
+
+			loadTable();
+
+			$(".compte-select").change(function(){
+				loadTable();
+			});
+
+			$(".year-select").change(function(){
+				loadTable();
+			});
+
+			function loadTable(id){
+
+				$("#loader").removeClass("hidden");
+				$("#wrapper-ajax").html("");
+
+				var compteBancaireId = $(".compte-select").val();
+				var year = $(".year-select").val();
+
+				$.ajax({
+					type: "POST",
+					url: Routing.generate('compta_rapport_tableau_tresorerie_voir', {'id' : compteBancaireId, 'year' : year}),
+					success: function(data) {
+						$("#loader").addClass("hidden");
+						$("#wrapper-ajax").html(data);
+
+						if($('#checkbox-hide-accurate').is(':checked')){
+							$('td.accurate').toggle();
+						}
+
+						if($('#checkbox-hide-prev').is(':checked')){
+							$('td.prev').toggle();
+						}
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						$("#loader").addClass("hidden");
+						console.log(jqXHR.status);
+						console.log(textStatus);
+						console.log(errorThrown);
+					},
+				});
+			}
+
+			//cacher accurate
+			$('#checkbox-hide-accurate').click(function(){
+				if($(this).is(':checked')){
+					$('.mois').attr('colspan',1);
+				} else if(!$('#checkbox-hide-prev').is(':checked')){
+					$('.mois').attr('colspan',2);
+				}
+				$('.accurate').toggle();
+			});
+
+			//cacher previsonnel
+			$('#checkbox-hide-prev').click(function(){
+				if($(this).is(':checked')){
+					$('.mois').attr('colspan',1);
+				} else if(!$('#checkbox-hide-accurate').is(':checked')) {
+					$('.mois').attr('colspan',2);
+				}
+				$('.prev').toggle();
+			});
+
+		});
+	</script>
+{% endblock %}

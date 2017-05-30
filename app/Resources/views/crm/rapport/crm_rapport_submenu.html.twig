@@ -1,0 +1,19 @@
+{% block submenu %}
+    <ul class="nav nav-tabs">
+ 	 <li {% if type == "contact"  %} class=" active"{% endif %}>
+          <a href="{{ path('crm_rapport_liste', {'type' : 'contact'} ) }}" >Contacts</a>
+      </li>
+      <li {% if type == "compte"  %} class=" active"{% endif %}>
+          <a href="{{ path('crm_rapport_liste', {'type' : 'compte'} ) }}" >Organisations</a>
+      </li>   
+      <li {% if type == "opportunite"  %} class=" active"{% endif %}>
+          <a href="{{ path('crm_rapport_liste', {'type' : 'opportunite'} ) }}" >Opportunités</a>
+      </li>  
+      <li {% if type == "devis"  %} class=" active"{% endif %}>
+          <a href="{{ path('crm_rapport_liste', {'type' : 'devis'} ) }}" >Devis</a>
+      </li>  
+      <li {% if type == "facture"  %} class=" active"{% endif %}>
+          <a href="{{ path('crm_rapport_liste', {'type' : 'facture'} ) }}" >Factures</a>
+      </li> 
+    </ul>
+{% endblock %}

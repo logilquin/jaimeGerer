@@ -1,0 +1,112 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/crm.css') }}" type="text/css" />
+{% endblock %}
+
+{% block body %}
+	<div class="row full-height-minus-userbar">
+		<div class="col-xs-1 aside full-height">
+	    	<ul>
+	    		<li id="link-crm">
+	    			<a href="{{ path('crm_index') }}">
+	    			<span class="glyphicon glyphicon-home" style="font-size: 2em;"></span>
+					</a>
+					<div class="tooltoop">Accueil</div>
+	    		</li>
+	    		<li id="link-contact">
+	    			<a href="{{ path('crm_contact_liste') }}">
+	    			<span class="glyphicon glyphicon-user" style="font-size: 2em;"></span>
+					</a>
+					<div class="tooltoop">Contacts</div>
+	    		</li>
+	    		<li id="link-impulsion">
+	    			<a href="{{ path('crm_impulsion_liste') }}">
+	    				<span class="glyphicon glyphicon-time" style="font-size: 2em;"></span>
+	    			</a>
+					<div class="tooltoop">Suivi</div>
+	    		</li>
+	    		<li id="link-opportunite">
+	    			<a href="{{ path('crm_opportunite_liste') }}">
+	    				<span class="glyphicon glyphicon-screenshot" style="font-size: 2em;"></span>
+	    			</a>
+					<div class="tooltoop">Opportunités</div>
+	    		</li>
+	    		<li id="link-devis">
+	    			<a href="{{ path('crm_devis_liste') }}">
+	    				<span class="glyphicon glyphicon-euro" style="font-size: 2em;" ></span>
+	    			</a>
+					<div class="tooltoop">Devis</div>
+	    		</li>
+	    		<li id="link-facture">
+	    			<a href="{{ path('crm_facture_liste') }}">
+	    				<span class="glyphicon glyphicon-piggy-bank" style="font-size: 2em;"></span>
+					</a>
+					<div class="tooltoop">Factures</div>
+
+	    		</li>
+	    		<li id="link-rapport">
+	    			<a href="{{ path('crm_rapport_liste', {'type' : 'contact'} ) }}">
+	    				<span class="glyphicon glyphicon-list-alt" style="font-size: 2em;"></span>
+					</a>
+					<div class="tooltoop">Rapports</div>
+	    		</li>
+	    		<li id="link-prospection">
+	    			<a href="{{ path('crm_prospection_liste') }}">
+	    				<span class="glyphicon glyphicon-earphone" style="font-size: 2em;"></span>
+					</a>
+					<div class="tooltoop">Prospection</div>
+	    		</li>
+	    		<li id="link-contactwebForm">
+	    			<a href="{{ path('crm_contactwebform_liste') }}">
+	    				<span class="glyphicon glyphicon-transfer" style="font-size: 2em;"></span>
+	    			</a>
+					<div class="tooltoop">Formulaires web</div>
+	    		</li>
+	    		<li id="link-settings">
+	    			<a href="{{ path('crm_settings_liste') }}">
+	    				<span class="glyphicon glyphicon-cog" style="font-size: 2em;"></span>
+	    			</a>
+					<div class="tooltoop">Paramètres</div>
+	    		</li>
+	    	</ul>
+	    </div>
+
+    <div class="col-xs-11 fit wrap-content wrap-content-commercial">
+     <div class="titre titre-crm">
+			<h1>J'aime le commercial</h1>
+		</div>
+	    	{% block content %}
+
+	    	{% endblock %}
+	    </div>
+
+	</div>
+<link rel="stylesheet" type="text/css" href="{{ asset('lib/jquery-typeahead/dist/jquery.typeahead.min.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+
+	{{ parent() }}
+
+	   <script type="text/javascript">
+
+	   /* Add class "current" on the right menu item by checking the page URL */
+	   $(document).ready(function() {
+			var arr_links = ['compte', 'contact', 'impulsion', 'opportunite', 'devis', 'facture', 'rapport', 'settings', 'contactwebForm', 'prospection'];
+		    var arr_param = window.location.href.split("/");
+
+		    var index;
+		    for (index = 0; index < arr_param.length; ++index) {
+		    	if($.inArray(arr_param[index], arr_links) != -1){
+		    		$('#link-'+arr_links[$.inArray(arr_param[index], arr_links)]).addClass('current');
+		    		break;
+			    }
+		    }
+		});
+
+	</script>
+
+
+{% endblock %}

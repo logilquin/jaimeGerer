@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/homepage.css') }}" type="text/css" />
+{% endblock %}
+
+{% block body %}
+	<div class="row wrap-index">
+		<div class="col-md-12 center">
+			<div class="wrap-index-head">
+				<img alt="Logo de J'aime la compta" src="{{ asset('images/assets/comptabilite.png') }}" style="width: 200px;" />
+
+				<h1>Analytique et TVA (promis, c'est la dernière question sur la TVA !)</h1>
+				<p><span class="jaimelacompta">J'aime la compta</span> vous aidera dans vos déclarations de TVA.<br />
+				Pour cela, vous devez indiquer si vous avez des catégories analytiques non soumises à TVA.</p>
+				<p><strong>Avez-vous des catégories analytiques non soumises à TVA ?</strong></p>
+
+					{{ form(form) }}
+
+
+{# 				<p>#}
+{# 					<a href="#" class="btn btn-success" style="width: 150px;"><strong>OK</strong><br />On continue !</a>#}
+{# 				</p>#}
+			</div>
+		</div>
+	</div>
+{% endblock %}

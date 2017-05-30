@@ -1,0 +1,105 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Ventes : Journal des ventes</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			{% include 'compta/facture/compta_facture_submenu.html.twig' %}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-3">
+			{{ form(form) }}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<a id="btn-export" class="btn btn-info">Exporter</a>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<table class="table wrapper-ajax" id="table_journal_vente" >
+			</table>
+			<p class="center" id="loader">
+				<img src="{{ asset('images/assets/dog_loader.gif') }}" alt="Chargement en cours" /><br />
+				<i>Chargement en cours...</i>
+			</p>
+		</div>
+	</div>
+
+{% endblock %}
+{% block javascripts %}
+	{{ parent() }}
+	<script type="text/javascript">
+		$(document).ready( function () {
+
+			loadTable();
+
+			$(".year-select").change(function(){
+				$("#table_journal_vente").dataTable().fnDestroy();
+				loadTable();
+			});
+
+			function loadTable(){
+
+				$("#loader").removeClass("hidden");
+				$(".wrapper-ajax").html("");
+
+				var year = $(".year-select").val();
+
+				$.ajax({
+					type: "POST",
+					url: Routing.generate('compta_journal_ventes_voir_annee', {'year' : year}),
+					success: function(data) {
+						$("#loader").addClass("hidden");
+						$(".wrapper-ajax").html(data);
+
+						$('#table_journal_vente').DataTable({
+							"dom": 'T<"clear">lfrtip',
+							"oTableTools": {
+								"sSwfPath": "/web/lib/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
+							},
+							"language" : {
+								"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"
+							},
+							"bSort": false,
+							"bDestroy": true,
+							"columns" : [
+								{"bSortable": false},
+								{"bSortable": false},
+								{"bSortable": false},
+								{"bSortable": false},
+								{"bSortable": false},
+								{"bSortable": false},
+								{"bSortable": false},
+								{"bSortable": false},
+								{"bSortable": false},
+								{"bSortable": false},
+							],
+							"responsive": true,
+							"processing": false,
+							"serverSide": false,
+						});
+
+						var url = Routing.generate('compta_journal_ventes_exporter', { 'year' : year} );
+						$('#btn-export').attr('href', url);
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						$("#loader").addClass("hidden");
+					},
+				});
+
+			}
+
+		});
+	</script>
+{% endblock %}

@@ -1,0 +1,222 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col-md-12">
+		<h1>Avoir {{ avoir.type|lower }}</h1>	
+	</div>
+</div>
+
+	<div class="row">
+		<div class="col-md-12">
+		    <p class="group-btn">
+		    	<a href="{{ path('compta_avoir_editer', {'id' : avoir.id}) }}"  class="btn btn-warning">
+		    		<span class="glyphicon glyphicon-pencil"></span> Modifier
+		    	</a>
+	
+		    	<a href="{{ path('compta_avoir_supprimer', {'id' : avoir.id}) }}"  class="btn btn-danger">
+			    	<span class="glyphicon glyphicon-trash"></span> Supprimer
+			    </a>
+			   
+			    {% if avoir.type == "CLIENT" %}
+				    <a href="{{ path('compta_avoir_exporter', {'id' : avoir.id }) }}" class="btn btn-primary">
+			    		<span class="glyphicon glyphicon-floppy-disk"></span> Exporter
+			    	</a>
+				    		
+			    	<a href="{{ path('compta_avoir_envoyer', {'id' : avoir.id }) }}"  class="btn {% if (avoir.facture.contact is null) %} btn-default not-active {% else %} {% if avoir.facture.contact.email is null %} btn-default not-active {% else %} btn-primary {% endif %}{% endif %}"  data-toggle="modal" data-target="#modal">
+				    	<span class="glyphicon glyphicon-send"></span> Envoyer par email
+				    </a>
+				{% endif %}
+			 </p>
+	    </div>
+    </div>
+    
+      <div class="row">
+		<div class="col-md-12">
+			{% for flashMessage in app.session.flashbag.get('success') %}
+		    <div class="alert alert-success">
+		        {{ flashMessage }}
+		    </div>
+		{% endfor %}
+		{% for flashMessage in app.session.flashbag.get('danger') %}
+		    <div class="alert alert-danger">
+		        {{ flashMessage }}
+		    </div>
+		{% endfor %}
+	</div>
+</div>
+
+  <div class="row">
+    	<div class="col-md-6">
+    		<table class="contact-view-table">
+    			<tbody>
+    				<tr>
+    					<td>Gestionnaire de l'avoir</td> 
+			    		<td>
+							{{ avoir.userGestion }}
+							{% if avoir.userGestion.enabled == false %}
+				    			<a tabindex="0" role="button" data-toggle="popover" data-trigger="hover" title="Utilisateur inactif" data-content="Cet utilisateur est inactif. Vous devriez changer le gestionnaire de l'avoir"><span class="glyphicon glyphicon-warning-sign red"></span></a>
+				    		{% endif %}		
+			    		</td>
+    				</tr>
+    				<tr>
+    					<td>Numéro d'avoir</td> 
+			    		<td>
+							{{ avoir.num }}			
+			    		</td>
+    				</tr>
+    				<tr>
+    					<td>Date de validité</td> 
+			    		<td>
+							{{ avoir.dateValidite|date('d/m/Y') }}			
+			    		</td>
+    				</tr>
+    				<tr>
+    					<td>Objet</td> 
+			    		<td>
+							{{ avoir.objet }}			
+			    		</td>
+    				</tr>
+    			</tbody>
+    		</table>
+    	</div>
+    	<div class="col-md-6">
+    		<table class="contact-view-table">
+    			<tbody>
+    				<tr>
+    					<td>Compte</td> 
+			    		<td>
+			    			{% if avoir.type == "CLIENT" %}
+								<a href="{{ path('crm_compte_voir', {'id' : avoir.facture.compte.id }) }}" ​data-toggle="tooltip-btn-xs" title="Voir">
+									{{ avoir.facture.compte  }}
+								</a>
+							{% elseif avoir.type == "FOURNISSEUR" %}
+								<a href="{{ path('crm_compte_voir', {'id' : avoir.depense.compte.id }) }}" ​data-toggle="tooltip-btn-xs" title="Voir">
+									{{ avoir.depense.compte  }}
+								</a>
+							{% endif %}
+			    		</td>
+    				</tr>
+    				<tr>
+    					<td>Numéro de {% if avoir.type == "CLIENT" %}facture{% elseif avoir.type == "FOURNISSEUR" %}dépense{% endif %}</td> 
+			    		<td>
+			    			{% if avoir.type == "CLIENT" %}
+			    				<a href="{{ path('compta_facture_voir', {'id' : avoir.facture.id }) }}" ​data-toggle="tooltip-btn-xs" title="Voir">
+									{{ avoir.facture.num  }}
+								</a>
+							{% elseif avoir.type == "FOURNISSEUR" %}
+								<a href="{{ path('compta_depense_voir', {'id' : avoir.depense.id }) }}" ​data-toggle="tooltip-btn-xs" title="Voir">
+									{{ avoir.depense  }}
+								</a>
+							{% endif %}
+			    		</td>
+    				</tr>
+    			</tbody>
+    		</table>
+    	</div>
+    </div>
+     <div class="row">	
+    	<hr />
+    	<div class="col-md-12 produit-collection produit-collection-voir">
+	    	<table>
+				<thead>
+					<th class="produit-input-nom">Nom</th>
+					<th class="produit-input-type">Classification</th>
+					<th class="produit-input-number">Montant HT (€)</th>
+					<th class="produit-input-number">TVA (€)</th>
+					<th class="produit-input-number">Total TTC (€)</th>
+				</thead>
+				<tbody>
+		    	{% for ligne in avoir.lignes %}
+		    		{{ include('compta/avoir/compta_avoir_ligne_voir.html.twig', { 'ligne': ligne }) }}
+		    	{% endfor %}
+		    	</tbody>
+		    </table>
+    	</div>
+    </div>
+    
+     <div class="row">   
+	   	 	<div class="col-md-12" id="facture-calcul-wrapper">
+	    		<hr />
+		    	<div class="form-group">
+		    		<span class="facture-label">Total HT</span> 
+		    		<span class="facture-montant">{{ avoir.totaux.HT }} €</span>
+		    	</div>	
+		    	<div id="facture-taxe-wrapper" class="form-group">
+		    		<span class="facture-label">TVA</span>
+		   	 			<span class="facture-montant">{{ avoir.totaux.TVA }} €</span>
+		    	</div>
+	   	 		<div class="form-group">
+	   	 		<span class="facture-label">
+	   	 			Total TTC 
+	   	 		</span> 
+	   	 		<span class="facture-montant">{{ avoir.totaux.TTC }} €</span>
+	   	 		</div>
+	   	 		<hr />
+	   	 	</div>
+		</div>
+     
+     <div class="row">
+	    	<div class="col-md-6">
+	     		<table class="contact-view-table">
+	     			<tbody>
+	     				<tr>
+	     					<td>Créé le</td>  
+				    		<td>
+				    			{{ avoir.dateCreation|date("d/m/Y") }}
+				    		</td> 
+	     				</tr>
+	     				<tr>
+	     					<td>Par</td>  
+		    				<td>
+								{{ avoir.userCreation }}
+							</td>
+	     				
+	     				</tr>
+	     			</tbody>
+	     		</table>
+	     	</div>
+	     	<div class="col-md-6">
+	     		<table class="contact-view-table">
+	     			<tbody>
+	     				<tr>
+				    		<td>Modifié le</td>  
+				    		<td>
+				    			{% if avoir.dateEdition is empty %}
+						    		Jamais
+						    	{% else %}
+									{{ avoir.dateEdition|date("d/m/Y") }}	
+						    	{% endif %}
+				    		</td> 
+			    		</tr>
+			    		<tr>
+		    			{% if avoir.userEdition is not empty %}
+				    		<td>Par</td>  
+		    				<td>
+								{{ avoir.userEdition }}
+							</td>
+				    	{% endif %}
+			    		</tr>
+	     			</tbody>
+	    		</table>
+	    	</div>
+	    </div>
+	  
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script type="text/javascript">
+		$(document).ready( function () {    
+			$('#table_contacts').DataTable({
+					language : {                
+						"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"            
+					},
+					paging : false,
+				    info: false,
+				    searching: false,
+			});
+		});
+	</script>
+{% endblock %}

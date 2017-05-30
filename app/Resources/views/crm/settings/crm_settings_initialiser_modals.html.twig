@@ -1,0 +1,29 @@
+<div class="col-md-12"><h2>Paramètres généraux de la CRM</h2></div>
+{% for settings in arr_settings if settings.categorie == "GENERAL" %}
+    {% include 'crm/settings/crm_settings_completer_block.html.twig' %}
+{% endfor %}
+
+<div class="col-md-12"><h2>Paramètres des contacts</h2></div>
+{% for settings in arr_settings if settings.categorie == "CONTACT" %}
+    {% include 'crm/settings/crm_settings_completer_block.html.twig' %}
+{% endfor %}
+
+
+<div class="col-md-12"><h2>Paramètres des opportunités</h2>	</div>
+{% for settings in arr_settings if settings.categorie == "OPPORTUNITE" %}
+    {% include 'crm/settings/crm_settings_completer_block.html.twig' %}
+{% endfor %}
+
+
+<div class="col-md-12"><h2>Paramètres des devis</h2></div>
+{% for settings in arr_settings if settings.categorie == "DEVIS" %}
+    {% include 'crm/settings/crm_settings_completer_block.html.twig' %}
+{% endfor %}
+
+
+<div class="col-md-12"><h2>Paramètres des factures</h2></div>
+{% for settings in arr_settings if settings.categorie == "FACTURE" %}
+    {% include 'crm/settings/crm_settings_completer_block.html.twig' %}
+{% endfor %}
+
+<p><a href="{{ path('crm_activer_import') }}" class="btn btn-success">J'ai fini !</a></p>

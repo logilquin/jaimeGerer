@@ -1,0 +1,58 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-md-12">
+			<h1>TVA</h1>	
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="col-md-12">
+			<h2>Vos paramètres de TVA</h2>
+			<p>Entrée : {{ settingsEntree.valeur }} - Sortie : {{ settingsSortie.valeur }}</p>
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="col-md-12">
+			<h2>Votre récapitulatif de TVA</h2>
+			<table class="table table-bordered">
+				<thead>
+					<tr>
+						<th rowspan="2">Mois</th>
+						<th colspan="2">Entrée</th>
+						<th colspan="2">Sortie</th>
+						<th colspan="2">TVA à reverser</th>
+					</tr>
+					<tr>
+						<th>HT ou prix net</th>
+						<th>TVA</th>
+						<th>HT ou prix net</th>
+						<th>TVA</th>
+						<th>Mois</th>
+						<th>Trimestre</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% for arr_periode in arr_tva %}
+					<tr>
+						<td>{{ arr_periode.mois }}/{{ arr_periode.annee }}</td>
+						<td>{{ arr_periode.entreeHT|number_format(2,',',' ') }} €</td>
+						<td>
+							{{ arr_periode.entreeTVA|number_format(2,',',' ') }} €<br />
+							{% if arr_periode.taxePercent.55 != 0 %}<i>5,5% : {{ arr_periode.taxePercent.55|number_format(2,',',' ') }} €</i><br />{% endif %}
+							{% if arr_periode.taxePercent.100 != 0 %}<i>10% : {{ arr_periode.taxePercent.10|number_format(2,',',' ') }} €</i><br />{% endif %}
+							{% if arr_periode.taxePercent.200 != 0 %}<i>20% : {{ arr_periode.taxePercent.20|number_format(2,',',' ') }} €</i>{% endif %}
+						</td>
+						<td>{{ arr_periode.sortieHT|number_format(2,',',' ') }} €</td>
+						<td>{{ arr_periode.sortieTVA|number_format(2,',',' ') }} €</td>
+						<td {% if arr_periode.balance < 0 %}class="red" {% else %}class="green"{% endif %}>{{ arr_periode.balance|number_format(2,',',' ') }} €</td>
+						<td rowspan="3"></td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+{% endblock %}

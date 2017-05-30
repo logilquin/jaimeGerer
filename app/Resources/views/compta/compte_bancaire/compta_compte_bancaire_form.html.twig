@@ -1,0 +1,79 @@
+ {{ form_start(form) }}
+ <div class="row">
+	<div class="col-md-12">
+ 		{{ form_errors(form) }}
+ 	</div>
+</div>
+<div class="row">
+	<div class="col-md-6">
+		{{ form_row(form.nom) }}
+	</div>
+	<div class="col-md-6">
+		<div class="form-group">
+		   	{{ form_label(form.compteComptable) }}
+		   	<a data-toggle="modal" data-target="#modal" href="{{ path('compta_compte_ajouter_sous_compte', {'id' : compteComptable.id }) }}" class="do-modal">Ajouter</a><br />
+		    {{ form_errors(form.compteComptable) }}
+		    {{ form_widget(form.compteComptable, {'attr': {'class': 'select-compte-comptable'}}) }}
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-6">
+		{{ form_row(form.solde) }}
+    </div> 
+   <div class="col-md-6">
+  	 	{{ form_row(form.soldeDebutAnnee) }}
+   </div>
+</div>
+<div class="row">
+ 	<div class="col-md-6">
+    	{{ form_row(form.num) }}
+    </div> 
+	 <div class="col-md-6">
+    	{{ form_row(form.domiciliation) }}
+    </div> 
+</div>
+<div class="row">
+	<div class="col-md-6">
+		{{ form_row(form.iban) }}
+		
+    </div>
+    <div class="col-md-6">
+    	{{ form_row(form.bic) }}
+    </div> 
+</div>
+<div class="row">   
+    <div class="col-md-12">
+	   	 <input type="submit" value="Enregistrer" class="btn btn-success" />
+	    </div>
+    </div>
+</div>
+{{ form_end(form) }}
+
+<script type="text/javascript">
+
+	//ajout d'un compte comptable
+	$(document).on("submit", '.form-sous-compte', function(e) {
+
+		e.preventDefault();
+
+		$(this).find('input:submit').addClass('hidden');
+		$(this).find('#loader').removeClass('hidden');
+
+	  	var values = {};
+	  	$.each( $(this).serializeArray(), function(i, field) {
+	    	values[field.name] = field.value;
+	  	});
+		
+		$.ajax({
+			method: "POST",
+			url: $(this).attr( 'action' ),
+			data: values,
+			success     : function(data) {
+			     $(".select-compte-comptable").append('<option value="'+data.id+'">'+data.num+' : '+data.nom+'</option>');
+			     $(".select-compte-comptable").val(data.id);
+			     $("#modal").modal('toggle');
+			 }
+		});
+	});
+</script>

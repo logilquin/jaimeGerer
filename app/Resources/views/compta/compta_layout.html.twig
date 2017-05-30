@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/compta.css') }}" type="text/css"/>
+{% endblock %}
+
+{% block body %}
+
+    <div class="row full-height">
+        <div class="col-xs-1 aside full-height">
+            <ul>
+                <li id="link-compta">
+                    <a href="{{ path('compta_index') }}">
+                      <span class="glyphicon glyphicon-home" style="font-size: 2em;"></span>
+                        <div class="tooltoop">Accueil</div>
+                    </a>
+                </li>
+                <li id="link-plan">
+                    <a href="{{ path('compta_compte_liste') }}">
+                        <span class="glyphicon glyphicon-book" style="font-size: 2em;"></span>
+                        <div class="tooltoop">Plan comptable</div>
+                    </a>
+                </li>
+                <li id="link-facture">
+                    <a href="{{ path('compta_facture_liste') }}">
+                        <span class="glyphicon glyphicon-thumbs-up" style="font-size: 2em;"></span>
+                        <div class="tooltoop">Ventes</div>
+                    </a>
+                </li>
+                <li id="link-depense">
+                    <a href="{{ path('compta_depense_liste') }}">
+                        <span class="glyphicon glyphicon-shopping-cart" style="font-size: 2em;"></span>
+                        <div class="tooltoop">Achats</div>
+                    </a>
+                </li>
+                <li id="link-releve-bancaire">
+                    <a href="{{ path('compta_releve_bancaire_index') }}">
+                        <span class="glyphicon glyphicon-piggy-bank" style="font-size: 2em;"></span>
+                        <div class="tooltoop">Banque</div>
+                    </a>
+                </li>
+                <li id="link-avoir">
+                    <a href="{{ path('compta_avoir_liste', {'type' : 'CLIENT'} ) }}">
+                        <span class="glyphicon glyphicon-scissors" style="font-size: 2em;"></span>
+                        <div class="tooltoop">Avoirs</div>
+                    </a>
+                </li>
+                <li id="link-remise-cheque">
+                    <a href="{{ path('compta_remise_cheque_liste' ) }}">
+                        <span class="glyphicon glyphicon-paperclip" style="font-size: 2em;"></span>
+                        <div class="tooltoop">Remises de chèques</div>
+                    </a>
+                </li>
+                <li id="link-note-frais">
+                    <a href="{{ path('ndf_liste_admin' ) }}">
+                        <span class="glyphicon glyphicon glyphicon-plane" style="font-size: 2em;"></span>
+                        <div class="tooltoop">Notes de frais</div>
+                    </a>
+                </li>
+                <li id="link-contact">
+                    <a href="{{ path('compta_contact_liste', {'type' : 'CLIENT'} ) }}">
+                        <span class="glyphicon glyphicon-user" style="font-size: 2em;"></span>
+                        <div class="tooltoop">Clients et fournisseurs</div>
+                    </a>
+                </li>
+                <li id="link-compte-attente">
+                    <a href="{{ path('compta_compte_attente_voir' ) }}">
+                        <span class="glyphicon glyphicon-sunglasses" style="font-size: 2em;"></span>
+                        <div class="tooltoop">Star de la compta</div>
+                    </a>
+                </li>
+                <li id="link-rapport">
+                    <a href="{{ path('compta_rapport_tva_index' ) }}">
+                        <span class="glyphicon glyphicon-list-alt" style="font-size: 2em;"></span>
+                        <div class="tooltoop">Documents comptables</div>
+                    </a>
+                </li>
+                <li id="link-settings">
+                    <a href="{{ path('compta_settings_liste') }}">
+                        <span class="glyphicon glyphicon-cog" style="font-size: 2em;"></span>
+                        <div class="tooltoop">Paramètres</div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-xs-11 fit wrap-content wrap-content-compta full-height">
+            <div class="titre titre-compta">
+                <h1>J'aime la compta</h1>
+            </div>
+            {% block content %}{% endblock %}
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+
+        /* Add class "current" on the right menu item by checking the page URL */
+        $(document).ready(function() {
+            var arr_links = [
+                'plan',
+                'facture',
+                'depense',
+                'releve-bancaire',
+                'avoir',
+                'remise-cheque',
+                'contact',
+                'compte-attente',
+                'rapport',
+                'settings'
+            ];
+            var arr_param = window.location.href.split("/");
+
+            var index;
+            for (index = 0; index < arr_param.length; ++index) {
+                if ($.inArray(arr_param[index], arr_links) != -1) {
+                    $('#link-' + arr_links[$.inArray(arr_param[index], arr_links)]).addClass('current');
+                    break;
+                }
+            }
+        });
+    </script>
+{% endblock %}

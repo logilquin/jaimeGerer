@@ -1,0 +1,292 @@
+{% extends 'crm/crm_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12 bread-crumb-back">
+			<a href="{{ path('crm_compte_liste') }}" class="small">< Retour à la listes des organisations</a>
+		</div>
+	</div>
+
+		<div class="row" id="compte_details"> 	
+			<div class="col-md-6">
+		    		<h1 style="float:left;">{{ compte.nom }}
+					{% if compte.compteParent is not empty %}
+		    		<p class="l">Sous-entité de <a href="{{ path('crm_compte_voir', {'id' : compte.compteParent.id }) }}" class="small">{{ compte.compteParent }}</a></p>
+		    		{% endif %}
+		    		</h1>
+		    </div>
+			<div class="col-md-6">
+			    <p class="group-btn">
+			    	<a href="{{ path('crm_compte_editer', {'id' : compte.id }) }}"  class="btn btn-warning">
+			    		<span class="glyphicon glyphicon-pencil"></span> Modifier
+			    	</a>
+			    	<a href="{{ path('crm_compte_supprimer', {'id' : compte.id }) }}"  class="btn btn-danger">
+			    		<span class="glyphicon glyphicon-trash"></span> Supprimer
+			    	</a>
+			    	<a href="{{ path('crm_compte_fusionner', {'id' : compte.id }) }}"  class="btn btn-default"  data-toggle="modal" data-target="#modal">
+				    	<span class="glyphicon glyphicon-transfer"></span> Fusionner
+				    </a>
+			    </p>
+		    </div>
+	    
+	     <div class="row">
+		    	<div class="col-md-12">
+		    		<p>
+		    			<a href="#contacts">Contacts de cette organisation</a> - 
+		    			<a href="#opportunites">Opportunités de cette organisation</a> - 
+		    			<a href="#devis">Devis pour cette organisation</a> - 
+		    			<a href="#factures">Factures pour cette organisation</a>
+		    		</p>
+		    	</div>
+		    </div>
+	    </div>
+	    <div class="row">
+	    	<div class="col-md-12">
+	    		<table class="contact-view-table">
+	    			<tbody>
+	    				<tr>
+	    					<td>Gestionnaire de l'organisation</td> 
+				    		<td>
+								{{ compte.userGestion }}
+								{% if compte.userGestion.enabled == false %}
+					    			<a tabindex="0" role="button" data-toggle="popover" data-trigger="hover" title="Utilisateur inactif" data-content="Cet utilisateur est inactif. Vous devriez changer le gestionnaire du compte"><span class="glyphicon glyphicon-warning-sign red"></span></a>
+					    		{% endif %}
+				    		</td>
+							<tr>
+								<td>Secteur d'activité</td>
+								<td>
+									{% if compte.secteurActivite is null %}
+										-
+									{% else %}
+										{{ compte.secteurActivite }}
+									{% endif %}
+								</td>
+							</tr>
+	    			</tbody>
+	    		</table>
+	    		<hr />
+	    	</div>
+	    </div>
+	    <div class="row">
+	    	<div class="col-md-6">
+	    		<table class="contact-view-table">
+	    			<tbody>
+	    				<tr>
+	    					<td>Adresse</td> 
+				    		<td>
+								{% if compte.adresse is empty %}
+						    		-
+						    	{% else %}
+						    		{{ compte.adresse }}
+						    	{% endif %}
+				    		</td>
+	    				</tr>
+	    				<tr>
+	    					<td>Code postal</td>
+				    		<td>
+				    			{% if compte.codePostal is empty %}
+						    		-
+						    	{% else %}
+						    		{{ compte.codePostal }}
+						    	{% endif %}
+				    		</td>
+	    				</tr>
+	    				<tr>
+	    					<td>Ville</td> 
+				    		<td>
+				    			{% if compte.ville is empty %}
+						    		-
+						    	{% else %}
+						    		{{ compte.ville }}
+						    	{% endif %}
+				    		</td>
+	    				</tr>
+	    				<tr>
+	    					<td>Région</td> 
+				    		<td>
+				    			{% if compte.region is empty %}
+						    		-
+						    	{% else %}
+						    		{{ compte.region }}
+						    	{% endif %}
+						    </td>
+	    				</tr>
+	    				<tr>
+	    					<td>Pays</td> 
+				    		<td>
+				    			{% if compte.pays is empty %}
+						    		-
+						    	{% else %}
+						    		{{ compte.pays }}
+						    	{% endif %}
+						    </td>
+	    				</tr>
+	    			</tbody>
+	    		</table>
+	    	</div>
+	    	<div class="col-md-6">
+	    		<table class="contact-view-table">
+	    			<tbody>
+	    				<tr>
+				    		<td>Téléphone</td>  
+				    		<td>
+				    			{% if compte.telephone is empty %}
+						    		-
+						    	{% else %}
+						    		{{ compte.telephone }}
+						    	{% endif %}	
+						    </td> 
+						 </tr>
+						 <tr>
+						 	<td>Fax</td>  
+				    		<td>
+				    			{% if compte.fax is empty %}
+						    		-
+						    	{% else %}
+						    		{{ compte.fax }}
+						    	{% endif %}
+						    </td> 
+						 </tr>
+						 <tr>
+						 	<td>Site web</td>  
+				    		<td>
+								{% if compte.url is empty %}
+						    		-
+						    	{% else %}
+						    		<a href="{{ compte.url }}" target="_blank">{{ compte.url }}</a>
+						    	{% endif %}	    	
+						    </td>
+						 </tr>
+	    		</table>
+	    	</div>
+	    </div>
+	    <div class="row">	
+	    	<div class="col-md-12">
+	    		<hr />
+	    		<table class="contact-view-table">
+		    		<tbody>
+		    			<tr>
+		    				<td>Description</td> 
+				    		<td>
+				    			{% if compte.description is empty %}
+						    		-
+						    	{% else %}
+									{{ compte.description|raw }}	
+						    	{% endif %}
+				    		</td> 
+		    			</tr>
+		    		</tbody>
+		    	</table> 
+		    	<hr />
+	    	</div>
+	    </div>
+	    <div class="row">
+	    	<div class="col-md-6">
+	     		<table class="contact-view-table">
+	     			<tbody>
+	     				<tr>
+	     					<td>Créé le</td>  
+				    		<td>
+				    			{{ compte.dateCreation|date("d/m/Y") }}
+				    		</td> 
+	     				</tr>
+	     				<tr>
+	     					<td>Par</td>  
+		    				<td>
+								{{ compte.userCreation }}
+							</td>
+	     				
+	     				</tr>
+	     			</tbody>
+	     		</table>
+	     	</div>
+	     	<div class="col-md-6">
+	     		<table class="contact-view-table">
+	     			<tbody>
+	     				<tr>
+				    		<td>Modifié le</td>  
+				    		<td>
+				    			{% if compte.dateEdition is empty %}
+						    		Jamais
+						    	{% else %}
+									{{ compte.dateEdition|date("d/m/Y") }}	
+						    	{% endif %}
+				    		</td> 
+			    		</tr>
+			    		<tr>
+		    			{% if compte.userEdition is not empty %}
+				    		<td>Par</td>  
+		    				<td>
+								{{ compte.userEdition }}
+							</td>
+				    	{% endif %}
+			    		</tr>
+	     			</tbody>
+	    		</table>
+	    	</div>
+	    </div>
+
+	  
+	  {{ include('crm/contact/crm_contact_liste_part.html.twig', {'arr_contacts': arr_contacts, 'div_id': 'table_contacts'}) }}
+	  {{ include('crm/opportunite/crm_opportunite_liste_part.html.twig', {'arr_opportunites': arr_opportunites, 'div_id': 'table_opportunites'}) }}
+	  {{ include('crm/devis/crm_devis_liste_part.html.twig', {'arr_devis': arr_devis, 'div_id': 'table_devis'}) }}
+	  {{ include('crm/facture/crm_facture_liste_part.html.twig', {'arr_facture': arr_factures, 'div_id': 'table_factures'}) }}
+
+{% endblock %}
+{% block additionalModals %}
+	<div id="ModalFusionConfirmation" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalFusionConfirmation" aria-hidden="true" data-focus-on="input:first">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+					 <h3 id="myModalFusionConfirmation">Confirmation requise</h3>
+
+				</div>
+				<div class="modal-body">
+					<p>Cette opération est irréversible, veuillez confirmer la fusion</p>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-danger" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove"> </span> Annuler</button>
+					<button class="btn-primary btn" id="SubForm"><span class="glyphicon glyphicon-ok"> </span> Confirmer la fusion</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="ModalAlert" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalAlert" aria-hidden="true" data-focus-on="input:first">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+					 <h3 id="myModalAlert">Fusion terminée</h3>
+
+				</div>
+				<div class="modal-body">
+					<p><span class="glyphicon glyphicon glyphicon-ok"> </span> Fusion effectuée avec succès</p>
+				</div>
+				<div class="modal-footer">
+					<button class="btn-primary btn" id="okAlert" data-dismiss="modal" aria-hidden="true">ok</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+<script>
+	/* Create a fixed menu on scroll for /voir */
+		$(document).ready(function() {
+		var positionElementInPage = $('#compte_details').offset().top;
+		$(window).scroll(
+			 function() {
+			        if ($(window).scrollTop() >= positionElementInPage) {
+			            // fixed
+			            $('#compte_details').addClass("fixed-top");
+			        } else {
+			            // relative
+			            $('#compte_details').removeClass("fixed-top");
+			        }
+			    }
+		);
+		});
+</script>
+
+{% endblock %}

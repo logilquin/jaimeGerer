@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/homepage.css') }}" type="text/css" />
+{% endblock %}
+
+{% block body %}
+	<div class="row wrap-index">
+		<div class="col-md-12 center">
+			<div class="wrap-index-head">
+				<img alt="Logo de J'aime la compta" src="{{ asset('images/assets/comptabilite.png') }}" style="width: 200px;" />
+			
+				<h1>La TVA : le retour</h1>
+				<p><span class="jaimelacompta">J'aime la compta</span> vous fournira les rapports à utiliser pour vos déclarations de TVA.<br /> 
+				Dites-nous simplement comment vous déclarez votre TVA en entrée.</p>
+				<p>Vous avez un doute ? C'est simple :</p>
+				<ul>
+					<li>Si vous vendez des <strong>produits</strong>, vous déclarez certainement à l'<strong>engagement</strong>, c'est à dire à l'émission de la facture</li>
+					<li>Si vous vendez des <strong>services</strong>, vous déclarez certainement à l'<strong>encaissement</strong>, c'est à dire au règlement de la facture</li>
+				</ul>
+				<p><strong>Comment déclarez-vous la TVA en entrée ?</strong></p>
+				
+				<p>
+					<a href="{{ path('compta_activer_tva_enregistrer', {'type' : 'ENGAGEMENTS'}) }}" class="btn btn-info" style="width: 300px;"><strong>A l'engagement</strong><br />Je vends des produits<br /></a>
+					<a href="{{ path('compta_activer_tva_enregistrer', {'type' : 'ENCAISSEMENTS'}) }}" class="btn btn-warning" style="width: 300px;"><strong>A l'encaissement</strong><br />Je vends des services</a>
+				</p>
+				
+			</div>
+		</div>
+	</div>
+{% endblock %}

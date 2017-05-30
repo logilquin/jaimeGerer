@@ -1,0 +1,159 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Remise de chèques</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			<p><a class="btn btn-primary" href="{{ path('compta_remise_cheque_exporter', {'id' : remiseCheque.id}) }}"><span class="glyphicon glyphicon-floppy-disk"></span> Exporter le coupon</a></p>
+		</div>
+	</div>
+
+      <div class="row">
+		<div class="col-md-12">
+			{% for flashMessage in app.session.flashbag.get('success') %}
+			    <div class="alert alert-success">
+			        {{ flashMessage }}
+			    </div>
+			{% endfor %}
+			{% for flashMessage in app.session.flashbag.get('danger') %}
+			    <div class="alert alert-danger">
+			        {{ flashMessage }}
+			    </div>
+			{% endfor %}
+		</div>
+	</div>
+
+	    <div class="row">
+	    	<div class="col-md-6">
+	    		<table class="contact-view-table">
+	    			<tbody>
+	    				<tr>
+	    					<td>Numéro de la remise de chèque</td>
+				    		<td>
+								{{ remiseCheque.num  }}
+				    		</td>
+	    				</tr>
+	    				<tr>
+	    					<td>Compte bancaire</td>
+				    		<td>
+								{{ remiseCheque.compteBancaire  }}
+				    		</td>
+	    				</tr>
+	    			</tbody>
+	    		</table>
+	    	</div>
+	    	<div class="col-md-6">
+					<table class="contact-view-table">
+	    			<tbody>
+							<tr>
+								<td>Date</td>
+								<td>
+								{{ remiseCheque.date|date('d/m/Y')  }}
+								</td>
+							</tr>
+						</tbody>
+					</table>
+	    	</div>
+	    </div>
+	    <div class="row">
+	    	<div class="col-md-6">
+	     		<table class="contact-view-table">
+	     			<tbody>
+	     				<tr>
+	     					<td>Créé le</td>
+				    		<td>
+				    			{{ remiseCheque.dateCreation|date("d/m/Y") }}
+				    		</td>
+	     				</tr>
+	     				<tr>
+	     					<td>Par</td>
+		    				<td>
+								{{ remiseCheque.userCreation }}
+							</td>
+
+	     				</tr>
+	     			</tbody>
+	     		</table>
+	     	</div>
+	     	<div class="col-md-6">
+	     		<table class="contact-view-table">
+	     			<tbody>
+	     				<tr>
+				    		<td>Modifié le</td>
+				    		<td>
+				    			{% if remiseCheque.dateEdition is empty %}
+						    		Jamais
+						    	{% else %}
+									{{ remiseCheque.dateEdition|date("d/m/Y") }}
+						    	{% endif %}
+				    		</td>
+			    		</tr>
+			    		<tr>
+		    			{% if remiseCheque.userEdition is not empty %}
+				    		<td>Par</td>
+		    				<td>
+								{{ remiseCheque.userEdition }}
+							</td>
+				    	{% endif %}
+			    		</tr>
+	     			</tbody>
+	    		</table>
+	    	</div>
+	    </div>
+
+	     <div class="row">
+	    	<hr />
+	    	<div class="col-md-12 produit-collection produit-collection-voir">
+		    	<table>
+					<thead>
+						<th class="cheque-input-banque">Banque</th>
+						<th class="cheque-input-num">Numéro</th>
+						<th class="cheque-input-pieces">Pièces</th>
+						<th class="cheque-input-montant">Montant (€)</th>
+					</thead>
+					<tbody>
+			    	{% for cheque in remiseCheque.cheques %}
+			    		{{ include('compta/cheque/compta_cheque_voir.html.twig', { 'cheque': cheque }) }}
+			    	{% endfor %}
+			    	</tbody>
+			    </table>
+			    <hr />
+	    	</div>
+	    </div>
+
+	     <div class="row">
+	     	<div class="col-md-6 center">
+    			<strong>Nombre de chèques :</strong> {{ remiseCheque.cheques|length }}
+   	 		</div>
+	   	 	<div class="col-md-6" id="cheq-calcul-wrapper">
+	   	 		<span class="remise-cheque-total-label">
+	   	 			Total
+	   	 		</span>
+	   	 		<span class="remise-cheque-total">{{ remiseCheque.total|number_format(2,',',' ') }} €</span>
+	   	 	</div>
+
+		</div>
+
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script type="text/javascript">
+		$(document).ready( function () {
+			$('#table_contacts').DataTable({
+					language : {
+						"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"
+					},
+					paging : false,
+				    info: false,
+				    searching: false,
+			});
+		});
+	</script>
+{% endblock %}

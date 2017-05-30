@@ -1,0 +1,182 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-12">
+			<h1>Clients</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+		    <p class="group-btn">
+		    	<a href="{{ path('compta_contact_editer', {'id' : compte.id, 'type' : 'CLIENT' }) }}"  class="btn btn-warning">
+		    		<span class="glyphicon glyphicon-pencil"></span> Modifier
+		    	</a>
+		    	<a href="{{ path('crm_compte_supprimer', {'id' : compte.id }) }}"  class="btn btn-danger">
+		    		<span class="glyphicon glyphicon-trash"></span> Supprimer
+		    	</a>
+		    </p>
+	    </div>
+    </div>
+
+     <div class="row">
+	    	<div class="col-md-12">
+	    		<p>
+	    			<a href="#coordonnees">Coordonnées</a> -
+	    			<a href="#table_contacts">Contacts</a> -
+	    			<a href="#table_factures_retard">Factures en retard</a> -
+	    			<a href="#table_factures">Factures</a> -
+	    			<a href="#table_devis">Devis</a>
+	    		</p>
+	    	</div>
+	    </div>
+
+	    <div class="row" id="compte_details">
+	    	<div class="col-md-12">
+	    		<h2>{{ compte.nom }}</h2>
+	    		{% if compte.compteParent is not empty %}
+	    			<p class="l">Sous-entité de <a href="{{ path('crm_compte_voir', {'id' : compte.compteParent.id }) }}">{{ compte.compteParent }}</a></p>
+	    		{% endif %}
+				<p class="l">Compte comptable client :
+
+					{% if compte.compteComptableClient %}
+						<a href="{{ path('compta_compte_voir', {'id' : compte.compteComptableClient.id }) }}">{{ compte.compteComptableClient.num }}</a>
+					{% else %}
+						Aucun
+					{% endif %}
+
+				</p>
+
+	    	</div>
+	    </div>
+
+	    <div class="row">
+	    	<div class="col-md-4 center">
+	    		<p>Créances en cours (TTC)</p>
+	    		<p class="xl">{{ creances|number_format(2,',',' ') }} €</p>
+	    	</div>
+	    	<div class="col-md-4 center">
+	    		<p>CA sur l'année (HT)</p>
+	    		<p class="xl">{{ ca_annee|number_format(2,',',' ') }} €</p>
+	    	</div>
+	    	<div class="col-md-4 center">
+	    		<p>Lifetime value (HT)</p>
+	    		<p class="xl">{{ lifetime_value|number_format(2,',',' ') }} €</p>
+	    	</div>
+	    </div>
+
+	    <div class="row">
+	    	<div class="col-md-12">
+	    		<hr />
+					<h3>Coordonnées</h3>
+	    	</div>
+	    </div>
+
+
+	    <div class="row" id="#coordonnees">
+	    	<div class="col-md-6">
+	    		<table class="contact-view-table">
+	    			<tbody>
+	    				<tr>
+	    					<td>Adresse</td>
+				    		<td>
+								{% if compte.adresse is empty %}
+						    		-
+						    	{% else %}
+						    		{{ compte.adresse }}
+						    	{% endif %}
+				    		</td>
+	    				</tr>
+	    				<tr>
+	    					<td>Code postal</td>
+				    		<td>
+				    			{% if compte.codePostal is empty %}
+						    		-
+						    	{% else %}
+						    		{{ compte.codePostal }}
+						    	{% endif %}
+				    		</td>
+	    				</tr>
+	    				<tr>
+	    					<td>Ville</td>
+				    		<td>
+				    			{% if compte.ville is empty %}
+						    		-
+						    	{% else %}
+						    		{{ compte.ville }}
+						    	{% endif %}
+				    		</td>
+	    				</tr>
+	    				<tr>
+	    					<td>Région</td>
+				    		<td>
+				    			{% if compte.region is empty %}
+						    		-
+						    	{% else %}
+						    		{{ compte.region }}
+						    	{% endif %}
+						    </td>
+	    				</tr>
+	    				<tr>
+	    					<td>Pays</td>
+				    		<td>
+				    			{% if compte.pays is empty %}
+						    		-
+						    	{% else %}
+						    		{{ compte.pays }}
+						    	{% endif %}
+						    </td>
+	    				</tr>
+	    			</tbody>
+	    		</table>
+	    	</div>
+	    	<div class="col-md-6">
+	    		<table class="contact-view-table">
+	    			<tbody>
+	    				<tr>
+				    		<td>Téléphone</td>
+				    		<td>
+				    			{% if compte.telephone is empty %}
+						    		-
+						    	{% else %}
+						    		{{ compte.telephone }}
+						    	{% endif %}
+						    </td>
+						 </tr>
+						 <tr>
+						 	<td>Fax</td>
+				    		<td>
+				    			{% if compte.fax is empty %}
+						    		-
+						    	{% else %}
+						    		{{ compte.fax }}
+						    	{% endif %}
+						    </td>
+						 </tr>
+						 <tr>
+						 	<td>Site web</td>
+				    		<td>
+								{% if compte.url is empty %}
+						    		-
+						    	{% else %}
+						    		<a href="{{ compte.url }}" target="_blank">{{ compte.url }}</a>
+						    	{% endif %}
+						    </td>
+						 </tr>
+	    		</table>
+	    	</div>
+	    </div>
+
+	  {{ include('crm/contact/crm_contact_liste_part.html.twig', {'arr_contacts': arr_contacts, 'div_id': 'table_contacts'}) }}
+	  {{ include('compta/facture/compta_facture_retard_liste_part.html.twig', {'arr_facture': arr_factures_retard, 'div_id': 'table_factures_retard', 'arr_retard_temps' : arr_retard_temps}) }}
+	  {{ include('crm/facture/crm_facture_liste_part.html.twig', {'arr_facture': arr_factures, 'div_id': 'table_factures'}) }}
+	  {{ include('crm/devis/crm_devis_liste_part.html.twig', {'arr_devis': arr_devis, 'div_id': 'table_devis'}) }}
+
+{% endblock %}
+
+
+{% block javascripts %}
+	{{ parent() }}
+{% endblock %}

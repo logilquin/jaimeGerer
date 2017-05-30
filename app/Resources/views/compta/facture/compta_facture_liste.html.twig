@@ -1,0 +1,228 @@
+{% extends 'compta/compta_layout.html.twig' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Ventes : Liste des factures</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {% include 'compta/facture/compta_facture_submenu.html.twig' %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-2">
+            <p>
+                <a class="btn btn-info" href="{{ path('compta_facture_importer_historique' )}}">Importer historique de factures</a>
+            </p>
+        </div>
+        <div class="col-md-10">
+            <p class="align-right" id="wrapper-totaux">
+                <!-- filled by AJAX when dateRange is changed -->
+            </p>
+        </div>
+    </div>
+    <label id="NodesToMove" class="hidden"><input id="dateRange" name="dateRange"></label>
+    <div class="row">
+        <div class="col-md-12">
+            <table id="table_facture_list" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Objet</th>
+                        <th>Numéro de facture</th>
+                        <th>Compte</th>
+                        <th>Total</th>
+                        <th>Date de création</th>
+                        <th>Etat</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/jquery.comiseo.daterangepicker.css') }}" type="text/css"/>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/moment.js') }}"></script>
+    <script src="{{ asset('js/jquery.comiseo.daterangepicker.js') }}"></script>
+    <script src="{{ asset('js/datepicker-fr.js') }}"></script>
+    <script src="{{ asset('js/dateFilterConfig.js') }}"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            $
+
+            var loadAjaxUrl = Routing.generate('compta_facture_liste_ajax');
+
+            //set date range picker to curretn year
+            var year = (new Date).getFullYear();
+            $("#dateRange").daterangepicker("setRange", {
+                start: new Date(year, 0, 1),
+                end: new Date()
+            });
+
+            updateTotaux();
+
+            tableau = $('#table_facture_list').DataTable({
+                "dom": '<"dataTables_dateRange">T<"clear">lfrtip',
+                "oTableTools": {
+                    "sSwfPath": "/web/lib/datatables/extensions/TableTools/swf/copy_csv_xls_pdf.swf",
+                    "aButtons": [
+                        {
+                            "sExtends": "csv",
+                            "sButtonText": "Excel",
+                            "mColumns": [
+                                0, 1, 2, 3
+                            ],
+                            "sFileName": "factures.csv"
+                        }, {
+                            "sExtends": "pdf",
+                            "sButtonText": "PDF",
+                            "mColumns": [
+                                0, 1, 2, 3
+                            ],
+                            "sFileName": "factures.pdf",
+                            "sTitle": "Factures"
+                        }
+                    ]
+                },
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"
+                },
+                "iDisplayLength": 100,
+                "order": [
+                    [1, "desc"]
+                ],
+                "responsive": true,
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    url: loadAjaxUrl, // json datasource
+                    type: "post", // method  , by default get
+                    "data": function(d) {
+                        d.dateRange = $("#dateRange").daterangepicker("getRange");
+                    }
+                },
+                "columns": [
+                    {
+                        "data": "objet"
+                    }, {
+                        "data": "num"
+                    }, {
+                        "data": "compte_nom"
+                    }, {
+                        "data": "totaux"
+                    }, {
+                        "data": "dateCreation"
+                    }, {
+                        "data": "etat"
+                    }
+                ],
+                "columnDefs": [
+                    {
+                        "visible": false,
+                        "targets": ['id']
+                    }, {
+                        // The `data` parameter refers to the data for the cell (defined by the `data` option, which defaults to the column being worked with, in this case `data: 0`.
+                        "render": function(data, type, row) {
+                            var url = Routing.generate('compta_facture_voir', {'id': row['id']});
+                            var s = '<a href="' + url + '"  data-toggle=\"modal\" data-target=\"#modal-lg\">' + data + '</a>';
+                            if (row['avoir'] != null) {
+                                s += "<br /><span class='s glyphicon glyphicon-scissors'></span> <span class='s'>Avoir " + row['avoir'] + "</span>";
+                            };
+                            return s;
+                        },
+                        "targets": 0
+                    }, {
+                        "render": function(data, type, row) {
+                            var url = Routing.generate('compta_contact_voir', {
+                                'id': row['compte_id'],
+                                'type': 'CLIENT'
+                            });
+                            return '<a href="' + url + '">' + data + '</a>';
+                        },
+                        "targets": 2
+                    }, {
+                        "render": function(data, type, row) {
+                            var s = data.HT + " € HT<br /><i>" + data.TTC + " € TTC </i>";
+                            return s;
+                        },
+                        "targets": 3
+                    }, {
+                        "render": function(data, type, row) {
+                            return moment(data.date).format('DD/MM/YYYY');
+                        },
+                        "targets": 4
+                    }, {
+                        "render": function(data, type, row) {
+                            var s = "";
+                            if (data == "") {
+                                s = "Inconnu";
+                            } else if (data == "PAID") {
+                                s = "Payée";
+                            } else {
+                                s = data;
+                            }
+                            return s;
+                        },
+                        "targets": 5
+                    }, {
+                        "render": function(data, type, row) {
+                            var url = Routing.generate('compta_facture_voir', {'id': row['id']});
+                            var a = '<a href="' + url + '"  data-toggle="modal" data-target="#modal-lg" class="btn btn-info btn-xs" data-toggle="tooltip" title="Voir la facture"><span class="glyphicon glyphicon-eye-open"></span></a>';
+                            return "<p>" + a + "</p>";
+                        },
+                        "targets": 6
+                    }
+                ],
+								fnDrawCallback: function () {
+								  $( 'a', this.fnGetNodes() ).tooltip( {
+									"delay": 0,
+									"track": true,
+									"fade": 250,
+									"tooltipClass": 'btn',
+								  } );
+								},
+								fnInitComplete: function () {
+								  $( 'a', this.fnGetNodes() ).tooltip( {
+									"delay": 0,
+									"track": true,
+									"fade": 250,
+									"tooltipClass": 'btn',
+								  } );
+                  $("#NodesToMove").detach()
+                                   .removeClass("hidden")
+                                   .appendTo('div.dataTables_dateRange');
+                  $('#dateRange').change(function() {
+                      $('#table_facture_list tbody').find('tr').remove();
+                      tableau.draw();
+                      updateTotaux();
+                  });
+								},
+            });
+
+            function updateTotaux() {
+                $.ajax({
+                    url: Routing.generate('compta_facture_total_ajax'),
+                    type: 'POST',
+                    data: {
+                        dateRange: $("#dateRange").daterangepicker("getRange")
+                    }
+                }).done(function(data) {
+                    $('#wrapper-totaux').html(data);
+                });
+
+            }
+
+        });
+    </script>
+{% endblock %}

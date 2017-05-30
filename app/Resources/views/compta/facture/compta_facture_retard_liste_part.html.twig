@@ -1,0 +1,78 @@
+{% block content %}
+	  <div class="row" id="facture">
+	  	<div class="col-md-12">
+	  		<h3>Factures en retard</h3>
+	  		<table id="{{ div_id }}" class="table table-bordered table-striped">
+	  			<thead>        
+		    		<tr>            
+		    			<th>Objet</th>            
+		    			<th>Numéro de facture</th>  
+		    			<th>Total</th>  
+		    			<th>Date d'echeance</th> 
+		    			<th>Retard</th>
+		    			<th>Actions</th>          
+		    		</tr>    
+			    </thead>    
+			    <tbody>
+	  			{% for facture in arr_facture %}
+	  				<tr>
+	  					<td>
+	  						<a href="{{ path('crm_facture_voir', {'id' : facture.id}) }}">{{ facture.objet }}</a>
+	  					</td>
+	  					<td>
+			    			{{ facture.num }}
+	  					</td>
+	  					<td>
+			    			{{ facture.Totaux().HT }} € HT<br />
+			    			<i class="small">{{ facture.Totaux().TTC }} € TTC</i>
+			    		</td>
+	  					<td>
+			    			{{ facture.dateValidite|date('d/m/Y') }}
+	  					</td>
+	  					<td>
+			    			{{ arr_retard_temps[facture.id] }} jours
+			    		</td>
+	  					<td>
+			    			{% if facture.contact.email is not null %}
+			    				<a href="{{ path('compta_facture_relancer', {'id' : facture.id}) }}"  data-toggle="modal" data-target="#modal-lg" class="btn btn-xs btn-info"><span class="glyphicon glyphicon-envelope"></span></a>
+			    			{% else %}
+			    				<a href="#"  data-toggle="modal" data-target="#modal-lg" class="btn btn-xs btn-default not-active"><span class="glyphicon glyphicon-envelope"></span></a>
+			    			{% endif %}
+			    			
+			    		</td>   
+	  				</tr>
+	  			{% endfor %}
+	  			</tbody>
+	  		</table>
+	  	</div>
+	  </div>
+{% endblock %}
+
+{% block javascripts %}
+	<script type="text/javascript">
+		$("#{{ div_id }}").DataTable({
+				language : {                
+					"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"            
+				},
+				paging : false,
+			    info: false,
+			    searching: false,
+				fnDrawCallback: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				  } );
+				},
+                fnInitComplete: function () {
+				  $( 'a', this.fnGetNodes() ).tooltip( {
+					"delay": 0,
+					"track": true,
+					"fade": 250,
+					"tooltipClass": 'btn btn-default',
+				  } );
+				},
+		});
+	</script>
+{% endblock %}

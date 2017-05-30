@@ -1,0 +1,24 @@
+<div class="modal-header">
+	<a class="close" data-dismiss="modal">×</a>
+	<h3>Corriger une anomalie</h3>
+</div>
+<div class="modal-body">
+
+ 	{{ form_start(form, {'action': path('compta_compte_attente_corriger', {'id' : id, 'codeJournal' : codeJournal })} ) }}
+
+	{{ form_errors(form) }}
+	
+	<div class="form-group">
+	   	{{ form_label(form.compteComptable) }}<br />
+	    {{ form_errors(form.compteComptable) }}
+	    {{ form_widget(form.compteComptable) }}
+	</div>
+	
+	<a class="btn" href="#" data-dismiss="modal">
+       	<span class="glyphicon glyphicon-chevron-left"></span>Annuler
+    </a>
+	<input type="submit" value="Enregistrer" class="btn btn-success" />
+
+	{{ form_end(form) }}
+
+</div>

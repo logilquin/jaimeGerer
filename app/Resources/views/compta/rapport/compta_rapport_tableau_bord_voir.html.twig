@@ -1,0 +1,591 @@
+{% if app.session.flashBag.get('danger') is not empty %}
+    ERREUR
+    {% for flash_message in app.session.flashBag.get('danger') %}
+        <div class="alert alert-danger">
+            {{ flash_message }}
+        </div>
+    {% endfor %}
+{% else %}
+
+  <!-- postes analytiques -->
+  {% for poste, label in arr_postes %}
+    <!-- totaux du poste -->
+    <tr class="ligne-sous-total">
+      <th class="poste-titre">{{ label }}</th>
+      {% for i in 1..12 %}
+
+        {% set total_accurate = arr_totaux['accurate'][poste][i] %}
+        {% set total_prev = arr_totaux['prev'][poste][i] %}
+        {% set total_predictif = arr_totaux['predictif'][poste][i] %}
+        
+        <td class="prev" id="total-{{ poste }}-{{ i }}">
+          <p class="center loader hidden">
+              <img src="{{ asset('images/assets/spinner_loader.gif') }}" alt="Chargement en cours"/><br/>
+              <i>Calcul en cours...</i>
+          </p>
+          <p class="value">
+            {% if poste == "dotation_amortissements" %}
+              <a
+                href="#"
+                id="{{ poste }}-{{ poste }}-{{ i }}"
+                data-type="number"
+                data-pk="{{ poste }}-{{ poste }}-{{ i }}"
+                data-url="{{ path('compta_rapport_tableau_bord_previsionnel_completer', {
+                  'mois' : i,
+                  'annee' : year,
+                  'poste' : poste,
+                  'analytique' : 0,
+                  'priveOrPublic' : 0,
+                } ) }}"
+                data-title="Montant"
+                class="prev"
+                >
+                {% if total_prev == 0 %}
+                    Completer
+                {% else %}
+                  {{ total_prev }}
+                {% endif %}
+              </a>
+            {% else %}
+                {{ total_prev|number_format(2,',',' ') }} €
+            {% endif %}
+          </p>
+        </td>
+        
+        {% if i >=  moisDebutPredictif %}
+          <td class="predictif"> 
+            {% if poste == "actions_commerciales" %}
+              -
+            {% else %}
+              {{ total_predictif|number_format(2,',',' ') }} €
+            {% endif %}
+          </td>
+        {% endif %}
+
+        <td class="accurate
+          {% if poste == "couts_marginaux" or poste == "couts_exploitation" or poste == "dotation_amortissements" %}
+              {{ total_prev < total_accurate ? 'red' : 'green' }}
+          {% else %}
+              {{ total_prev > total_accurate ? 'red' : 'green' }}
+          {% endif %}
+
+          " id="total-{{ poste }}-{{ i }}-accurate">
+          {{ total_accurate|number_format(2,',',' ') }} €
+        </td>
+      {% endfor %}
+
+      <td class="prev">
+        {{ arr_totaux['prev'][poste]['total']|number_format(2, ',', ' ') }} € 
+      </td>
+      <td class="predictif">
+        {% if 'actions_commerciales' == poste %}
+          -
+        {% else %}
+          {{ arr_totaux['predictif'][poste]['total']|number_format(2, ',', ' ') }} € 
+        {% endif %}
+      </td>
+      <td class="accurate">
+        {{ arr_totaux['accurate'][poste]['total']|number_format(2, ',', ' ') }} €
+      </td>
+
+    </tr>
+
+    <!-- details du poste -->
+    {% if poste != 'dotation_amortissements' %}
+      {% for sous_poste, arr_mois in arr_prev[poste] %}
+
+        <tr>
+          <th class="detail">
+
+            {% if poste == "couts_marginaux" %}
+              {{ arr_couts_marginaux[sous_poste] }}
+            {% elseif poste == "couts_exploitation" %}
+              {{ arr_couts_exploitation[sous_poste] }}
+            {% else %}
+              {% if poste == "ca_mois" or poste == "actions_commerciales" %}
+                {% set arr_sous_poste = sous_poste|split('_') %}
+                 {{ arr_sous_poste[0] }} {{ arr_sous_poste[1] }}
+              {% else %}
+                {{ sous_poste }}
+              {% endif %}
+            {% endif %}
+
+            {% if arr_accurate[poste][sous_poste]['opportunites'] is defined  %}
+              {% if arr_accurate[poste][sous_poste]['opportunites']|length > 0 %}
+                <br /><a role="button" id="{{ poste }}-{{ sous_poste }}" class="display-details">Détails</a>
+              {% endif %}
+            {% endif %}
+
+            {% if arr_accurate[poste][sous_poste]['sous_traitances'] is defined  %}
+              {% if arr_accurate[poste][sous_poste]['sous_traitances']|length > 0 %}
+                <br /><a role="button" id="{{ poste }}-{{ sous_poste }}" class="display-details">Détails</a>
+              {% endif %}
+            {% endif %}
+
+          </th>
+          {% for i in 1..12 %}
+
+            {% set accurate = arr_accurate[poste][sous_poste][i]['val'] %}
+            {% set prev = arr_prev[poste][sous_poste][i] %}
+
+            {% if poste == "ca_mois" or sous_poste == "sous_traitance" %}
+              {% set predictif = arr_predictif[poste][sous_poste][i]['val'] %}
+            {% else %}
+              {% set predictif = arr_predictif[poste][sous_poste][i] %}
+            {% endif %}
+
+            <td class="prev">
+                {% if poste == "couts_marginaux" or poste == "couts_exploitation" %}
+                  <a
+                      href="#"
+                      id="{{ poste }}-{{ sous_poste }}-{{ i }}"
+                      data-type="number"
+                      data-pk="{{ poste }}-{{ sous_poste }}-{{ i }}"
+                      data-url="{{ path('compta_rapport_tableau_bord_previsionnel_completer', {
+                        'mois' : i,
+                        'annee' : year,
+                        'poste' : sous_poste,
+                        'analytique' : 0,
+                        'priveOrPublic' : 0
+                      } ) }}"
+                      data-title="Montant"
+                      class="prev"
+                      >
+                {% else %}
+
+                  {% set arr_sous_poste = sous_poste|split('_') %}
+                  {% set analytique = arr_sous_poste[0] %}
+                  {% set priveOrPublic = arr_sous_poste[1] %}
+                  <a
+                      href="#"
+                      id="{{ poste }}-{{ sous_poste }}-{{ i }}"
+                      data-type="number"
+                      data-pk="{{ poste }}-{{ sous_poste }}-{{ i }}"
+                      data-url="{{ path('compta_rapport_tableau_bord_previsionnel_completer', {
+                        'mois' : i,
+                        'annee' : year,
+                        'poste' : poste,
+                        'analytique' : analytique,
+                        'priveOrPublic' : priveOrPublic
+                      } ) }}"
+                      data-title="Montant"
+                      class="prev"
+                      >
+                {% endif %}
+                {% if prev == 0 %}
+                    Completer
+                {% else %}
+                  {{ prev }}
+                {% endif %}
+                </a>
+              </td>
+             
+              {% if i >=  moisDebutPredictif %}
+                <td class="predictif"> 
+                  {% if poste == "actions_commerciales" %}
+                    -
+                  {% else %}
+                    {{ predictif|number_format(2,',',' ') }} €
+                  {% endif %}
+                </td>
+              {% endif %}
+
+              <td class="accurate
+                  {% if poste == "couts_marginaux" or poste == "couts_exploitation" %}
+                      {{  prev < accurate ? 'red' : 'green' }}
+                  {% else %}
+                      {{ prev > accurate ? 'red' : 'green' }}
+                  {% endif %}
+                " id="{{ poste }}-{{ sous_poste }}-{{ i }}-accurate">
+                  {{ accurate|number_format(2,',',' ') }} €
+                  {% if accurate > 0 %}
+                    <br />
+                    <a
+                      id="details-{{ sous_poste }}-{{ i }}"
+                      type="button"
+                      data-toggle="modal"
+                      data-target="#modal-lg"
+                      href="{{ path('compta_rapport_tableau_bord_details', {'poste' : poste, 'sous_poste' : sous_poste, 'month' : i, 'year' : year } ) }}"
+                      class="display-details-modal "
+                      >
+                      {% if sous_poste == "communication_impression" 
+                        or sous_poste == "petit_equipement_fournitures"
+                        or sous_poste == "autres_couts"
+                        or sous_poste == "couts_bancaires"
+                        or sous_poste == "formation_personnel"
+                        or sous_poste == "comptable_admin"
+                        or sous_poste == "dons"
+                        or sous_poste == "charges"
+                        or poste == "actions_commerciales"
+                       %}
+                        <span class="glyphicon glyphicon-th-list s"></span>
+                      {% endif %}
+                    </a>
+                  {% endif %}
+            </td>
+
+          {% endfor %}
+
+          <td class="prev">
+            {{ arr_prev[poste][sous_poste]['total']|number_format(2,',',' ') }} €
+          </td>
+           <td class="predictif">
+            {% if 'actions_commerciales' == poste %}
+              -
+            {% else %}
+              {{ arr_predictif[poste][sous_poste]['total']|number_format(2,',',' ') }} €
+            {% endif %}
+          </td>
+          <td class="accurate">
+            {{ arr_accurate[poste][sous_poste]['total']|number_format(2,',',' ') }} €
+          </td>
+        </tr>
+
+        <!-- details opportunites (collapsed) -->
+        {% if arr_accurate[poste][sous_poste]['opportunites'] is defined %}
+          {% for id, opportunite in arr_accurate[poste][sous_poste]['opportunites']  %}
+            <tr class="{{ poste }}-{{ sous_poste }} hidden">
+              <th class="detail">
+                {{ opportunite.compte.nom }} : {{ opportunite.nom }}<br />
+                {{ opportunite.montant|number_format(2,',',' ') }} €
+              </th>
+                {% for i in 1..12 %}
+                  <td class="prev"></td>
+                  
+                  {% if i >=  moisDebutPredictif %}
+                    <td class="predictif"></td>
+                  {% endif %}
+
+                  <td class="accurate s">
+                    {% for repartition in opportunite.opportuniteRepartitions %}
+                      {% if repartition.date|date('m') == i and repartition.date|date('Y') == year %}
+                        {{ repartition.montantMonetaire|number_format(2, ',', ' ') }} €
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                {% endfor %}
+            </tr>
+          {% endfor %}
+        {% endif %}
+        <!-- fin details opportunites (collapsed) -->
+
+        <!-- details sous-traitants (collapsed) -->
+        {% if arr_accurate[poste][sous_poste]['sous_traitances'] is defined %}
+          {% for id, sousTraitance in arr_accurate[poste][sous_poste]['sous_traitances']  %}
+            <tr class="{{ poste }}-{{ sous_poste }} hidden">
+              <th class="detail">
+                {% if sousTraitance.depenses|length > 0 %}
+                  <span class="glyphicon glyphicon-ok green clickable" data-toggle="tooltip" data-placement="top" title="Facture sous-traitant reçue"></span>
+                {% else %}
+                  <span class="glyphicon glyphicon-time orange clickable" data-toggle="tooltip" data-placement="top" title="En attente de la facture sous-traitant"></span>
+                {% endif %}
+                {{ sousTraitance.opportunite.compte.nom }} : {{ sousTraitance }}
+              </th>
+                {% for i in 1..12 %}
+                  <td class="prev"></td>
+
+                  {% if i >=  moisDebutPredictif %}
+                    <td class="predictif"></td>
+                  {% endif %}
+
+                  <td class="accurate s">
+                    {% for repartition in sousTraitance.repartitions %}
+                      {% if repartition.date|date('m') == i and repartition.date|date('Y') == year %}
+                        {{ repartition.montantMonetaire|number_format(2, ',', ' ') }} €
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                {% endfor %}
+            </tr>
+          {% endfor %}
+        {% endif %}
+        <!-- fin details sous-traitants (collapsed) -->
+
+      {% endfor %}
+    {% endif %}
+
+    {% if poste == 'couts_marginaux' %}
+      <tr class="ligne-sous-total">
+        <th class="poste-titre">Marge brute</th>
+          {% for i in 1..12 %}
+            
+            {% set prev = arr_totaux['prev']['marge_brute'][i] %}
+            {% set accurate = arr_totaux['accurate']['marge_brute'][i] %}
+            {% set predictif = arr_totaux['predictif']['marge_brute'][i] %}
+            
+            <td class="prev" id="marge_brute-{{ i }}">
+              <p class="center loader hidden">
+                  <img src="{{ asset('images/assets/spinner_loader.gif') }}" alt="Chargement en cours"/><br/>
+                  <i>Calcul en cours...</i>
+              </p>
+              <p class="value">
+                {{ prev|number_format(2, ',', ' ') }} €
+              </p>
+            </td>
+
+            {% if i >=  moisDebutPredictif %}
+             <td class="predictif"> 
+              {{ predictif|number_format(2, ',', ' ') }} €
+             </td>
+           {% endif %}
+
+            <td class="accurate {{ accurate < prev ? 'red' : 'green' }}" id="marge_brute-{{ i }}-accurate">
+              {{ accurate|number_format(2, ',', ' ') }} €
+            </td>
+          {% endfor %}
+      </tr>
+    {% endif %}
+
+    {% if poste == 'dotation_amortissements' %}
+      <tr class="ligne-sous-total">
+        <th class="poste-titre">Résultat d'exploitation</th>
+          {% for i in 1..12 %}
+
+            {% set prev = arr_totaux['prev']['resultat_exploitation'][i] %}
+            {% set accurate = arr_totaux['accurate']['resultat_exploitation'][i] %}
+            {% set predictif = arr_totaux['predictif']['resultat_exploitation'][i] %}
+
+
+            <td class="prev" id="resultat_exploitation-{{ i }}">
+              <p class="center loader hidden">
+                  <img src="{{ asset('images/assets/spinner_loader.gif') }}" alt="Chargement en cours"/><br/>
+                  <i>Calcul en cours...</i>
+              </p>
+              <p class="value">
+                {{ prev|number_format(2, ',', ' ') }} €
+              </p>
+            </td>
+            
+            {% if i >=  moisDebutPredictif %}
+              <td class="predictif"> 
+                {{ predictif|number_format(2, ',', ' ') }} €
+              </td>
+            {% endif %}
+
+            <td class="accurate {{ accurate < 0 ? 'red' : 'green' }}" id="resultat_exploitation-{{ i }}-accurate">
+              {{ accurate|number_format(2, ',', ' ') }} €
+            </td>
+          {% endfor %}
+      </tr>
+      <tr>
+        <th>Résultat d'exploitation cumulé</th>
+          {% for i in 1..12 %}
+
+            {% set prev = arr_totaux['prev']['resultat_exploitation_cumule'][i] %}
+            {% set accurate = arr_totaux['accurate']['resultat_exploitation_cumule'][i] %}
+            {% set predictif = arr_totaux['predictif']['resultat_exploitation_cumule'][i] %}
+
+
+            <td class="prev" id="resultat_exploitation_cumule-{{ i }}">
+              <p class="center loader hidden">
+                  <img src="{{ asset('images/assets/spinner_loader.gif') }}" alt="Chargement en cours"/><br/>
+                  <i>Calcul en cours...</i>
+              </p>
+              <p class="value">
+                {{ prev|number_format(2, ',', ' ') }} €
+              </p>
+            </td>
+
+            {% if i >=  moisDebutPredictif %}
+              <td class="predictif"> 
+               {{ predictif|number_format(2, ',', ' ') }} €
+              </td>
+            {% endif %}
+
+            <td class="accurate {{ accurate < 0 ? 'red' : 'green' }}" id="resultat_exploitation_cumule-{{ i }}-accurate">
+              {{ accurate|number_format(2, ',', ' ') }} €
+            </td>
+          {% endfor %}
+      </tr>
+      <tr>
+        <th>Ratio résultat/CA</th>
+          {% for i in 1..12 %}
+            
+            {% set prev = arr_totaux['prev']['ratio_resultat_ca'][i] %}
+            {% set accurate = arr_totaux['accurate']['ratio_resultat_ca'][i] %}
+            {% set predictif = arr_totaux['predictif']['ratio_resultat_ca'][i] %}
+           
+           <td class="prev" id="ratio_resultat_ca-{{ i }}">
+              <p class="center loader hidden">
+                  <img src="{{ asset('images/assets/spinner_loader.gif') }}" alt="Chargement en cours"/><br/>
+                  <i>Calcul en cours...</i>
+              </p>
+              <p class="value">
+                {% if prev != 'N/A' %}
+                  {{ prev|number_format(0, ',', ' ') }} %
+                {% endif %}
+              </p>
+            </td>
+            
+            {% if i >=  moisDebutPredictif %}
+              <td class="predictif"> 
+                {{ predictif|number_format(0, ',', ' ') }} %
+              </td>
+            {% endif %}
+
+            <td class="accurate {{ accurate < 0 ? 'red' : 'green' }}" id="ratio_resultat_ca-{{ i }}-accurate">
+              {% if accurate != 'N/A' %}
+                {{ accurate|number_format(0, ',', ' ') }} %
+              {% endif %}
+            </td>
+          {% endfor %}
+      </tr>
+    {% endif %}
+
+  {% endfor %}
+  <!-- fin postes analytiques -->
+
+{% endif %}
+
+{% block javascripts %}
+    <script type="text/javascript">
+      $(document).ready(function() {
+
+        $('[data-toggle="tooltip"]').tooltip()
+
+        {% for poste, label in arr_postes %}
+
+          {% for  sous_poste, arr_mois in arr_prev[poste] %}
+              {% for i in 1..12 %}
+                var id = "#{{ poste }}-{{ sous_poste }}-{{ i }}";
+                $(id).editable({
+                    step: 'any',
+                    display: function(value, response) {
+                        if (value != "Completer") {
+                            if (value == "" || value == 0){
+                                $(this).html("Completer");
+                            } else {
+                              $(this).html(accounting.formatMoney(value, { symbol: "€",  format: "%v %s", decimal: ",", thousand: " ", precision: 2 }));
+                            }
+                        }
+                    }
+                  });
+
+                  // replacer les popover car ils sont décalés de 100px vers la droite
+                  $(id).on('shown.bs.popover', function () {
+                    var popover = $(this).next('.popover');
+                    var left = popover.position().left;
+                    popover.css('left', left-50);
+                    popover.find('input').val($(id).val());
+                  })
+
+                  //recalculer les totaux
+                  $(id).on('save', function(e, params) {
+                    var mois = {{ i }};
+                    var poste = "{{ poste }}";
+                    var sous_poste = "{{ sous_poste }}";
+                    var prevVal = params.newValue;
+
+                    //display loaders
+                    $("#total-" + poste +"-" + mois + " .value").addClass('hidden').text("");
+                    $("#total-" + poste +"-" + mois + " .loader").removeClass('hidden');
+
+                    $("#marge_brute-" + mois + " .value").addClass('hidden').text("");
+                    $("#marge_brute-" + mois + " .loader").removeClass('hidden');
+
+                    $("#resultat_exploitation-" + mois + " .value").addClass('hidden').text("");
+                    $("#resultat_exploitation-" + mois + " .loader").removeClass('hidden');
+
+                    $("#resultat_exploitation_cumule-" + mois + " .value").addClass('hidden').text("");
+                    $("#resultat_exploitation_cumule-" + mois + " .loader").removeClass('hidden');
+
+                    $("#ratio_resultat_ca-" + mois + " .value").addClass('hidden').text("");
+                    $("#ratio_resultat_ca-" + mois + " .loader").removeClass('hidden');
+
+                    $.ajax({
+                        type: "POST",
+                        url: Routing.generate('compta_rapport_tableau_bord_totaux', {
+                            'annee': {{ year }},
+                        }),
+                        success: function(data) {
+
+                          var accurateId = poste+"-"+sous_poste+"-"+mois+"-accurate";
+                          var accurateVal = {{ arr_accurate[poste][sous_poste][i]['val'] }};
+                          refreshColor(prevVal, accurateVal, accurateId, poste);
+
+                          if(sous_poste == "variation_cp" || sous_poste == "ajustement_tva"){
+                            $("#"+accurateId).text(accounting.formatMoney(prevVal, { symbol: "€",  format: "%v %s", decimal: ",", thousand: " ", precision: 2 }))
+                          }
+
+                          $("#total-" + poste +"-" + mois + " .value").text(accounting.formatMoney(data[poste][mois], { symbol: "€",  format: "%v %s", decimal: ",", thousand: " ", precision: 2 }))
+                                                                  .removeClass("hidden");
+                          $("#total-" + poste +"-" + mois + " .loader").addClass('hidden');
+                          accurateId = "total-" + poste +"-" + mois + "-accurate";
+                          accurateVal = {{ arr_totaux['accurate'][poste][i] }};
+                          refreshColor(data[poste][mois], accurateVal, accurateId, poste);
+
+                          $("#marge_brute-" + mois + " .value").text(accounting.formatMoney(data['marge_brute'][mois], { symbol: "€",  format: "%v %s", decimal: ",", thousand: " ", precision: 2 }))
+                                                                  .removeClass("hidden");
+                          $("#marge_brute-" + mois + " .loader").addClass('hidden');
+                          accurateId = "marge_brute-" + mois + "-accurate";
+                          accurateVal = {{ arr_totaux['accurate']['marge_brute'][i] }};
+                          refreshColor(data['marge_brute'][mois], accurateVal, accurateId, poste);
+
+                          $("#resultat_exploitation-" + mois + " .value").text(accounting.formatMoney(data['resultat_exploitation'][mois], { symbol: "€",  format: "%v %s", decimal: ",", thousand: " ", precision: 2 }))
+                                                                  .removeClass("hidden");
+                          $("#resultat_exploitation-" + mois + " .loader").addClass('hidden');
+                          accurateId = "resultat_exploitation-" + mois + "-accurate";
+                          accurateVal = {{ arr_totaux['accurate']['resultat_exploitation'][i] }};
+                          refreshColor(data['resultat_exploitation'][mois], accurateVal, accurateId, poste);
+
+                          $("#resultat_exploitation_cumule-" + mois + " .value").text(accounting.formatMoney(data['resultat_exploitation_cumule'][mois], { symbol: "€",  format: "%v %s", decimal: ",", thousand: " ", precision: 2 }))
+                                                                  .removeClass("hidden");
+                          $("#resultat_exploitation_cumule-" + mois + " .loader").addClass('hidden');
+                          accurateId = "resultat_exploitation_cumule-" + mois + "-accurate";
+                          accurateVal = {{ arr_totaux['accurate']['resultat_exploitation_cumule'][i] }};
+                          refreshColor(data['resultat_exploitation_cumule'][mois], accurateVal, accurateId, poste);
+
+                          var ratio = data['ratio_resultat_ca'][mois];
+                          if(ratio != 'N/A'){
+                            displayRatio = ratio.toFixed(0)+' %';
+                          } else {
+                            displayRatio = "";
+                          }
+                          $("#ratio_resultat_ca-" + mois + " .value").text(displayRatio)
+                                                                  .removeClass("hidden");
+                          $("#ratio_resultat_ca-" + mois + " .loader").addClass('hidden');
+                          accurateId = "ratio_resultat_ca-" + mois + "-accurate";
+                          accurateVal = {{ arr_totaux['accurate']['ratio_resultat_ca'][i] }};
+                          refreshColor(data['ratio_resultat_ca'][mois], accurateVal, accurateId, poste);
+
+
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.log(jqXHR.status);
+                            console.log(textStatus);
+                            console.log(errorThrown);
+                        }
+                    });
+                  });
+
+              {% endfor %}
+            {% endfor %}
+
+          {% endfor %}
+
+          $('.display-details').click(function(e){
+            e.preventDefault();
+            var toToggle = $(this).attr('id');
+            $('.'+toToggle).toggleClass("hidden");
+          });
+
+          function refreshColor(prevVal, accurateVal, accurateId, poste){
+            if(parseFloat(prevVal) > accurateVal){
+              if(poste == "couts_marginaux" || poste == "couts_exploitation" || poste == "dotation_amortissements"){
+                $("#"+accurateId).addClass("green").removeClass("red");
+              } else {
+                  $("#"+accurateId).addClass("red").removeClass("green");
+              }
+
+            } else {
+              if(poste == "couts_marginaux" || poste == "couts_exploitation" || poste == "dotation_amortissements"){
+                $("#"+accurateId).addClass("red").removeClass("green");
+              } else {
+                  $("#"+accurateId).addClass("green").removeClass("red");
+              }
+            }
+          }
+
+      });
+    </script>
+{% endblock %}
