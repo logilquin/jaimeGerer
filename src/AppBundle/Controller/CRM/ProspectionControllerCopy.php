@@ -527,6 +527,7 @@ class ProspectionControllerCopy extends Controller
         $em = $this->getDoctrine()->getManager();
         $contactRepo = $em->getRepository('AppBundle:CRM\Contact');
         $infoRepo = $em->getRepository('AppBundle:CRM\ProspectionInfos');
+
         $request = $this->getRequest();
         $data = $request->get('rowData');
         $note = $request->get('noteContent');
@@ -554,23 +555,23 @@ class ProspectionControllerCopy extends Controller
         }
 
 
-          $contact->setNom($data["nom"]);
-          $contact->setPrenom($data["prenom"]);
-          $contact->setTitre($data["titre"]);
-          $contact->setTelephoneFixe($data["telephoneFixe"]);
-          $contact->setTelephonePortable($data["telephonePortable"]);
-          $contact->setEmail($data["email"]);
-          $contact->setAdresse($data["adresse"]);
-          $contact->setRegion($data["region"]);
-          $contact->setPays($data["pays"]);
-          $contact->setVille($data["ville"]);
-          $contact->setCodePostal($data["codePostal"]);
+        $contact->setNom($data["nom"]);
+        $contact->setPrenom($data["prenom"]);
+        $contact->setTitre($data["titre"]);
+        $contact->setTelephoneFixe($data["telephoneFixe"]);
+        $contact->setTelephonePortable($data["telephonePortable"]);
+        $contact->setEmail($data["email"]);
+        $contact->setAdresse($data["adresse"]);
+        $contact->setRegion($data["region"]);
+        $contact->setPays($data["pays"]);
+        $contact->setVille($data["ville"]);
+        $contact->setCodePostal($data["codePostal"]);
+
 
         $blacklistToday = ($data["blacklisteToday"] == "yes") ? new \DateTime(date('Y-m-d')) : null ;
         $blacklist =  ($data["blackliste"] == 1) ? true : false ;
 
         $infos->setNbreContacts($data["tentative"]);
-        $infos->setNote($note);
         $infos->setDernierContact($date);
         $infos->setBlacklist($blacklist);
         $infos->setBlacklistToday($blacklistToday);
@@ -580,9 +581,76 @@ class ProspectionControllerCopy extends Controller
 
         $em->persist($contact);
         $em->persist($infos);
+
+        $em->flush();
+
+
+    }
+
+    /**
+     * @Route("/crm/prospection/rapport/save_note", name="crm_save_note")
+     */
+    public function prospectionRapportSaveNotes()
+    {
+
+        $em = $this->getDoctrine()->getManager();
+        $contactRepo = $em->getRepository('AppBundle:CRM\Contact');
+
+        $request = $this->getRequest();
+        $note = $request->get('noteContent');
+
+        $id = intval($request->get('contactId')["id"]);
+
+
+        $contact =  $contactRepo->find($id);
+
+        $date = new \DateTime();
+
+        $priseContact = new PriseContact();
+        $priseContact->setContact($contact);
+        $priseContact->setDate($date);
+        $priseContact->setDescription($note);
+        $priseContact->setUser($this->getUser());
+        $priseContact->setType('PHONE');
+        $priseContact->setAvoir(NULL);
+
+        $em->persist($priseContact);
         $em->flush();
 
         return new Response(1);
+    }
+
+    /**
+     * @Route("/crm/prospection/rapport/history/priseContact", name="priseContact")
+     */
+    public function rapportHistoryPriseContact()
+    {
+
+        $em = $this->getDoctrine()->getManager();
+        $prisecontactRepo = $em->getRepository('AppBundle:CRM\PriseContact');
+
+        $request = $this->getRequest();
+        $id = intval($request->get('id')["id"]);
+
+        $arr_priseContact = $prisecontactRepo->findByContact($id);
+
+
+        $arr_jsonPriseContact = [];
+
+
+        foreach ($arr_priseContact as $index => $priseContact) {
+
+            $priseContact =  ["date" => $priseContact->getDate()->format('d/m/Y'), "description" => $priseContact->getDescription()];
+
+            array_push($arr_jsonPriseContact, json_encode($priseContact));
+
+        }
+
+        $response = new JsonResponse();
+        $response->setData(json_encode($arr_jsonPriseContact));
+
+        return $response;
+
     }
 
 

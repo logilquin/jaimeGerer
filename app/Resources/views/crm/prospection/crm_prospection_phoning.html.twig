@@ -27,6 +27,9 @@
 		});
 
 	});
+
+	{%   set contact = ""  %}
+
 	{#{{ dump(prospection.rapport.data) }}#}
 	var data = {{ data|raw }};
 
@@ -92,9 +95,17 @@
 										<div class="form-group">
 											<label class="control-label" for="note">Note</label>
 											<textarea id="note" name="note" class="form-control tinymce"></textarea>
+											<br />
+											<button class="btn btn-success" id="saveNote">Enregistrer la note</button>
 										</div>
 									</div>
 								</div>
+								<div class="row">
+									<div class="col-md-12">
+										<button class="btn btn-primary" id="priseContact">Dernières prises de contact</button>
+									</div>
+								</div>
+
 								<div class="row">
 									<div class="col-md-12">
 										<hr />
@@ -221,6 +232,10 @@
 				if( $('#phoningContacts div.active').length > 0 )
 				{
 					var indexData = $('#phoning-tentative a').attr('data-prototype');
+
+
+
+
 					var noteContent = tinyMCE.get('note').getContent();
 					data[indexData].last_seen = 0;
 					if(noteContent !== null){
@@ -274,9 +289,15 @@
 
 				data[indexData].email == '' ? $('a#ecrire').addClass('not-active') : $('a#ecrire').removeClass('not-active');
 				data[indexData].onlyProspect == false ? $('a#ajouter_contact').addClass('not-active') : $('a#ajouter_contact').removeClass('not-active');
+
+
 				$('#note').val();
 				note_content = typeof(data[indexData].note) == 'undefined' ? '' : data[indexData].note;
 				tinymce.get('note').setContent(note_content);
+
+
+
+
 				$('#phoningContacts div').removeClass('active');
 				$('#phoning-derniere-tentative h3').html(date_tentative);
 				$('#phoning-compte').html('<h2>'+data[indexData].compte+' <span class="small">'+data[indexData].prenom+' '+data[indexData].nom+' - '+data[indexData].titre+'</span></h2><p class="telNumber">' +data[indexData].telephoneFixe+' / '+data[indexData].email+' <a title="Editer" ​data-toggle="tooltip" class="btn btn-xs btn-warning" href="javascript:void(0)" data-toggle="modal" data-target="#ModalEditer"><span class="glyphicon glyphicon-pencil"></span></a></p>');
@@ -346,7 +367,7 @@
 
 			$('#block').click(function(){
 				var indexData = $('#phoning-tentative a').attr('data-prototype');
-				$('.modal-body').html('<p>Êtes vous sûr de Blacklister '+data[indexData].prenom+' '+data[indexData].nom+' ?</p>');
+				$('#modal-body-blacklist').html('<p>Êtes vous sûr de Blacklister '+data[indexData].prenom+' '+data[indexData].nom+' ?</p>');
 				$('#ConfirmBlackliste').html('<span class="glyphicon glyphicon-ban-circle"> </span> Blacklister !');
 				$('#ConfirmBlackliste').unbind('click');
 				$('#ConfirmBlackliste').click(function(){
@@ -366,7 +387,7 @@
 
 			$('#block_today').click(function(){
 				var indexData = $('#phoning-tentative a').attr('data-prototype');
-				$('.modal-body').html('<p>Êtes vous sûr de ne plus afficher '+data[indexData].prenom+' '+data[indexData].nom+' aujourd\'hui ?</p>');
+				$('#modal-body-blacklist').html('<p>Êtes vous sûr de ne plus afficher '+data[indexData].prenom+' '+data[indexData].nom+' aujourd\'hui ?</p>');
 				$('#ConfirmBlackliste').html('<span class="glyphicon glyphicon-ban-circle"> </span> Blacklister Aujourd\'hui');
 				$('#ConfirmBlackliste').unbind('click');
 				$('#ConfirmBlackliste').click(function(){
@@ -474,7 +495,7 @@
 				$.ajax({
 					url: "{{ path('crm_prospection_nombre_affichage', {'id': prospection.id}) }}",
 					method: 'POST',
-					data: { nbreAffichage : $('#nbre_contact').val() },
+					data: {nbreAffichage : $('#nbre_contact').val() },
 					dataType : 'json',
 					async : false,
 					success : function(d, statut){
@@ -483,7 +504,86 @@
 				refresh_liste();
 				$('#'+active).addClass('active');
 			});
+
+			$("#saveNote").click(function(){
+
+				var indexData = $('#phoning-tentative a').attr('data-prototype');
+
+				var noteContent = tinyMCE.get('note').getContent();
+
+				$.ajax({
+					url: "{{ path('crm_save_note')}}",
+					method: 'POST',
+					data: {
+						contactId : data[indexData],
+						noteContent : noteContent
+					},
+					dataType : 'json',
+					async : false,
+					success : function(d, statut){
+					}
+				});
+			});
+
+
+			$('#priseContact').click(function(){
+				var indexData = $('#phoning-tentative a').attr('data-prototype');
+
+				$.ajax({
+					url: "{{ path('priseContact')}}",
+					method: 'POST',
+					data: {
+						id : data[indexData]
+					},
+					dataType : 'json',
+					async : false,
+					success : function(d, statut){
+
+						var data =  JSON.parse(d);
+
+						var ul = document.getElementById("priseContactListe");
+						var noHistory = document.getElementById("noHistory");
+						ul.innerHTML = "";
+						noHistory.innerHTML = '';
+						noHistory.classList.remove("alert");
+						noHistory.classList.remove("alert-warning");
+
+
+						if(data.length == 0 ){
+							noHistory.textContent = "Aucune prise de contact pour le moment"
+							noHistory.classList.add("alert");
+							noHistory.classList.add("alert-warning");
+						}
+						else{
+							for(var i = data.length-1; i >= 0; i--){
+
+								var priseContact = JSON.parse(data[i]);
+								var raw =  document.createElement("tr");
+								if(i % 2 == 0){
+									raw.style.backgroundColor = "white";
+								}else{
+									raw.style.backgroundColor = "#dddddd";
+								}
+								var tdDate = document.createElement('td');
+								tdDate.style.paddingLeft = "10px";
+								var tdDesc = document.createElement('td');
+								tdDesc.style.paddingTop = "10px";
+								tdDesc.style.paddingLeft = "10px";
+								tdDate.textContent = priseContact.date;
+								tdDesc.innerHTML = priseContact.description;
+								raw.appendChild(tdDate);
+								raw.appendChild(tdDesc);
+								ul.appendChild(raw);
+							}
+						}
+
+						$('#historique').modal('show');
+					}
+				});
+			});
+
 		});
+
 
 
 
@@ -495,6 +595,8 @@
 	</script>
 {% endblock %}
 {% block additionalModals %}
+
+
 	<div id="ajouterContactConfirmation" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="ajouterContactConfirmation" aria-hidden="true" data-focus-on="input:first">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -520,6 +622,41 @@
 			</div>
 		</div>
 	</div>
+
+
+
+	<div id="historique" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="historique" aria-hidden="true" data-focus-on="input:first">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+					<h3>Historique de prise de contact</h3>
+
+				</div>
+				<div class="modal-body">
+
+					<table class="table table-bordered">
+						<tr>
+							<th>Date</th>
+							<th>Description</th>
+						</tr>
+					</table>
+
+					<table id="priseContactListe" class="table table-bordered">
+
+					</table>
+
+					<p id="noHistory"><p>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+
+
 	<div id="ModalBlacklistConfirmation" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="ModalBlacklistConfirmation" aria-hidden="true" data-focus-on="input:first">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -528,7 +665,7 @@
 					 <h3>Confirmation requise</h3>
 
 				</div>
-				<div class="modal-body">
+				<div class="modal-body" id="modal-body-blacklist">
 					<p>Êtes vous sûr de Blacklister </p>
 				</div>
 				<div class="modal-footer">
@@ -538,6 +675,9 @@
 			</div>
 		</div>
 	</div>
+
+
+
 	<div id="ModalEditer" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="ModalEditer" aria-hidden="true" data-focus-on="input:first">
 		<div class="modal-dialog">
 			<div class="modal-content">

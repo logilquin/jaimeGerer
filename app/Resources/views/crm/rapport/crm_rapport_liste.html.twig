@@ -3,7 +3,7 @@
 {% block content %}
 	<div class="row">
 		<div class="col-md-12">
-			<h1>Rapports : {{ type }}{% if type != "devis" %}s{% endif %}</h1>	
+			<h1>Rapports : {{ type }}{% if type != "devis" %}s{% endif %}</h1>
 		</div>
 	</div>
 
@@ -15,94 +15,94 @@
 
 	<div class="row spacer-top">
 		<div class="col-md-12">
-		    <p>
-		    	<a href="{{ path('crm_rapport_ajouter', {'type' : type}) }}" class="btn btn-success">
-		    		<span class="glyphicon glyphicon-plus"></span> Ajouter
-		    	</a>
-		    </p>
-		   
-	    </div>
-    </div>
+			<p>
+				<a target='_blank' href="{{ path('crm_rapport_ajouter', {'type' : type}) }}" class="btn btn-success">
+					<span class="glyphicon glyphicon-plus"></span> Ajouter
+				</a>
+			</p>
 
-	   <div class="row">
+		</div>
+	</div>
 
-	    	<div class="col-md-12" class="filtre">
-			     <p class="filtre">
-			    	<a class="btn {% if user == 'mine' %} green {% endif %}" href="{{ path('crm_rapport_liste', {'type' : type , 'user' : 'mine'} ) }}" >
-			    		Voir uniquement mes rapports
-			    	</a>
-			    	<a class="btn {% if user != 'mine' %} green {% endif %}" href="{{ path('crm_rapport_liste', {'type' : type} ) }}">
-			    		Voir tous les rapports
-			    	</a>		   
-			    </p>
-		    </div>
-			    <table id="table_compte_rapport_list" class="table table-bordered table-striped">    
-			    	<thead>        
-			    		<tr>            
-			    			<th class="col-md-2">Nom</th>            
-			    			<th class="col-md-4">Description</th>  
-			    			<th class="col-md-2">Créé le</th>  
-			    			<th class="col-md-2">Créé par</th> 
-			    			<th class="col-md-2">Actions</th>         
-			    		</tr>    
-			    	</thead>    
-			    	<tbody>
-			    		{% for rapport in list %}        
-			    		<tr>            
-			    			<td class="col-md-2">
-			    				<a href="{{ path('crm_rapport_voir', {'id' : rapport.id } ) }}">{{ rapport.nom }}</a>
-			    			</td>            
-			    			<td class="col-md-4">
-			    				{{ rapport.description|raw }}
-			    			</td> 
-			    			<td class="col-md-2">
-			    				{{ rapport.dateCreation|date("d/m/Y") }}
-			    			</td>
-			    			<td class="col-md-2">
-			    				{{ rapport.userCreation }}
-			    			</td>
-			    			<td class="col-md-2">
-			    				<a href="{{ path('crm_rapport_voir', {'id' : rapport.id } ) }}" class="btn btn-xs btn-info" ​data-toggle="tooltip-btn-xs" title="Voir">
-			    					<span class="glyphicon glyphicon-eye-open"></span>
-			    				</a>
-			    				<a href="{{ path('crm_rapport_editer', {'id' : rapport.id } ) }}" class="btn btn-xs btn-warning" ​data-toggle="tooltip-btn-xs" title="Editer">
-			    					<span class="glyphicon glyphicon-pencil"></span>
-			    				</a>
-			    				<a href="{{ path('crm_rapport_supprimer', {'id' : rapport.id} ) }}" class="btn btn-xs btn-danger" ​data-toggle="tooltip-btn-xs" title="Supprimer">
-			    					<span class="glyphicon glyphicon-trash"></span>
-			    				</a>
-			    			</td>        
-			    		</tr>        
-			    		{% endfor %} 
-			    	</tbody>
-			    </table>
-			</div>
+	<div class="row">
+
+		<div class="col-md-12" class="filtre">
+			<p class="filtre">
+				<a class="btn {% if user == 'mine' %} green {% endif %}" target='_blank' href="{{ path('crm_rapport_liste', {'type' : type , 'user' : 'mine'} ) }}" >
+					Voir uniquement mes rapports
+				</a>
+				<a class="btn {% if user != 'mine' %} green {% endif %}" target='_blank' href="{{ path('crm_rapport_liste', {'type' : type} ) }}">
+					Voir tous les rapports
+				</a>
+			</p>
+		</div>
+		<table id="table_compte_rapport_list" class="table table-bordered table-striped">
+			<thead>
+			<tr>
+				<th class="col-md-2">Nom</th>
+				<th class="col-md-4">Description</th>
+				<th class="col-md-2">Créé le</th>
+				<th class="col-md-2">Créé par</th>
+				<th class="col-md-2">Actions</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for rapport in list %}
+				<tr>
+					<td class="col-md-2">
+						<a target='_blank' href="{{ path('crm_rapport_voir', {'id' : rapport.id } ) }}">{{ rapport.nom }}</a>
+					</td>
+					<td class="col-md-4">
+						{{ rapport.description|raw }}
+					</td>
+					<td class="col-md-2">
+						{{ rapport.dateCreation|date("d/m/Y") }}
+					</td>
+					<td class="col-md-2">
+						{{ rapport.userCreation }}
+					</td>
+					<td class="col-md-2">
+						<a target='_blank' href="{{ path('crm_rapport_voir', {'id' : rapport.id } ) }}" class="btn btn-xs btn-info" ​data-toggle="tooltip-btn-xs" title="Voir">
+							<span class="glyphicon glyphicon-eye-open"></span>
+						</a>
+						<a target='_blank' href="{{ path('crm_rapport_editer', {'id' : rapport.id } ) }}" class="btn btn-xs btn-warning" ​data-toggle="tooltip-btn-xs" title="Editer">
+							<span class="glyphicon glyphicon-pencil"></span>
+						</a>
+						<a target='_blank' href="{{ path('crm_rapport_supprimer', {'id' : rapport.id} ) }}" class="btn btn-xs btn-danger" ​data-toggle="tooltip-btn-xs" title="Supprimer">
+							<span class="glyphicon glyphicon-trash"></span>
+						</a>
+					</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
 	</div>
 {% endblock %}
 
 {% block javascripts %}
 	{{ parent() }}
 	<script type="text/javascript">
-		$(document).ready( function () {    
+		$(document).ready( function () {
 			$('#table_compte_rapport_list').DataTable({
-				"language" : {                
-					"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"            
+				"language" : {
+					"url": "//cdn.datatables.net/plug-ins/1.10.7/i18n/French.json"
 				},
 				fnDrawCallback: function () {
-				  $( 'a', this.fnGetNodes() ).tooltip( {
-					"delay": 0,
-					"track": true,
-					"fade": 250,
-					"tooltipClass": 'btn btn-default',
-				  } );
+					$( 'a', this.fnGetNodes() ).tooltip( {
+						"delay": 0,
+						"track": true,
+						"fade": 250,
+						"tooltipClass": 'btn btn-default',
+					} );
 				},
-                fnInitComplete: function () {
-				  $( 'a', this.fnGetNodes() ).tooltip( {
-					"delay": 0,
-					"track": true,
-					"fade": 250,
-					"tooltipClass": 'btn btn-default',
-				  } );
+				fnInitComplete: function () {
+					$( 'a', this.fnGetNodes() ).tooltip( {
+						"delay": 0,
+						"track": true,
+						"fade": 250,
+						"tooltipClass": 'btn btn-default',
+					} );
 				},
 				"responsive": true
 			});

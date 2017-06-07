@@ -174,7 +174,7 @@ class Compte
     private $compteComptableFournisseur;
 
     /**
-     * @ORM\Column(name="secteurActivite")
+     * @ORM\Column(name="secteurActivite",nullable=true)
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Settings")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
@@ -188,9 +188,9 @@ class Compte
      */
     public function setId($id)
     {
-    	$this->id = $id;
+        $this->id = $id;
 
-    	return $this;
+        return $this;
     }
 
 
@@ -258,9 +258,9 @@ class Compte
      */
     public function setFax($fax)
     {
-    	$this->fax = preg_replace('/[^0-9\/+\ ]/', '', $fax);
+        $this->fax = preg_replace('/[^0-9\/+\ ]/', '', $fax);
 
-    	return $this;
+        return $this;
     }
 
     /**
@@ -270,7 +270,7 @@ class Compte
      */
     public function getFax()
     {
-    	return preg_replace('/[^0-9\/+\ ]/', '', $this->fax);
+        return preg_replace('/[^0-9\/+\ ]/', '', $this->fax);
     }
 
     /**
@@ -485,28 +485,28 @@ class Compte
      *
      * @return Compte
      */
-	public function getCompteParent()
-	{
-		return $this->compteParent;
-	}
+    public function getCompteParent()
+    {
+        return $this->compteParent;
+    }
 
-	/**
+    /**
      * Set compte_parent
      *
      * @param Compte $compteParent
      * @return Compte
      */
-	public function setCompteParent($compteParent)
-	{
-		$this->compteParent = $compteParent;
-		return $this;
-	}
+    public function setCompteParent($compteParent)
+    {
+        $this->compteParent = $compteParent;
+        return $this;
+    }
 
 
-	public function __toString()
-	{
-		return $this->getNom();
-	}
+    public function __toString()
+    {
+        return $this->getNom();
+    }
 
     /**
      * Set userCreation
@@ -576,20 +576,20 @@ class Compte
     {
         return $this->userGestion;
     }
-	public function getCodeEvoliz() {
-		return $this->codeEvoliz;
-	}
-	public function setCodeEvoliz($codeEvoliz) {
-		$this->codeEvoliz = $codeEvoliz;
-		return $this;
-	}
-	public function getCompany() {
-		return $this->company;
-	}
-	public function setCompany($company) {
-		$this->company = $company;
-		return $this;
-	}
+    public function getCodeEvoliz() {
+        return $this->codeEvoliz;
+    }
+    public function setCodeEvoliz($codeEvoliz) {
+        $this->codeEvoliz = $codeEvoliz;
+        return $this;
+    }
+    public function getCompany() {
+        return $this->company;
+    }
+    public function setCompany($company) {
+        $this->company = $company;
+        return $this;
+    }
 
     /**
      * Set client
@@ -699,7 +699,7 @@ class Compte
     /**
      * Get secteurActivite
      *
-     * @return \AppBundle\Entity\Settings 
+     * @return \AppBundle\Entity\Settings
      */
     public function getSecteurActivite()
     {
